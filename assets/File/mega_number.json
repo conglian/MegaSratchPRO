@@ -1,0 +1,47 @@
+{
+  "luckyNumbers": [
+    { "Rule": 0, "Probability": 0.1, "Coins": 0, "Multiplier": 0 },
+    { "Rule": 1, "Probability": 0.1, "Coins": 100, "Multiplier": 1 },
+    { "Rule": 2, "Probability": 0.2, "Coins": 100, "Multiplier": 2 },
+    { "Rule": 3, "Probability": 0.6, "Coins": 100, "Multiplier": 3 }
+  ],
+
+  "luckyDiamond": [
+    { "Rule": 0, "Probability": 0.1, "Coins": 0, "Multiplier": 0 },
+    { "Rule": 3, "Probability": 0.3, "Coins": 200, "Multiplier": 1 },
+    { "Rule": 4, "Probability": 0.2, "Coins": 200, "Multiplier": 2 },
+    { "Rule": 5, "Probability": 0.3, "Coins": 200, "Multiplier": 3 },
+    { "Rule": 6, "Probability": 0.06, "Coins": 200, "Multiplier": 5 },
+    { "Rule": 7, "Probability": 0.03, "Coins": 200, "Multiplier": 6 },
+    { "Rule": 8, "Probability": 0.01, "Coins": 200, "Multiplier": 7 }
+  ],
+
+  "fruitPartyPay": [
+    { "Rule": 3, "Probability": 0.4, "Coins": 1000, "Multiplier": 1 }
+  ],
+
+  "emojiFunReward": [
+    { "Rule": 3, "Probability": 0.4, "Coins": 1500, "Multiplier": 1 }
+  ],
+
+  "goldPotDig": [
+    { "Rule": 0, "Probability": 0.1, "Coins": 0, "Multiplier": 0 },
+    { "Rule": 1, "Probability": 0.3, "Coins": 1000, "Multiplier": 1 },
+    { "Rule": 2, "Probability": 0.4, "Coins": 1000, "Multiplier": 2 },
+    { "Rule": 3, "Probability": 0.3, "Coins": 1000, "Multiplier": 3 }
+  ],
+
+  "huntAndEarn": [
+    { "Rule": 0, "Probability": 0.1, "Coins": 0, "Multiplier": 0 },
+    { "Rule": 7, "Probability": 0.3, "Coins": 1000, "Multiplier": 1 },
+    { "Rule": 77, "Probability": 0.5, "Coins": 1000, "Multiplier": 2 },
+    { "Rule": 777, "Probability": 0.2, "Coins": 1000, "Multiplier": 3 }
+  ],
+
+  "coinCraze": [
+    { "Rule": 0, "Probability": 0.1, "Coins": 0, "Multiplier": 0 },
+    { "Rule": 1, "Probability": 0.2, "Coins": 1000, "Multiplier": 1 },
+    { "Rule": 2, "Probability": 0.5, "Coins": 1000, "Multiplier": 2 },
+    { "Rule": 3, "Probability": 0.3, "Coins": 1000, "Multiplier": 1 }
+  ]
+}
