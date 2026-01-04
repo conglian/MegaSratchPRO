@@ -8,9 +8,6 @@ PODS:
   - audioplayers_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
-  - connectivity_plus (0.0.1):
-    - Flutter
-    - ReachabilitySwift
   - facebook_app_events (0.20.0):
     - FBSDKCoreKit (~> 18.0)
     - Flutter
@@ -26,7 +23,6 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - ReachabilitySwift (5.2.4)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -42,7 +38,6 @@ DEPENDENCIES:
   - app_settings (from `.symlinks/plugins/app_settings/ios`)
   - applovin_max (from `.symlinks/plugins/applovin_max/ios`)
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/darwin`)
-  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - facebook_app_events (from `.symlinks/plugins/facebook_app_events/ios`)
   - Flutter (from `Flutter`)
   - flutter_lifecycle_detector (from `.symlinks/plugins/flutter_lifecycle_detector/ios`)
@@ -58,7 +53,6 @@ SPEC REPOS:
     - FBAEMKit
     - FBSDKCoreKit
     - FBSDKCoreKit_Basics
-    - ReachabilitySwift
 
 EXTERNAL SOURCES:
   app_settings:
@@ -67,8 +61,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/applovin_max/ios"
   audioplayers_darwin:
     :path: ".symlinks/plugins/audioplayers_darwin/darwin"
-  connectivity_plus:
-    :path: ".symlinks/plugins/connectivity_plus/ios"
   facebook_app_events:
     :path: ".symlinks/plugins/facebook_app_events/ios"
   Flutter:
@@ -91,7 +83,6 @@ SPEC CHECKSUMS:
   applovin_max: 418fe6721301e35d80ad7d8c492b05dd7fb72cd8
   AppLovinSDK: 8d9af6c7617e4d35b38aa8393a3e9d161a74b230
   audioplayers_darwin: 4f9ca89d92d3d21cec7ec580e78ca888e5fb68bd
-  connectivity_plus: 4d5101c5877bedcda6cd1ccb825307911667d6b0
   facebook_app_events: cfa07e73912a052992b5f218f79a19a66a99bf1a
   FBAEMKit: 56a4f5a9607957b547b6458b17a98c5bb2736367
   FBSDKCoreKit: 54f1240567e16862ab71c53c33dc347db5c524c5
@@ -99,7 +90,6 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_lifecycle_detector: c496519bdb44db37a25b69815b366c51403d27f7
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
-  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   spine_flutter: 946c9b7aa6878d41940d50892f2b55c28ca788aa
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
