@@ -29,7 +29,7 @@ class MSSDKHelpers {
   int ms_remoteConfigTryCount = 0;
 
   Future<void> initSDK() async {
-    _initAppMAX();
+    // _initAppMAX();
     _initLifecycleListener();
   }
 

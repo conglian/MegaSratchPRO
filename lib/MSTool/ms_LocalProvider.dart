@@ -78,11 +78,13 @@ class MSLocalProvider extends ChangeNotifier {
   bool ms_login_award_4 = false;
   bool ms_login_award_5 = false;
   bool ms_login_award_6 = false;
+  bool ms_new_guide1 = false;
+  bool ms_new_guide2 = true;
 
   int ms_scrach_unlock_index_0 = 0; // 存储的本地值
   int ms_scrach_unlock_index_1 = 0; // 存储的本地值
   int ms_ad_all_number = 0;
-  double ms_dolas_number = 0.0;
+  double ms_dolas_number = 0.00;
   int ms_dolas_old_number = 0;
   int ms_ad_reawrd_all_number = 0;
   int ms_ad_short_show_number = 0;
@@ -122,6 +124,7 @@ class MSLocalProvider extends ChangeNotifier {
   int ms_login_index = 1;
   int ms_tx_probability_index = 0;
   int ms_scratch_not_award_number = 0;
+  int ms_sign_index = 0;
 
   String get ms_currentNumberIndexName => 'ms_currentNumberIndex';
   String get ms_dice_numberName => 'ms_dice_number';
@@ -211,6 +214,9 @@ class MSLocalProvider extends ChangeNotifier {
   String get ms_login_award_4Name => 'ms_login_award_4';
   String get ms_login_award_5Name => 'ms_login_award_5';
   String get ms_login_award_6Name => 'ms_login_award_6';
+  String get ms_new_guide1Name => 'ms_new_guide1';
+  String get ms_new_guide2Name => 'ms_new_guide2';
+  String get ms_sign_indexName => 'ms_sign_index';
 
 
   // 3. 初始化：从本地存储加载数据（组件初始化时调用）
@@ -284,13 +290,16 @@ class MSLocalProvider extends ChangeNotifier {
     ms_login_award_4 = prefs.getBool('ms_login_award_4') ?? false;
     ms_login_award_5 = prefs.getBool('ms_login_award_5') ?? false;
     ms_login_award_6 = prefs.getBool('ms_login_award_6') ?? false;
+    ms_new_guide1 = prefs.getBool('ms_new_guide1') ?? false;
+    ms_new_guide2 = prefs.getBool('ms_new_guide2') ?? true;
     ms_ad_reawrd_all_number = prefs.getInt('ms_ad_reawrd_all_number') ?? 0;
     ms_ad_all_number = prefs.getInt('ms_ad_all_number') ?? 0;
-    ms_dolas_number = prefs.getDouble('ms_dolas_number') ?? 0.0;
+    ms_dolas_number = prefs.getDouble('ms_dolas_number') ?? 0.00;
     ms_dolas_old_number = prefs.getInt('ms_dolas_old_number') ?? 0;
     ms_ad_show_index = prefs.getInt('ms_ad_show_index') ?? 0;
     ms_Level_number = prefs.getInt('ms_Level_number') ?? 0;
     ms_Level_inedx = prefs.getInt('ms_Level_inedx') ?? 0;
+    ms_sign_index = prefs.getInt('ms_sign_index') ?? 0;
     ms_scrach_end_number_0 = prefs.getInt('ms_scrach_end_number_0') ?? 0;
     ms_scrach_end_number_1 = prefs.getInt('ms_scrach_end_number_1') ?? 0;
     ms_scrach_end_number_2 = prefs.getInt('ms_scrach_end_number_2') ?? 0;

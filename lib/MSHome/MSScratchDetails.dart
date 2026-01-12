@@ -78,7 +78,7 @@ class _MSScrachDetailsState extends State<MSScrachDetails> {
   }
 
   Future<void> shownewguide() async {
-    if (!MSLocalProvider.instance.ms_new_guide){
+    if (!MSLocalProvider.instance.ms_new_guide2){
       setState(() {
         _show_guide = true;
       });
@@ -165,7 +165,7 @@ class _MSScrachDetailsState extends State<MSScrachDetails> {
                   repeat: false,
                   onLoaded: (composition) async {
                     Future.delayed(Duration(milliseconds: 1200), () async {
-                      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_new_guideName, true);
+                      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_new_guide2Name, true);
                       _show_guide = false;
                       setState(() {});
                     });

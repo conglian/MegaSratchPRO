@@ -153,8 +153,8 @@ class _MSGradientStrokeTextPainter extends CustomPainter {
     final fillPaint = Paint()
       ..shader = LinearGradient(
         colors: gradientColors,
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
       ).createShader(rect)
       ..isAntiAlias = true;
 

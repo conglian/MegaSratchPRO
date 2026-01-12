@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:megascratch/MSTool/ms_LocalProvider.dart';
 import 'package:megascratch/MSTool/ms_text.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,7 @@ import '../MSTool/ms_extension_help.dart';
 import '../MSTool/ms_img.dart';
 import '../main.dart';
 import 'MSHome.dart';
+import 'MSScrachWeCome.dart';
 import 'MSTbabar.dart';
 
 
@@ -85,24 +87,26 @@ class MSSratchJoyLaunchState extends State<MSSratchJoyLaunch>  with SingleTicker
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack (
-        fit: StackFit.expand,
         children: [
-          MSImg(name: 'ms_luanch_bg', width: 0.width(context), height: 0.height(context)),
+          MSImg(name: 'ms_luanchs_bg', width: 0.width(context), height: 0.height(context)),
           Column(
             children: [
-              SizedBox(height: 212.h,),
-              MSImg(name: 'ms_logo_icon', width: 363, height: 349,),
+              SizedBox(height: 40.h,),
+              MSImg(name: 'ms_luanchs_titles', width: 375, height: 309,),
+              Spacer(),
               SJGradientProgressBar(onCompleted: (){
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => MSHomePage(),
+                    builder: (_) => MSLocalProvider.instance.ms_new_guide1 == false ? MSSratchWeCome() : MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
                   ),
                 );
               },),
+              SizedBox(height: 32.h,),
+              SizedBox(width: 0.width(context), height: 20.h,child:Center(child: MSText(text: 'Scratch Card, Scratch for Luck', size: 15, color: '#FFFFFF'.color(), weight: FontWeight.w800))),
+              SizedBox(height: 120.h,),
             ],
           ),
-          Positioned(bottom: 200.h, width: 0.width(context) ,child:Center(child: MSText(text: 'Scratch Card, Scratch for Luck', size: 15, color: '#FFFFFF'.color(), weight: FontWeight.w800))),
         ],
       ),
     );
@@ -161,13 +165,16 @@ class _SJGradientProgressBarState extends State<SJGradientProgressBar>
   Widget build(BuildContext context) {
     return SizedBox(
       width: barWidth,
-      height: barHeight,
+      height: barHeight + 7,
       child: Stack(
-        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        alignment: Alignment.center, // 允许子元素超出Stack的边界
         children: [
           // 背景图片
-          Positioned.fill(
-            child: MSImg(name: 'ms_luanch_pro_bg'),
+          SizedBox(
+            width: barWidth,
+            height: barHeight,
+            child: MSImg(name: 'ms_luanch_pro_bg', width: barWidth, height: barHeight),
           ),
           // 进度条
           AnimatedBuilder(
@@ -182,7 +189,7 @@ class _SJGradientProgressBarState extends State<SJGradientProgressBar>
                   // 渐变进度条
                   Positioned(
                     left: 2,
-                    top: (barHeight - progressHeight) / 2,
+                    top: ((barHeight - progressHeight) / 2) + 3.5,
                     child: Container(
                       width: max(0, progressWidth - 4),
                       height: progressHeight,
@@ -218,12 +225,13 @@ class _SJGradientProgressBarState extends State<SJGradientProgressBar>
                       ),
                     ),
                   ),
-
-                  // 进度前端跟随图片
                   Positioned(
-                    left: (progressWidth - 20).clamp(0, barWidth - 20),
-                    top: 0,
-                    child: MSImg(name: 'ms_domand_icon', width: 23, height: 23),
+                    // 保证图片的位置不会超出进度条宽度
+                    left: (progressWidth - 20).clamp(0, barWidth - 28),  // 控制图片的位置不超出宽度
+                    top: 0,  // 居中显示图片
+                    width: 28,
+                    height: 29,
+                    child: MSImg(name: 'ms_dolas_icon_s', width: 28, height: 29),
                   ),
                 ],
               );

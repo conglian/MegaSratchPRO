@@ -1,119 +1,174 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:megascratch/MSHome/MSLuckyWheel.dart';
 import 'package:megascratch/MSTool/ms_extension_help.dart';
-import 'package:megascratch/MSTool/ms_img.dart';
 import 'package:megascratch/MSTool/ms_stroke_text.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'MSCashs.dart';
 import 'MSHome.dart';
 
-// MSHomePage.dart
-class MSHomePage extends StatefulWidget {
-  @override
-  _MSHomePageState createState() => _MSHomePageState();
-}
-class _MSHomePageState extends State<MSHomePage> {
-  int _page = 0;
+// 使用单例模式管理导航状态
+class MSNavigationService {
+  static final MSNavigationService _instance = MSNavigationService._internal();
+  factory MSNavigationService() => _instance;
+  MSNavigationService._internal();
 
-  final List<Widget> _pages = [
-    MSHomeContentPage(),
-    MSLuckWheel(),
-  ];
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<_MSBottomNavigationExampleState> bottomNavKey = GlobalKey<_MSBottomNavigationExampleState>();
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    MSHomeTbaBarNotificationService.stream.listen((value) async {
-      switchTab(value);
-    });
+  void changeTab(int index) {
+    bottomNavKey.currentState?.changeTab(index);
   }
 
-  // 添加一个方法来外部调用，切换页面
-  void switchTab(int index) {
-    setState(() {
-      _page = index;  // 切换到指定页面
-    });
+  // 示例：从任意位置导航到首页并切换Tab
+  void navigateToHomeAndChangeTab(int index) {
+    navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (route) => false);
+    Future.delayed(Duration.zero, () => changeTab(index));
+  }
+}
+
+
+class MSBottomNavigationExample extends StatefulWidget {
+  const MSBottomNavigationExample({Key? key}) : super(key: key);
+
+  @override
+  State<MSBottomNavigationExample> createState() => _MSBottomNavigationExampleState();
+}
+
+class _MSBottomNavigationExampleState extends State<MSBottomNavigationExample> {
+  int _currentIndex = 0;
+
+  final List<Widget> _screens = [
+    MSHomeContentPage(),
+    MSLuckWheel(),
+    MSCashPage(),
+  ];
+
+  final List<String> _titles = ['Card', 'Lucky Wheel', 'Cash'];
+
+  // 外部切换底部导航栏的方法
+  void changeTab(int index) {
+    if (index >= 0) {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_page],
-      bottomNavigationBar: Container(
-        height: 87,
-        decoration: BoxDecoration(
-          image: MSDImg('ms_tabbar_bg'),
-        ),
-        child: CurvedNavigationBar(
-          index: _page,
-          height: 75.0,
-          items: <Widget>[
-            _buildNavItem(
-                icon: MSImg(name: 'ms_card_s', width: 66, height: 72),
-                text: "Card",
-                color: '#FFFFFF'.color(),
-                index: 0
-            ),
-            _buildNavItem(
-                icon: MSImg(name: 'ms_wheel_s', width: 67, height: 62),
-                text: "Lucky Wheel",
-                color: '#D9C6DE'.color(),
-                index: 1
-            ),
-          ],
-          color: '#FFF06D'.color(),
-          buttonBackgroundColor: Colors.transparent,
-          backgroundColor: Colors.transparent,
-          animationDuration: Duration(milliseconds: 300),
-          onTap: (index) {
-            setState(() {
-              _page = index;
-            });
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem({required Widget icon, required String text, required Color color, required int index}) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width / 2,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          icon,
-          Positioned(
-            left: index == 0 ? 64.w : 42.w,
-            bottom: 10,
-            child: MSStrokeText(
-              text: text,
-              size: 17,
-              color: color,
-              weight: FontWeight.w900,
-              skWidth: 1,
-              skColor: index == 0 ? '#752A8B'.color() : '#752A8B'.color(),
-            ),
+      body: _screens[_currentIndex],
+      bottomNavigationBar: CustomNavBarWidget(
+        [
+          PersistentBottomNavBarItem(
+            icon: Image.asset('ms_card_tabbar_icon'.image()),
+            inactiveIcon: Image.asset('ms_card_tabbar_icon'.image()),
+            activeColorPrimary: Colors.transparent,
+            inactiveColorPrimary: Colors.transparent,
+            title: _titles[0],
+          ),
+          PersistentBottomNavBarItem(
+            icon: Image.asset('ms_wheel_s'.image()),
+            inactiveIcon: Image.asset('ms_wheel_s'.image()),
+            activeColorPrimary: Colors.transparent,
+            inactiveColorPrimary: Colors.transparent,
+            title: _titles[1],
+          ),
+          PersistentBottomNavBarItem(
+            icon: Image.asset('ms_cash_icon_s'.image()),
+            inactiveIcon: Image.asset('ms_cash_icon_s'.image()),
+            activeColorPrimary: Colors.transparent,
+            inactiveColorPrimary: Colors.transparent,
+            title: _titles[2],
           ),
         ],
+        selectedIndex: _currentIndex,
+        onItemSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }
 }
 
+class CustomNavBarWidget extends StatelessWidget {
+  const CustomNavBarWidget(
+      this.items, {
+        required this.selectedIndex,
+        required this.onItemSelected,
+        Key? key,
+      }) : super(key: key);
 
-class MSHomeTbaBarNotificationService {
-  static final StreamController<int> _streamController = StreamController<int>.broadcast();
+  final int selectedIndex;
+  final List<PersistentBottomNavBarItem> items;
+  final ValueChanged<int> onItemSelected;
 
-  static Stream<int> get stream => _streamController.stream;
-
-  static void sendToDomandNumberNotification(int value) {
-    _streamController.sink.add(value);
+  Widget _buildItem(final PersistentBottomNavBarItem item, final bool isSelected) {
+    return Container(
+      alignment: Alignment.center,
+      height: 88, // 高度设置为88
+      child: Stack(
+        fit: .expand,
+        alignment: AlignmentGeometry.center,
+        children: <Widget>[
+          // 背景图片
+          Positioned.fill(
+            child: AnimatedOpacity(
+              opacity: isSelected ? 1.0 : 0.0,
+              duration: Duration(milliseconds: 300),
+              child: Image.asset(
+                'ms_card_seletecd'.image(), // 选中的背景图
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // 图标
+          Positioned(
+            top: 0,
+            child: Container(
+              width: 78, // 图标宽度
+              height: 78, // 图标高度
+              child: isSelected ? item.icon : item.inactiveIcon,
+            ),
+          ),
+          // 标签
+          Positioned(
+            bottom: 10, // 标签距离底部的间距
+            child: MSStrokeText(text: item.title!, size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#360859'.color()),
+          ),
+        ],
+      ),
+    );
   }
 
-  static void close() {
-    _streamController.close();
+  @override
+  Widget build(final BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('ms_card_tabbar_bgs'.image()), // 底部导航栏背景图
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 88, // 高度设置为88
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: items.map((final item) {
+            final int index = items.indexOf(item);
+            return Flexible(
+              child: GestureDetector(
+                onTap: () => onItemSelected(index),
+                child: _buildItem(item, selectedIndex == index),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
   }
 }

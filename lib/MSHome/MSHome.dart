@@ -1,19 +1,17 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:megascratch/MSTool/ms_LocalProvider.dart';
 import 'package:megascratch/MSTool/ms_stroke_text.dart';
 import 'package:megascratch/MSTool/ms_text.dart';
 import 'package:provider/provider.dart';
-
 import '../MSDialog/MSDialog.dart';
 import '../MSTool/ms_GradientNumber.dart';
 import '../MSTool/ms_extension_help.dart';
 import '../MSTool/ms_img.dart';
 import '../MSTool/ms_scratch_card_image_prize.dart';
-import 'MSScratchDetails.dart';
+import 'MSScratchDetailsB.dart';
 import 'MSTbabar.dart';
 
 class MSHomeContentPage extends StatefulWidget {
@@ -39,7 +37,7 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
   }
 
   Future<void> shownewguide() async {
-    if (!MSLocalProvider.instance.ms_new_guide){
+    if (!MSLocalProvider.instance.ms_new_guide2){
       if (!mounted) return;
       context.tipShow(MSNewGuideADialog());
     }
@@ -56,11 +54,13 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
           ),
           child: Stack(
             children: [
-               Column(
-                 children: [
-                   MSNavBarWidget(),
-                   VerticalListView(),
-                 ],
+               SingleChildScrollView(
+                 child: Column(
+                   children: [
+                     MSNavBarWidget(),
+                     VerticalListView(),
+                   ],
+                 ),
                )
             ],
           )
@@ -80,7 +80,7 @@ class VerticalListView extends StatelessWidget {
 
     return SizedBox(
       width: 0.width(context),
-      height: 0.height(context) - 118 - 87,
+      height: 0.height(context) - 118 - 88,
       child: ListView.builder(
         padding: EdgeInsets.zero, // 移除默认的 padding
         itemCount: items.length, // 列表项数量
@@ -320,7 +320,7 @@ class VerticalListView extends StatelessWidget {
       Navigator.of(cxt).push(
         MaterialPageRoute(
           builder: (builder) {
-            return MSScrachDetails(
+            return MSScrachDetails_b(
                 index: index);
           },
         ),
@@ -332,7 +332,7 @@ class VerticalListView extends StatelessWidget {
     Navigator.of(cxt).push(
       MaterialPageRoute(
         builder: (builder) {
-          return MSScrachDetails(
+          return MSScrachDetails_b(
               index: index);
         },
       ),
@@ -374,13 +374,13 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
                     child: Padding(padding: EdgeInsets.only(left: 38.w, top: 1.h),child: Consumer<MSLocalProvider>(
                         builder: (context, provider, child) {
                           return MSGradientNumberRoller(
-                              value: provider.ms_domand_number,
+                              value: provider.ms_dolas_number,
                               duration: 800,
                               fontSize: 20.0,
                               gradientColors: ['#FFFFFF'.color(), '#FFFFFF'.color()],
                               borderColor: '#FFFFFF'.color(),
                               borderWidth: 0.0,
-                              decimalPlaces: 0,
+                              decimalPlaces: 2,
                             );
                         }
                     ),),
@@ -448,7 +448,8 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
                   SizedBox(width: 7.27.w,),
                   InkWell(
                     onTap: (){
-                      context.tipShow(MSPopSettingDialog());
+                      // context.tipShow(MSPopSettingDialog());
+                      context.tipShow(MSTXDayFourOneToastDialog());
                     },
                     child: MSImg(name: 'ms_set_icon', width: 43, height: 42,),
                   ),
@@ -458,7 +459,7 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
               SizedBox(height: 8.8.h,)
             ],
           ),
-          Positioned(left: 7.w, bottom: 10.7.h,child: MSImg(name: 'ms_domands_icons', width: 37, height: 37,)),
+          Positioned(left: 1.w, bottom: 4.7.h,child: MSImg(name: 'ms_dolas_icon', width: 54, height: 52,)),
           Positioned(left: 141.w, bottom: 9.0.h,child: Container(
                     width: 37.65, height: 42.3,
                     decoration: BoxDecoration(
@@ -501,7 +502,7 @@ class _MSBottomBarWidgetState extends State<MSBottomBarWidget> {
             InkWell(
               onTap: (){
                 Navigator.pop(context);// 外部调用
-                MSHomeTbaBarNotificationService.sendToDomandNumberNotification(1);
+                MSNavigationService().changeTab(1);
               },
               child: Container(
                 width: 55,
