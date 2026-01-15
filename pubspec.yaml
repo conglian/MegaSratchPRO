@@ -56,6 +56,20 @@ dependencies:
   firebase_remote_config: ^6.1.0
   firebase_core: ^4.2.0
   firebase_crashlytics: ^5.0.4
+  flutter_tba_info: ^0.0.9
+  adjust_sdk: ^5.4.5
+  connectivity_plus: ^4.0.1
+
+  anythink_sdk:
+    path: msthrid/anythink_sdk
+  flutter_local_notifications:
+    path: msthrid/common_notifications-master
+  megascratchFK:
+    path: msthrid/megascratchFK
+#  scrhjoysssthevt:
+#    path: msthrid/scrhJoysssthEvt
+  gs140okspine:
+    path: msthrid/gs140okspine
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

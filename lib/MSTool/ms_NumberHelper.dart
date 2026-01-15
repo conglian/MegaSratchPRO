@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/services.dart';
+import 'package:megascratch/MSTool/ms_LocalProvider.dart';
+import '../MSModel/MSCardNumberModel.dart';
+import '../MSModel/MSIntRatioModel.dart';
 import '../MSModel/MSProbabilityModel.dart';
 import 'ms_extension_help.dart';
 
@@ -14,8 +17,11 @@ class MSNumberAHelper {
 
   MSRewardData numberAEntry = MSRewardData();
 
+  MSCardNumberModel numberBEntry = MSCardNumberModel();
+
   Future<void> init() async {
     await _loadNumberDataFromLocate();
+    await _loadNumberBFromLocate();
   }
 
   Future<void> _loadNumberDataFromLocate() async {
@@ -23,6 +29,37 @@ class MSNumberAHelper {
     Map<String, dynamic> jsonMap = json.decode(jsonString);
     numberAEntry = MSRewardData.fromJson(jsonMap);
     '${numberAEntry.luckyNumbers.first.Probability}'.log();
+  }
+
+  Future<void> _loadNumberBFromLocate() async {
+    String jsonString = await rootBundle.loadString("mega_game_number".jsons());
+    Map<String, dynamic> jsonMap = json.decode(jsonString);
+    'number=${jsonMap['card_77earn']['point_7']}'.log();
+    numberBEntry = MSCardNumberModel.fromJson(jsonMap);
+    'winup_number=${numberBEntry.luckyNumber.winupNumber}'.log();
+  }
+
+  int getAwardPoolNumber(){
+    int minBonus = 5;
+    int maxBonus = 15;
+    int balance = MSLocalProvider.instance.ms_dolas_number.toInt();
+    // 根据余额判断奖金范围
+    if (balance >= 0 && balance <= 300) {
+      minBonus = 30;
+      maxBonus = 50;
+    } else if (balance > 300 && balance <= 500) {
+      minBonus = 20;
+      maxBonus = 30;
+    } else if (balance > 500 && balance <= 1000) {
+      minBonus = 15;
+      maxBonus = 20;
+    } else if (balance > 1000) {
+      minBonus = 5;
+      maxBonus = 15;
+    }
+    // 在最小和最大奖金范围内生成一个随机数
+    Random random = Random();
+    return random.nextInt(maxBonus - minBonus + 1) + minBonus;
   }
 
   /// 🎲 生成 lucku_moment 模式结果

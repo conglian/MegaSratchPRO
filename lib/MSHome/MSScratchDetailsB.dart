@@ -7,6 +7,7 @@ import 'package:megascratch/MSTool/ms_GradientText.dart';
 import 'package:megascratch/MSTool/ms_scratch_card_image_prize.dart';
 import 'package:megascratch/MSTool/ms_stroke_text.dart';
 import 'package:megascratch/MSTool/ms_text.dart';
+import 'package:provider/provider.dart';
 import '../MSDialog/MSDialog.dart';
 import '../MSTool/MSScratchWheelPage.dart';
 import '../MSTool/ms_LocalProvider.dart';
@@ -26,7 +27,7 @@ class MSScrachDetails_b extends StatefulWidget {
   State<MSScrachDetails_b> createState() => _MSScrachDetails_bState();
 }
 
-class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
+class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTickerProviderStateMixin{
 
   bool _show_animation = false;
 
@@ -59,22 +60,69 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
   MSPlayJoyResult? result7;
 
   late spine.SpineWidgetController _controller0;
+  // 总倒计时时间，单位是秒
+  int _remainingTime = MSLocalProvider.instance.ms_dao_time_index; // 5 分钟倒计时（300秒）
+
+  late Timer _timer;
+
+  int award_pool_number = MSNumberAHelper().getAwardPoolNumber();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    // 开始倒计时
+    _startCountdown();
+
     setNumberContent();
     // 当前帧构建完成后
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 在这里执行需要更新UI的操作
       shownewguide();
+      // 每刮五张出现防止退出页面没显示
+      if (MSLocalProvider.instance.ms_wheel_pop_showName == true) {
+        context.tipShow(MSLuckyWheelDialog());
+      }
     });
     _controller0 = spine.SpineWidgetController(onInitialized: (controller) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         controller.animationState.setAnimationByName(0, "animation", true);
       });
     });
+  }
+
+  // 启动倒计时
+  void _startCountdown() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTime > 0) {
+        setState(() {
+          _remainingTime--;
+          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, _remainingTime);
+        });
+      } else {
+        setState(() {
+          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 0);
+        });
+        _timer.cancel(); // 时间到，取消定时器
+      }
+    });
+  }
+
+  // 将秒数转化为格式化时间（00:00:00）
+  String _formatTime(int seconds) {
+    int hours = seconds ~/ 3600;
+    int minutes = (seconds % 3600) ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '${_twoDigits(hours)}:${_twoDigits(minutes)}:${_twoDigits(remainingSeconds)}';
+  }
+
+  // 保证时间两位数
+  String _twoDigits(int n) {
+    if (n >= 10) {
+      return "$n";
+    } else {
+      return "0$n";
+    }
   }
 
   Future<void> shownewguide() async {
@@ -105,9 +153,9 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
 
   @override
   void dispose() {
+    _timer.cancel(); // 取消定时器
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -129,22 +177,24 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
               if (widget.index == 1)
                 Positioned(top:50.h,left: (0.width(context) - 375.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}_b', width: 375.w, height: 297.h,)),
               if (widget.index == 2)
-                Positioned(top:70.h,left: (0.width(context) - 352.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}', width: 352.w, height: 202.h,)),
+                Positioned(top:70.h,left: (0.width(context) - 352.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}_b', width: 352.w, height: 202.h,)),
               if (widget.index == 3)
                 Positioned(top:100.h,left: (0.width(context) - 375.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}', width: 375.w, height: 166.h,)),
               if (widget.index == 4)
-                Positioned(top:84.h,left: (0.width(context) - 375.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}', width: 375.w, height: 154.h,)),
-              Positioned(top: _getContentTopH(widget.index),child: _setScratchContentWidget(widget.index)),
-              if (widget.index == 5)
-                Positioned(top:60.h,left: (0.width(context) - 375.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}', width: 375.w, height: 313.h,)),
+                Positioned(top:84.h,left: (0.width(context) - 375.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}_b', width: 375.w, height: 154.h,)),
               if (widget.index == 6)
-                Positioned(top:100.h,left: (0.width(context) - 322.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}', width: 322.w, height: 143.h,)),
-              Column(
-                children: [
-                  MSNavBarWidget(),
-                  Spacer(),
-                  MSBottomBarWidget(),
-                ],
+                Positioned(top:100.h,left: (0.width(context) - 365.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}_b', width: 365.w, height: 218.h,)),
+              Positioned(top: _getContentTopH(widget.index),child: _setScratchContentWidget(widget.index)),
+              // if (widget.index == 5)
+              //   Positioned(top:60.h,left: (0.width(context) - 375.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}', width: 375.w, height: 313.h,)),
+              Positioned(
+                child: Column(
+                  children: [
+                    MSNavBarWidget(),
+                    Spacer(),
+                    MSBottomBarWidget(),
+                  ],
+                ),
               ),
               if (widget.index == 0)
                 Positioned(top: 274.h,child: Row(
@@ -154,7 +204,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                     SizedBox(width: 10.w,),
                     MSImg(name: 'ms_dolas_icon', width: 40, height: 50,),
                     SizedBox(width: 10.w,),
-                    MSStrokeText(text: '${1000}', size: 16, color: '#FBF544'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#322107'.color()),
+                    MSStrokeText(text: '\$${50}', size: 16, color: '#FBF544'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#322107'.color()),
                   ],
                 )),
               Positioned(left: 0, top: 300.h, width: 0.width(context), height: 400, child: Visibility(visible: _show_guide,child: Lottie.asset(
@@ -171,41 +221,70 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                     });
                   }
               ))),
-              Positioned(left: 12.w,top: 155.h,child: InkWell(
-                onTap: (){
-                  context.tipShow(MSAwardPoolDialog());
-                },
-                child: Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    image: MSDImg('ms_jiangjin_btn')
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(left: 12,top: 8,child: MSImg(name: 'ms_jiangjin_icon', width: 52, height: 55,)),
-                      Positioned(left: 3.5,top: 50,child: Container(
-                        width: 65,
-                        height: 18,
-                        decoration: BoxDecoration(
-                          color: '#EAEFFF'.color(),
-                          borderRadius: BorderRadius.circular(9)
+              Positioned(left: 12.w,top: 155.h,child: Consumer<MSLocalProvider>(
+                  builder: (context, provider, child) {
+                    return Visibility(
+                      visible: provider.ms_pool_show,
+                      child: InkWell(
+                        onTap: (){
+                          context.tipShow(MSAwardPoolDialog(award_num: award_pool_number, time_index: _remainingTime));
+                        },
+                        child:SizedBox(
+                          width: 72,
+                          height: 72,
+                          child: Stack(
+                            children: [
+                              MSBouncyImage(imagePath: 'ms_jiangjin_btn'.image(), width: 72, height: 72, enableAnimation: MSLocalProvider.instance.ms_dao_time_index <= 0),
+                              Positioned(left: 12,top: 10,child: MSImg(name: 'ms_jiangjin_icon', width: 52, height: 55,)),
+                              Positioned(left: 3.5,top: 50,child: Visibility(
+                                visible: MSLocalProvider.instance.ms_dao_time_index != 0,
+                                child: Container(
+                                  width: 65,
+                                  height: 18,
+                                  decoration: BoxDecoration(
+                                      color: '#EAEFFF'.color(),
+                                      borderRadius: BorderRadius.circular(9)
+                                  ),
+                                  child: Center(
+                                    child: MSText(text: _formatTime(_remainingTime), size: 12, color: '#393939'.color(), weight: FontWeight.w700),
+                                  ),
+                                ),
+                              )),
+                              Positioned(left: 0,top: 34,child: MSGradientStrokeText(text: '\$$award_pool_number', gradientColors: ['#FBF544'.color(),'#F4B22A'.color()], width: 72, height: 21, fontSize: 16, strokeWidth: 1, strokeColor: '#804D00'.color())),
+                            ],
+                          ),
                         ),
-                        child: Center(
-                          child: MSText(text: '00:00:34', size: 12, color: '#393939'.color(), weight: FontWeight.w700),
-                        ),
-                      )),
-                      Positioned(left: 0,top: 34,child: MSGradientStrokeText(text: '\$50.0', gradientColors: ['#FBF544'.color(),'#F4B22A'.color()], width: 72, height: 21, fontSize: 16, strokeWidth: 1, strokeColor: '#804D00'.color())),
-                    ],
-                  ),
-                ),
-              )),
+                      ),
+                    );
+                  }
+              ), ),
               Positioned(right: 12.w,top: 110.h,child: InkWell(
                 onTap: (){
                   context.tipShow(MSPopTaskBDialog(is_guide: false));
                 },
                 child: MSImg(name: 'ms_sigin_btn', width: 45, height: 45),
-              ))
+              )),
+              Positioned(
+                child: Consumer<MSLocalProvider>(
+                    builder: (context, provider, child) {
+                      return Visibility(visible: provider.ms_show_dolas_ani, child: Padding(
+                        padding: EdgeInsets.only(top: 8.h),
+                        child: Lottie.asset(
+                            width: 0.width(context),
+                            height: 720.h,
+                            fit: BoxFit.fill,
+                            "ms_dolas_aniamtion.zip".files(),
+                            repeat: false,
+                            onLoaded: (composition) async {
+                              Future.delayed(Duration(milliseconds: 1800), (){
+                                MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_show_dolas_aniName, false);
+                              });
+                            }
+                        ),
+                      ));
+                    }
+                ),
+              )
             ],
           )
       ),
@@ -221,27 +300,81 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
     } else if (index == 4) {
       h = 238.h;
     } else if (index == 5) {
-      h = 220.h;
+      h = 80.h;
     } else if (index == 6) {
-      h = 214.h;
+      h = 228.h;
     }
     return h;
   }
 
   Future<void> showAwardDialog(int index, int award, bool isWin) async {
-    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_Level_inedxName, MSLocalProvider.instance.ms_Level_inedx + 1);
     if (isWin){
-      if (!mounted)return;
-      int code = await context.tipShow(MSYouWinADialog(award: award));
-      if (code >= 0){
-        backToHome(index);
-      }
+      showWheelCardDialog(index, award);
     } else {
       if (!mounted)return;
-      int code = await context.tipShow(MSMissADialog());
+      int code = await context.tipShow(MSUnAwardDialog());
       if (code >= 0){
         backToHome(index);
       }
+    }
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_card_numberName, MSLocalProvider.instance.ms_card_number + 1);
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_Level_inedxName, MSLocalProvider.instance.ms_Level_inedx + 1);
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_indexName, MSLocalProvider.instance.ms_pool_index + 1);
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_pop_indexName, MSLocalProvider.instance.ms_wheel_pop_index + 1);
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_today_card_indexName, MSLocalProvider.instance.ms_today_card_index + 1);
+    if (MSLocalProvider.instance.ms_wheel_pop_index >= 5){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_pop_indexName, 0);
+      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_wheel_pop_showName, true);
+    }
+    if (MSLocalProvider.instance.ms_pool_index >= 5){
+      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_pool_showName, true);
+    }
+    if (MSLocalProvider.instance.ms_wheel_index >= 5){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_numberName, MSLocalProvider.instance.ms_wheel_number + 1);
+    }
+  }
+
+  Future<void> showAwardTool(int index, int award) async {
+    // 显示中奖dialog
+    if (MSLocalProvider.instance.ms_card_award_index == 0){
+      int code = await context.tipShow(MSYouWinDialog(award_num: award.toDouble()));
+      if (code >= 0){
+        backToHome(index);
+      }
+    } else if (MSLocalProvider.instance.ms_card_award_index == 1){
+      int code = await context.tipShow(MSJackPotDialog(award_num: award.toDouble()));
+      if (code >= 0){
+        backToHome(index);
+      }
+    } else if (MSLocalProvider.instance.ms_card_award_index == 2){
+      int code = await context.tipShow(MSBigWinDialog(award_num: award.toDouble()));
+      if (code >= 0){
+        backToHome(index);
+      }
+    } else if (MSLocalProvider.instance.ms_card_award_index >= 3){
+      int code = await context.tipShow(MSSuperWinDialog(award_num: award.toDouble()));
+      if (code >= 0){
+        backToHome(index);
+      }
+    }
+  }
+  // 判断有没有概率卡需要现实的内容
+  Future<void> showWheelCardDialog(int index, int award) async {
+    if (MSLocalProvider.instance.ms_double_card == true) {
+       context.tipShow(MSX2Dialog());
+       Future.delayed(const Duration(seconds: 1), () {
+         if (!mounted) return;
+         showAwardTool(index, award);
+       });
+    } else if (MSLocalProvider.instance.ms_fruit_card == true && widget.index == 2) {
+      context.tipShow(MSFruitCardDialog());
+      Future.delayed(const Duration(seconds: 1), () {
+        if (!mounted) return;
+        showAwardTool(index, award);
+      });
+    } else {
+      showAwardTool(index, award);
     }
   }
 
@@ -268,6 +401,15 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
     } else if (index == 6 && MSLocalProvider.instance.ms_scrach_end_number_6 >= 10) {
       if (!mounted)return;
       Navigator.pop(context, 0);
+    } else {
+      // 每刮五张出现
+      if (MSLocalProvider.instance.ms_wheel_pop_show == true) {
+        context.tipShow(MSLuckyWheelDialog());
+      }
+      // 每日首次刮卡
+      if (MSLocalProvider.instance.ms_today_card_index == 1){
+        context.tipShow(MSCardPoolDialog());
+      }
     }
   }
 
@@ -473,7 +615,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
     } else if (index == 5) {
       return SizedBox(
         width: 0.width(context),
-        height: 471.h,
+        height: 595.h,
         child: MSCardSwapAnimator(
           key: swapKey5,
           child: _buildScratchCard6(index),   // 封装你的刮卡UI
@@ -543,9 +685,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                           Positioned(child: Center(child: MSBouncyText(text: '${result1!.displayNumbers[index]}', fontSize: 36, color:result1!.winIndex.contains(index) ? '#FF7CD3'.color() :'#FFFFFF'.color(), enableAnimation: _show_animation && result1!.winIndex.contains(index)))),
                           Positioned(top: 40.h,left: 14.w,child: Row(
                             children: [
-                              MSImg(name: 'ms_domand_s_icon', width: 12, height: 12,),
-                              SizedBox(width: 3.w,),
-                              MSBouncyText(text: '${result1!.winMatchNumbers[index]}', fontSize: 15, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
+                              MSBouncyText(text: '\$${result1!.winMatchNumbers[index].toStringAsFixed(2)}', fontSize: 15, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
                             ],
                           )),
                         ]
@@ -641,9 +781,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                             Positioned(top: 12.h,left: 12.w,child: MSBouncyImage(imagePath: 'ms_scratch_conten_1_${result2!.displayNumbers[index]}'.image(), width: 64.14, height: 45.34, enableAnimation: _show_animation)),
                           Positioned(top: 48.h,left: 22.w,child: Row(
                             children: [
-                              MSImg(name: 'ms_domand_s_icon', width: 12, height: 12,),
-                              SizedBox(width: 3.w,),
-                              MSBouncyText(text: '${result2!.winMatchNumbers[index]}', fontSize: 20, color: '#F4B22A'.color(), borderWidth: 1, borderColor: '#322107'.color(),enableAnimation: false)
+                              MSBouncyText(text: '\$${result2!.winMatchNumbers[index].toStringAsFixed(2)}', fontSize: 20, color: '#F4B22A'.color(), borderWidth: 1, borderColor: '#322107'.color(),enableAnimation: false)
                             ],
                           )),
                         ]
@@ -660,18 +798,18 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
   Widget _buildScratchCard3(int index){
     return MSLocalImageScratchCard(onScratchEnd: (){
       _scratchEndtap(index);
-    }, coverImagePath: 'ms_scratch_top_2'.image(), contentW: 375.w, contentH: 500.h, child: Container(
+    }, coverImagePath: 'ms_scratch_top_2_b'.image(), contentW: 375.w, contentH: 500.h, child: Container(
       width: 375.w,
       height: 500.h,
       decoration: BoxDecoration(
-          image: MSDImg('ms_scratch_bottom_2')
+          image: MSDImg('ms_scratch_bottom_2_b')
       ),
       child: Column(
         children: [
-          SizedBox(height: 148.h,),
+          SizedBox(height: 80.h,),
           SizedBox(
-            width: 270.w,
-            height: 270.w,
+            width: 360.w,
+            height: 390.w,
             child: GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -679,22 +817,20 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                 crossAxisCount: 3, // 一行5个
                 mainAxisSpacing: 0, // 垂直间距
                 crossAxisSpacing: 0, // 水平间距
-                childAspectRatio: 90.w / 90.w, // 宽高比
+                childAspectRatio: 120.w / 130.w, // 宽高比
               ),
               itemCount: 9,
               padding: EdgeInsets.only(top: 0.h, left: 0.w), // 移除默认的padding// 最多显示10个
               itemBuilder: (context, index) {
                 return SizedBox(
-                    width: 90.w,
-                    height: 90.w,
+                    width: 120.w,
+                    height: 130.w,
                     child: Stack(
                         children: [
-                          Positioned(child: Center(child: MSBouncyImage(imagePath: 'ms_scratch_conten_2_${result3!.displayNumbers[index]}'.image(), width: 51.34, height: 52, enableAnimation: result3!.winIndex.contains(index),))),
-                          Positioned(top: 68.h,left: 32.w,child: Row(
+                          Positioned(left: 28.w,top: 20.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_2_${result3!.displayNumbers[index]}'.image(), width: 65, height:result3!.displayNumbers[index] == 0 ? 60 : 70, enableAnimation: result3!.winIndex.contains(index),)),
+                          Positioned(top: 82.h,left: 36.w,child: Row(
                             children: [
-                              MSImg(name: 'ms_domand_s_icon', width: 12, height: 12,),
-                              SizedBox(width: 3.w,),
-                              MSBouncyText(text: '${result3!.winMatchNumbers[index]}', fontSize: 15, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
+                              MSBouncyText(text: '\$${result3!.winMatchNumbers[index].toStringAsFixed(2)}', fontSize: 24, color: '#4E4848'.color(), borderWidth: 1, borderColor: '#4E4848'.color(),enableAnimation: false)
                             ],
                           )),
                         ]
@@ -711,11 +847,11 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
   Widget _buildScratchCard4(int index){
     return MSLocalImageScratchCard(onScratchEnd: (){
       _scratchEndtap(index);
-    }, coverImagePath: 'ms_scratch_top_3'.image(), contentW: 375.w, contentH: 459.h, child: Container(
-        width: 375.w,
+    }, coverImagePath: 'ms_scratch_top_3_b'.image(), contentW: 375.w, contentH: 459.h, child: Container(
+        width: 0.width(context),
         height: 459.h,
         decoration: BoxDecoration(
-            image: MSDImg('ms_scratch_bottom_3')
+            image: MSDImg('ms_scratch_bottom_3_b')
         ),
         child: Row(
           children: [
@@ -728,10 +864,10 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                   height: 90.w,
                   child: Row(
                     children: [
-                      SizedBox(width: 28.w,),
-                      MSImg(name: 'ms_domand_s_icon', width: 22.41, height: 22.41,),
+                      SizedBox(width: 20.w,),
+                      MSImg(name: 'ms_dolas_icon_s', width: 22.41, height: 22.41,),
                       SizedBox(width: 3.w,),
-                      MSBouncyText(text: '${result4!.winMatchNumbers[0]}', fontSize: 15, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
+                      MSBouncyText(text: '${result4!.winMatchNumbers[0].toStringAsFixed(2)}', fontSize: 15, color: '#FBF544'.color(), borderWidth: 1, borderColor: '#322107'.color(),enableAnimation: false)
                     ],
                   ),
                 ),
@@ -740,10 +876,10 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                   height: 90.w,
                   child: Row(
                     children: [
-                      SizedBox(width: 28.w,),
-                      MSImg(name: 'ms_domand_s_icon', width: 22.41, height: 22.41,),
+                      SizedBox(width: 20.w,),
+                      MSImg(name: 'ms_dolas_icon_s', width: 22.41, height: 22.41,),
                       SizedBox(width: 3.w,),
-                      MSBouncyText(text: '${result4!.winMatchNumbers[1]}', fontSize: 15, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
+                      MSBouncyText(text: '${result4!.winMatchNumbers[1].toStringAsFixed(2)}', fontSize: 15, color: '#FBF544'.color(), borderWidth: 1, borderColor: '#322107'.color(),enableAnimation: false)
                     ],
                   ),
                 ),
@@ -752,10 +888,10 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                   height: 90.w,
                   child: Row(
                     children: [
-                      SizedBox(width: 28.w,),
-                      MSImg(name: 'ms_domand_s_icon', width: 22.41, height: 22.41,),
+                      SizedBox(width: 20.w,),
+                      MSImg(name: 'ms_dolas_icon_s', width: 22.41, height: 22.41,),
                       SizedBox(width: 3.w,),
-                      MSBouncyText(text: '${result4!.winMatchNumbers[2]}', fontSize: 15, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
+                      MSBouncyText(text: '${result4!.winMatchNumbers[2].toStringAsFixed(2)}', fontSize: 15, color: '#FBF544'.color(), borderWidth: 1, borderColor: '#322107'.color(),enableAnimation: false)
                     ],
                   ),
                 ),
@@ -801,12 +937,12 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
 
   Widget _buildScratchCard5(int index){
     return MSLocalImageScratchCard(onScratchEnd: (){
-      _scratchEndtap(index);
-    }, coverImagePath: 'ms_scratch_top_4'.image(), contentW: 0.width(context), contentH: 500.h, child: Container(
+      // _scratchEndtap(index);
+    }, coverImagePath: 'ms_scratch_top_4_b'.image(), contentW: 0.width(context), contentH: 500.h, child: Container(
       width: 0.width(context),
       height: 500.h,
       decoration: BoxDecoration(
-          image: MSDImg('ms_scratch_bottom_4')
+          image: MSDImg('ms_scratch_bottom_4_b')
       ),
       child: Column(
         children: [
@@ -822,7 +958,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
               SizedBox(width: 68.w,),
             ],
           ),
-          SizedBox(height: 72.h,),
+          SizedBox(height: 100.h,),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -849,10 +985,10 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                       top: result5!.displayNumbers[index] == 2 ? 58.h :48.h,
                       child: Row(
                         children: [
-                          SizedBox(width: 12.w,),
-                          MSImg(name: 'ms_domand_s_icon', width: 15.41, height: 15.41,),
+                          SizedBox(width: 8.w,),
+                          MSImg(name: 'ms_dolas_icon_s', width: 15.41, height: 15.41,),
                           SizedBox(width: 3.w,),
-                          MSBouncyText(text: '${result5!.winMatchNumbers[index]}', fontSize: 15, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
+                          MSBouncyText(text: '${result5!.winMatchNumbers[index].toStringAsFixed(2)}', fontSize: 15, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
                         ],
                       ),
                     ),
@@ -897,15 +1033,15 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
   Widget _buildScratchCard6(int index){
     return MSLocalImageScratchCard(onScratchEnd: (){
       _scratchEndtap(index);
-    }, coverImagePath: 'ms_scratch_top_5'.image(), contentW: 0.width(context), contentH: 471.h, child: Container(
+    }, coverImagePath: 'ms_scratch_top_5_b'.image(), contentW: 0.width(context), contentH: 595.h, child: Container(
       width: 0.width(context),
-      height: 471.h,
+      height: 595.h,
       decoration: BoxDecoration(
-          image: MSDImg('ms_scratch_bottom_5')
+          image: MSDImg('ms_scratch_bottom_5_b')
       ),
       child: Column(
         children: [
-          SizedBox(height: 110.h,),
+          SizedBox(height: 268.h,),
           Padding(
             padding: EdgeInsets.only(left: 0.w),
             child: SizedBox(
@@ -929,7 +1065,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                       child: Stack(
                           children: [
                             if (result6!.displayNumbers[index] != 0 && result6!.displayNumbers[index] != 1 && result6!.displayNumbers[index] != 2)
-                              Positioned(left: 1.w,child: MSBouncyText(text: '${result6!.displayNumbers[index]}', fontSize: 36, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(), enableAnimation: false,)),
+                              Positioned(left: 1.w,child: MSBouncyText(text: '${result6!.displayNumbers[index]}', fontSize: 36, color: '#5A5A5A'.color(), borderWidth: 1, borderColor: '#5A5A5A'.color(), enableAnimation: false,)),
                             if (result6!.displayNumbers[index] == 0)
                               Positioned(left: 8.w,top: 10.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_5_${result6!.displayNumbers[index]}'.image(), width: 28.64, height: 30.54, enableAnimation: _show_animation)),
                             if (result6!.displayNumbers[index] == 1)
@@ -942,10 +1078,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                               height: 20.6.w,
                               child: Row(
                                 children: [
-                                  SizedBox(width: 4.w,),
-                                  MSImg(name: 'ms_domand_s_icon', width: 14, height: 14,),
-                                  SizedBox(width: 3.w,),
-                                  MSBouncyText(text: '${result6!.winMatchNumbers[index]}', fontSize: 15, color: (result6!.displayNumbers[index] == 0 || result6!.displayNumbers[index] == 1 || result6!.displayNumbers[index] == 2) ? '#57D81F'.color() : '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
+                                  MSBouncyText(text: '\$${result6!.winMatchNumbers[index].toStringAsFixed(2)}', fontSize: 15, color: (result6!.displayNumbers[index] == 0 || result6!.displayNumbers[index] == 1 || result6!.displayNumbers[index] == 2) ? '#5A5A5A'.color() : '#5A5A5A'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
                                 ],
                               ),
                             ))
@@ -964,18 +1097,18 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
   Widget _buildScratchCard7(int index){
     return MSLocalImageScratchCard(onScratchEnd: (){
       _scratchEndtap(index);
-    }, coverImagePath: 'ms_scratch_top_6'.image(), contentW: 0.width(context), contentH: 484.h, child: Container(
+    }, coverImagePath: 'ms_scratch_top_6_b'.image(), contentW: 0.width(context), contentH: 484.h, child: Container(
       width: 0.width(context),
       height: 484.h,
       decoration: BoxDecoration(
-          image: MSDImg('ms_scratch_bottom_6')
+          image: MSDImg('ms_scratch_bottom_6_b')
       ),
       child: Column(
         children: [
-          SizedBox(height: 156.h,),
+          SizedBox(height: 106.h,),
           SizedBox(
             width: 321.w,
-            height: 211.w,
+            height: 260.w,
             child: GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -983,23 +1116,23 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> {
                 crossAxisCount: 4, // 一行5个
                 mainAxisSpacing: 0, // 垂直间距
                 crossAxisSpacing: 0, // 水平间距
-                childAspectRatio: 80.25.w / 70.3.w, // 宽高比
+                childAspectRatio: 80.25.w / 80.3.w, // 宽高比
               ),
               itemCount: 12,
-              padding: EdgeInsets.only(top: 0.h, left: 0.w), // 移除默认的padding// 最多显示10个
+              padding: EdgeInsets.only(top: 40.h, left: 0.w), // 移除默认的padding// 最多显示10个
               itemBuilder: (context, index) {
                 return SizedBox(
                     width: 80.25.w,
-                    height: 70.3.w,
+                    height: 80.3.w,
                     child: Stack(
                         children: [
                           if (result7!.displayNumbers[index] == 0)
                             Positioned(left: 14.w,top: 10.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_6_${result7!.displayNumbers[index]}'.image(), width: 56, height: 47, enableAnimation: false)),
                           if (result7!.displayNumbers[index] != 0)
-                            Positioned(left: 10.w, top: 18.h, child: MSImg(name: 'ms_domand_b_icon', width: 27, height: 27,)),
+                            Positioned(left: 16.w, top: 8.h, child: MSImg(name: 'ms_dolas_award_0', width: 46, height: 49,)),
                           if (result7!.displayNumbers[index] != 0)
-                            Positioned(left: 34.w, top: 8.h,child:
-                            MSBouncyText(text: '${result7!.winMatchNumbers[index]}', fontSize: 32, color:'#F1951F'.color(), borderWidth: 1, borderColor: '#322107'.color(),enableAnimation: _show_animation)
+                            Positioned(left: 0.w, top: 38.h,child:
+                            MSBouncyText(text: '\$${result7!.winMatchNumbers[index].toStringAsFixed(2)}', fontSize: 22, color:'#FBF544'.color(), borderWidth: 1, borderColor: '#322107'.color(),enableAnimation: _show_animation)
                             )
                         ]
                     )

@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gs140okspine/gs140okspine.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'ms_extension_help.dart';
@@ -47,8 +48,7 @@ class _MSwebkitviewState extends State<MSwebkitview> {
     "$TAG==_jumpNext=canJump:$url=".log();
     if (url.startsWith("intent://")) {
       try {
-        // StepWinUtils().parse_android_intent(data: u);
-        // Gs130pacess().openBrowser(url.toString());
+        Gs140okspine().openBrowser(url.toString());
       } catch (e) {
         //
       }

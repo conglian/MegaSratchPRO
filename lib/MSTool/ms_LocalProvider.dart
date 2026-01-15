@@ -80,6 +80,12 @@ class MSLocalProvider extends ChangeNotifier {
   bool ms_login_award_6 = false;
   bool ms_new_guide1 = false;
   bool ms_new_guide2 = true;
+  bool ms_double_card = false;
+  bool ms_fruit_card = false;
+  bool ms_777_card = false;
+  bool ms_first_pool = false; // 存储的本地值
+  bool ms_pool_show = true;
+  bool ms_wheel_pop_show = false;
 
   int ms_scrach_unlock_index_0 = 0; // 存储的本地值
   int ms_scrach_unlock_index_1 = 0; // 存储的本地值
@@ -96,8 +102,9 @@ class MSLocalProvider extends ChangeNotifier {
   int ms_tx_ing_account = 0;
   int ms_tx_ing_number = 0;
   int ms_tx_task_index = 0;
-  int ms_current_ranking = 99;
-  int ms_all_ranking = 388;
+  int ms_current_user_ranking = 18250;
+  int ms_current_ranking = 50;
+  int ms_all_ranking = 100;
   int ms_rank_ad_count = 0;
   int ms_tx_card_index = 0;
   int ms_tx_wheel_index = 0;
@@ -105,6 +112,7 @@ class MSLocalProvider extends ChangeNotifier {
   int ms_tx_box_index = 0;
   int ms_wheel_number = 0;
   int ms_wheel_index = 0;
+  int ms_pool_index = 0;
   int ms_box_index = 0;
   int ms_card_number = 0;
   int ms_Level_number = 0; // 存储的本地值
@@ -125,6 +133,11 @@ class MSLocalProvider extends ChangeNotifier {
   int ms_tx_probability_index = 0;
   int ms_scratch_not_award_number = 0;
   int ms_sign_index = 0;
+  int ms_card_award_index = 0;
+  int ms_dao_time_index = 300;
+  int ms_wheel_pop_index = 0;
+  int ms_today_card_index = 0;
+  int ms_tx_num_index = 520;
 
   String get ms_currentNumberIndexName => 'ms_currentNumberIndex';
   String get ms_dice_numberName => 'ms_dice_number';
@@ -217,30 +230,49 @@ class MSLocalProvider extends ChangeNotifier {
   String get ms_new_guide1Name => 'ms_new_guide1';
   String get ms_new_guide2Name => 'ms_new_guide2';
   String get ms_sign_indexName => 'ms_sign_index';
-
+  String get ms_card_award_indexName => 'ms_card_award_index';
+  String get ms_double_cardName => 'ms_double_card';
+  String get ms_fruit_cardName => 'ms_fruit_card';
+  String get ms_777_cardName => 'ms_777_card';
+  String get ms_dao_time_indexName => 'ms_dao_time_index';
+  String get ms_first_poolName => 'ms_first_pool';
+  String get ms_pool_showName => 'ms_pool_show';
+  String get ms_pool_indexName => 'ms_pool_index';
+  String get ms_wheel_pop_indexName => 'ms_wheel_pop_index';
+  String get ms_wheel_pop_showName => 'ms_wheel_pop_show';
+  String get ms_today_card_indexName => 'ms_today_card_index';
+  String get ms_tx_num_indexName => 'ms_tx_num_index';
+  String get ms_current_user_rankingName => 'ms_current_user_ranking';
 
   // 3. 初始化：从本地存储加载数据（组件初始化时调用）
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     // 从本地读取值（key自定义，需与存储时一致）
+    ms_dao_time_index = prefs.getInt('ms_dao_time_index') ?? 300;
+    ms_card_award_index = prefs.getInt('ms_card_award_index') ?? 0;
     ms_wheel_number = prefs.getInt('ms_wheel_number') ?? 0;
+    ms_today_card_index = prefs.getInt('ms_today_card_index') ?? 0;
     ms_wheel_index = prefs.getInt('ms_wheel_index') ?? 0;
+    ms_pool_index = prefs.getInt('ms_pool_index') ?? 0;
+    ms_wheel_pop_index = prefs.getInt('ms_wheel_pop_index') ?? 0;
     ms_tx_probability_index = prefs.getInt('ms_tx_probability_index') ?? 0;
     ms_login_index = prefs.getInt('ms_login_index') ?? 1;
+    ms_tx_num_index = prefs.getInt('ms_tx_num_index') ?? 520;
     ms_tx_dice_index = prefs.getInt('ms_tx_dice_index') ?? 0;
     ms_tx_card_first = prefs.getInt('ms_tx_card_first') ?? 0;
     ms_domand_number = prefs.getInt('ms_domand_number') ?? 0;
     ms_dice_number = prefs.getInt('ms_dice_number') ?? 0;
     ms_card_number = prefs.getInt('ms_card_number') ?? 0;
+    ms_current_user_ranking = prefs.getInt('ms_current_user_ranking') ?? 18250;
     ms_box_index = prefs.getInt('ms_box_index') ?? 0;
     ms_tx_box_index = prefs.getInt('ms_tx_box_index') ?? 0;
     ms_wheel_number = prefs.getInt('ms_wheel_number') ?? 0;
     ms_tx_card_index = prefs.getInt('ms_tx_card_index') ?? 0;
     ms_tx_wheel_index = prefs.getInt('ms_tx_wheel_index') ?? 0;
     ms_tx_bubble_index = prefs.getInt('ms_tx_bubble_index') ?? 0;
-    ms_current_ranking = prefs.getInt('ms_current_ranking') ?? 99;
-    ms_all_ranking = prefs.getInt('ms_all_ranking') ?? 388;
-    ms_rank_ad_count = prefs.getInt('ms_rank_ad_count') ?? 388;
+    ms_current_ranking = prefs.getInt('ms_current_ranking') ?? 50;
+    ms_all_ranking = prefs.getInt('ms_all_ranking') ?? 100;
+    ms_rank_ad_count = prefs.getInt('ms_rank_ad_count') ?? 0;
     ms_tx_task_index = prefs.getInt('ms_tx_task_index') ?? 0;
     ms_tx_ing_account = prefs.getInt('ms_tx_ing_account') ?? 0;
     ms_tx_ing_number = prefs.getInt('ms_tx_ing_number') ?? 0;
@@ -256,8 +288,14 @@ class MSLocalProvider extends ChangeNotifier {
     ms_sound_music = prefs.getBool('ms_sound_music') ?? true;
     ms_txing_status = prefs.getBool('ms_txing_status') ?? false;
     ms_login_status = prefs.getBool('ms_login_status') ?? false;
+    ms_double_card = prefs.getBool('ms_double_card') ?? false;
+    ms_fruit_card = prefs.getBool('ms_fruit_card') ?? false;
+    ms_wheel_pop_show = prefs.getBool('ms_wheel_pop_show') ?? false;
+    ms_777_card = prefs.getBool('ms_777_card') ?? false;
     ms_open_tx = prefs.getBool('ms_open_tx') ?? false;
     ms_show_box = prefs.getBool('ms_show_box') ?? false;
+    ms_pool_show = prefs.getBool('ms_pool_show') ?? true;
+    ms_first_pool = prefs.getBool('ms_first_pool') ?? false;
     ms_scractch_auto = prefs.getBool('ms_scractch_auto') ?? false;
     is_end_Scratch = prefs.getBool('is_end_Scratch') ?? true;
     ms_cloak_status = prefs.getBool('ms_cloak_status') ?? false;
@@ -397,16 +435,10 @@ class MSLocalProvider extends ChangeNotifier {
 
 
   Future<void> playbgMUsic() async {
-    if (MSLocalProvider.instance.ms_bg_music) {
-      await MSMP3Player().pauseBackground();
-    }
     if (MSLocalProvider.instance.ms_sound_music){
-      await MSMP3Player().playEffect5();
+      await MSAudioUtils().playDolasAudio();
       Future.delayed(Duration(milliseconds: 1000), () async {
-        await MSMP3Player().pauseEffect5();
-        if (MSLocalProvider.instance.ms_bg_music){
-          await MSMP3Player().playBackground();
-        }
+        await MSAudioUtils().stopAllTempAudio();
       });
     }
   }
@@ -417,13 +449,16 @@ class MSLocalProvider extends ChangeNotifier {
     if (key == MSLocalProvider.instance.ms_dolas_numberName && ms_dolas_number <= 0){
       await updateBool(ms_first_show_cashName, true);
     }
+    if (key == ms_dolas_numberName && value > ms_dolas_number) {
+      await updateBool(ms_show_dolas_aniName, true);
+      playbgMUsic();
+    }
     await prefs.setDouble(key, value);
     if (key == MSLocalProvider.instance.ms_dolas_numberName && value > 0){
       // trigger.check(MSLocalProvider.instance.ms_dolas_number.toInt(), onTrigger: (level) {
       //   print("触发 → 达到 $level");
       //   ms_event_fire('cash_dall', {'money' : level});
       // });
-      await updateBool(ms_show_dolas_aniName, true);
     }
     init();
     notifyListeners();

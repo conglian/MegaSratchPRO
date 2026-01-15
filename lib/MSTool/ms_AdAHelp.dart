@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:applovin_max/applovin_max.dart';
 import 'package:flutter/cupertino.dart';
 import '../MSDialog/MSDialog.dart';
+import '../MSModel/MSIntRatioModel.dart';
 import 'ms_LocalProvider.dart';
 import 'ms_mp3_player.dart';
 import 'ms_extension_help.dart';
@@ -64,7 +65,7 @@ class MSAdAHelper {
         },
         onAdDisplayedCallback: (ad) async {
           if (MSLocalProvider.instance.ms_bg_music) {
-            MSMP3Player().pauseBackground();
+            MSAudioUtils().pauseBGM();
           }
           "megascratchad Reward did display ${ad.adUnitId}".log();
         },
@@ -80,7 +81,7 @@ class MSAdAHelper {
         },
         onAdHiddenCallback: (ad) {
           if (MSLocalProvider.instance.ms_bg_music) {
-            MSMP3Player().playBackground();
+            MSAudioUtils().playBGM();
           }
           "megascratchad Reward did hide - ${ad.adUnitId}".log();
           if (this.finishIntAd != null) {
@@ -109,7 +110,7 @@ class MSAdAHelper {
           },
           onAdDisplayedCallback: (ad) async {
             if (MSLocalProvider.instance.ms_bg_music) {
-              MSMP3Player().pauseBackground();
+              MSAudioUtils().pauseBGM();
             }
             "megascratchad ad int show Success ${ad.adUnitId} revenue=${ad.revenue}".log();
           },
@@ -127,7 +128,7 @@ class MSAdAHelper {
           },
           onAdHiddenCallback: (ad) {
             if (MSLocalProvider.instance.ms_bg_music) {
-              MSMP3Player().playBackground();
+              MSAudioUtils().playBGM();
             }
             if (this.finishIntAd != null) {
               this.finishIntAd!(true);

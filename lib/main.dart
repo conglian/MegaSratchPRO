@@ -3,6 +3,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:megascratch/MSTool/ms_mp3_player.dart';
+import 'package:megascratchFK/megascratchFK.dart';
 import 'package:spine_flutter/spine_flutter.dart';
 import 'MSHome/MSSratchJoyLaunch.dart';
 import 'MSTool/ms_LocalProvider.dart';
@@ -10,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'MSTool/ms_NumberHelper.dart';
+import 'MSTool/ms_extension_help.dart';
+import 'MSTool/ms_fkmanger.dart';
 import 'MSTool/ms_init_sdk.dart';
 
 
@@ -37,6 +40,9 @@ Future<void> main() async {
   // 1. 创建LocalStorageProvider实例并初始化（加载本地数据）
   final localStorageProvider = MSLocalProvider.instance;
   await localStorageProvider.init();
+  await MSFKManger().initFKJson();
+  print(BoomUniqueStringUtil.decrypt('wcr7+8jd1cbH49bF5Prvws3dyc7O3c3I3/vN+9/Nxs7NwdXguMfv9u703dXv3s/D69/EvOD23vjq+cWj5urq1MPU/MTZ1N7a4b/P3uX1wsC4wbnZvNr1v/3Pp8TDurij7b3W1r7Kyu/HwMu6tePD+tnnz/nB/rzPzfvJzc3dsbE=', 140));
+  await MegascratchFK.instance.ms_initNumberUnit(apiKey: BoomUniqueStringUtil.decrypt('wcr7+8jd1cbH49bF5Prvws3dyc7O3c3I3/vN+9/Nxs7NwdXguMfv9u703dXv3s/D69/EvOD23vjq+cWj5urq1MPU/MTZ1N7a4b/P3uX1wsC4wbnZvNr1v/3Pp8TDurij7b3W1r7Kyu/HwMu6tePD+tnnz/nB/rzPzfvJzc3dsbE=', 140));
   // 2. 注入Provider，包裹MyApp
   runApp(
     ChangeNotifierProvider(
@@ -58,10 +64,13 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    MSAudioUtils().initTempQueue();
     MSNumberAHelper().init();
     MSSDKHelpers().initSDK();
+    MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_txing_statusName, true);
+    MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_domand_numberName, 200000);
     if (MSLocalProvider.instance.ms_bg_music){
-      MSMP3Player().playBackground();
+      MSAudioUtils().playBGM();
     }
   }
 

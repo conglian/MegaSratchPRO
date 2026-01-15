@@ -1,247 +1,168 @@
 import 'package:audioplayers/audioplayers.dart';
 
+import 'ms_LocalProvider.dart';
 import 'ms_extension_help.dart';
 
-class MSMP3Player {
+class MSAudioUtils {
+  // 单例实例
+  static final MSAudioUtils _instance = MSAudioUtils._internal();
 
-  static final MSMP3Player _instance = MSMP3Player._internal();
+  factory MSAudioUtils() => _instance;
 
-  factory MSMP3Player() {
-    return _instance;
+  MSAudioUtils._internal();
+
+  // 背景音乐播放器
+  final AudioPlayer _bgmPlayer = AudioPlayer();
+
+  // 音效播放器池，避免音效重叠被打断
+  final List<AudioPlayer> playerQueue = [];
+
+  final int _maxSfxPlayers = 1;
+
+  bool _bgmPlaying = false;
+
+  Future<void> initTempQueue() async {
+    // 初始化音效播放器池
+    if (playerQueue.isEmpty) {
+      for (int i = 0; i < _maxSfxPlayers; i++) {
+        var audioPlayer = AudioPlayer();
+        await audioPlayer.setPlayerMode(PlayerMode.lowLatency);
+        await audioPlayer.setReleaseMode(ReleaseMode.stop);
+        audioPlayer.setAudioContext(
+            AudioContext(
+                android: AudioContextAndroid(
+                  isSpeakerphoneOn: true,
+                  stayAwake: false,
+                  contentType: AndroidContentType.music,
+                  usageType: AndroidUsageType.game, // 或 media
+                  audioFocus: AndroidAudioFocus.none, // ✅ 不抢焦点
+                )
+            ));
+        playerQueue.add(audioPlayer);
+      }
+    }
   }
 
-  MSMP3Player._internal();
-
-  final AudioPlayer backgroundPlayer = AudioPlayer();
-  final AudioPlayer effectPlayer = AudioPlayer();
-  final AudioPlayer effect2Player = AudioPlayer();
-  final AudioPlayer effect3Player = AudioPlayer();
-  final AudioPlayer effect4Player = AudioPlayer();
-  final AudioPlayer effect5Player = AudioPlayer();
-  final AudioPlayer effect6Player = AudioPlayer();
-  final AudioPlayer effect7Player = AudioPlayer();
-  final AudioPlayer effect8Player = AudioPlayer();
-  final AudioPlayer effect9Player = AudioPlayer();
-  final AudioPlayer effect10Player = AudioPlayer();
-  final AudioPlayer effect11Player = AudioPlayer();
-
-  // 播放背景音频
-  Future<void> playBackground() async {
-    String path = "ms_bg".mp3files();
-    await backgroundPlayer.setReleaseMode(ReleaseMode.loop);
-    await backgroundPlayer.play(AssetSource(path));
+  /// 播放背景音乐，循环播放
+  Future<void> playBGM({double volume = 0.6}) async {
+    if (!MSLocalProvider.instance.ms_bg_music) {
+      return;
+    }
+    if(_bgmPlayer.state == PlayerState.stopped){
+      await _bgmPlayer.setReleaseMode(ReleaseMode.loop);
+      await _bgmPlayer.setVolume(volume);
+      await _bgmPlayer.play(AssetSource("ms_bg".mp3files()));
+    }else if(_bgmPlayer.state == PlayerState.paused){
+      await _bgmPlayer.resume();
+    }
+    _bgmPlaying = true;
   }
 
-  // 暂停背景音频
-  Future<void> pauseBackground() async {
-    await backgroundPlayer.pause();
+  /// 暂停背景音乐
+  Future<void> pauseBGM() async {
+    if (_bgmPlaying) {
+      await _bgmPlayer.pause();
+      _bgmPlaying = false;
+    }
   }
 
-  // 恢复背景音频
-  Future<void> resumeBackground() async {
-    await backgroundPlayer.resume();
+  /// 恢复背景音乐
+  Future<void> resumeBGM() async {
+    if (!_bgmPlaying) {
+      await _bgmPlayer.resume();
+      _bgmPlaying = true;
+    }
   }
 
-  // 播放特效音频
-  Future<void> playEffect() async {
-    String path = "ms_award1".mp3files();
-    await effectPlayer.setReleaseMode(ReleaseMode.loop);
-    await effectPlayer.play(AssetSource(path));
+  /// 停止背景音乐
+  Future<void> stopBGM() async {
+    await _bgmPlayer.stop();
+    _bgmPlaying = false;
   }
 
-  // 暂停特效音频
-  Future<void> pauseEffect() async {
-    await effectPlayer.pause();
+  Future<void> playAward1Audio()async{
+    playTempAudio("ms_award1".mp3files());
   }
 
-  // 恢复特效音频
-  Future<void> resumeEffect() async {
-    await effectPlayer.resume();
+  Future<void> playAward2Audio()async{
+    playTempAudio("ms_award2".mp3files());
   }
 
-  // 播放特效音频
-  Future<void> playEffect2() async {
-    String path = "ms_award2".mp3files();
-    await effect2Player.setReleaseMode(ReleaseMode.loop);
-    await effect2Player.play(AssetSource(path));
+  Future<void> playAward3Audio()async{
+    playTempAudio("ms_award3".mp3files());
   }
 
-  // 暂停特效音频
-  Future<void> pauseEffect2() async {
-    await effect2Player.pause();
+  Future<void> playUnAwardAudio()async{
+    playTempAudio("ms_un_award".mp3files());
   }
 
-  // 恢复特效音频
-  Future<void> resumeEffect2() async {
-    await effect2Player.resume();
+  Future<void> playchouAudio()async{
+    playTempAudio("".mp3files());
   }
 
-  // 播放特效音频
-  Future<void> playEffect3() async {
-    String path = "ms_award3".mp3files();
-    await effect3Player.setReleaseMode(ReleaseMode.loop);
-    await effect3Player.play(AssetSource(path));
+  Future<void> playFaildAudio()async{
+    playTempAudio("".mp3files());
   }
 
-  // 暂停特效音频
-  Future<void> pauseEffect3() async {
-    await effect3Player.pause();
+  Future<void> playGuakaAudio()async{
+    playTempAudio("ms_gua1".mp3files());
   }
 
-  // 恢复特效音频
-  Future<void> resumeEffect3() async {
-    await effect3Player.resume();
+  Future<void> playDolasAudio()async{
+    playTempAudio("ms_dolas".mp3files());
   }
 
-  // 播放特效音频
-  Future<void> playEffect4() async {
-    String path = "ms_un_award".mp3files();
-    await effect4Player.setReleaseMode(ReleaseMode.loop);
-    await effect4Player.play(AssetSource(path));
+  Future<void> playShaiziAudio()async{
+    playTempAudio("".mp3files());
   }
 
-  // 暂停特效音频
-  Future<void> pauseEffect4() async {
-    await effect4Player.pause();
+  Future<void> playTempAudio(String assetPath, {double volume = 1.0}) async {
+    if (!MSLocalProvider.instance.ms_sound_music) {
+      return;
+    }
+    for (final player in playerQueue) {
+      if (player.state != PlayerState.playing) {
+        await _safePlay(player, assetPath, volume);
+        return;
+      }
+    }
+
+    // 都在播放，复用第一个
+    await _safePlay(playerQueue.first, assetPath, volume);
   }
 
-  // 恢复特效音频
-  Future<void> resumeEffect4() async {
-    await effect4Player.resume();
+  Future<void> _safePlay(AudioPlayer player, String assetPath, double volume) async {
+    try {
+      // ⭐ 关键点：彻底释放 native 资源
+      await player.release();
+
+      // 极小延迟，确保 native 层完成 teardown（可留可不留，Android 上建议保留）
+      await Future.delayed(const Duration(milliseconds: 20));
+
+      await player.setVolume(volume);
+      await player.play(AssetSource(assetPath));
+    } catch (e, st) {
+      "playTempAudio play error: $e\n$st".log();
+    }
   }
 
-  // 播放特效音频
-  Future<void> playEffect5() async {
-    String path = "ms_dolas".mp3files();
-    await effect5Player.setReleaseMode(ReleaseMode.loop);
-    await effect5Player.play(AssetSource(path));
+  Future<void> stopAllTempAudio() async {
+    for (final player in playerQueue) {
+      try {
+        await player.release(); // ⭐ 关键
+      } catch (_) {}
+    }
   }
 
-  // 暂停特效音频
-  Future<void> pauseEffect5() async {
-    await effect5Player.pause();
-  }
-
-  // 恢复特效音频
-  Future<void> resumeEffect5() async {
-    await effect5Player.resume();
-  }
-
-  // 播放特效音频
-  Future<void> playEffect6() async {
-    String path = "".mp3files();
-    await effect6Player.setReleaseMode(ReleaseMode.loop);
-    await effect6Player.play(AssetSource(path));
-  }
-
-  // 暂停特效音频
-  Future<void> pauseEffect6() async {
-    await effect6Player.pause();
-  }
-
-  // 恢复特效音频
-  Future<void> resumeEffect6() async {
-    await effect6Player.resume();
-  }
-
-  // 播放特效音频
-  Future<void> playEffect7() async {
-    String path = "".mp3files();
-    await effect7Player.setReleaseMode(ReleaseMode.loop);
-    await effect7Player.play(AssetSource(path));
-  }
-
-  // 暂停特效音频
-  Future<void> pauseEffect7() async {
-    await effect7Player.pause();
-  }
-
-  // 恢复特效音频
-  Future<void> resumeEffect7() async {
-    await effect7Player.resume();
-  }
-
-  // 播放特效音频
-  Future<void> playEffect8() async {
-    String path = "".mp3files();
-    await effect8Player.setReleaseMode(ReleaseMode.loop);
-    await effect8Player.play(AssetSource(path));
-  }
-
-  // 暂停特效音频
-  Future<void> pauseEffect8() async {
-    await effect8Player.pause();
-  }
-
-  // 恢复特效音频
-  Future<void> resumeEffect8() async {
-    await effect8Player.resume();
-  }
-
-  // 播放特效音频 - 抽卡
-  Future<void> playEffect9() async {
-    String path = "".mp3files();
-    await effect9Player.setReleaseMode(ReleaseMode.loop);
-    await effect9Player.play(AssetSource(path));
-  }
-
-  // 暂停特效音频
-  Future<void> pauseEffect9() async {
-    await effect9Player.pause();
-  }
-
-  // 恢复特效音频
-  Future<void> resumeEffect9() async {
-    await effect9Player.resume();
-  }
-
-  // 播放特效音频 - 抽卡
-  Future<void> playEffect10() async {
-    String path = "ms_award3".mp3files();
-    await effect10Player.setReleaseMode(ReleaseMode.loop);
-    await effect10Player.play(AssetSource(path));
-  }
-
-  // 暂停特效音频
-  Future<void> pauseEffect10() async {
-    await effect10Player.pause();
-  }
-
-  // 恢复特效音频
-  Future<void> resumeEffect10() async {
-    await effect10Player.resume();
-  }
-
-  // 播放特效音频 - 刮卡
-  Future<void> playEffectguaka() async {
-    String path = "ms_gua1".mp3files();
-    await effect11Player.setReleaseMode(ReleaseMode.loop);
-    await effect11Player.play(AssetSource(path));
-  }
-
-  // 暂停特效音频
-  Future<void> pauseEffectguaka() async {
-    await effect11Player.pause();
-  }
-
-  // 恢复特效音频
-  Future<void> resumeEffectguaka() async {
-    await effect11Player.resume();
-  }
-
-  // 释放资源
+  /// 释放资源
   Future<void> dispose() async {
-    await backgroundPlayer.dispose();
-    await effectPlayer.dispose();
-    await effect2Player.dispose();
-    await effect3Player.dispose();
-    await effect4Player.dispose();
-    await effect5Player.dispose();
-    await effect6Player.dispose();
-    await effect7Player.dispose();
-    await effect8Player.dispose();
-    await effect9Player.dispose();
-    await effect10Player.dispose();
-    await effect11Player.dispose();
+    await _bgmPlayer.dispose();
+    for (final player in playerQueue) {
+      await player.dispose();
+    }
+  }
+  /// 释放资源
+  Future<void> disposeBgm() async {
+    await _bgmPlayer.dispose();
   }
 }

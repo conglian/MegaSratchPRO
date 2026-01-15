@@ -89,10 +89,11 @@ class _MSCashPageState extends State<MSCashPage> {
                       MSText(text: 'Choose withdraw amount', size: 15, color: '#000000'.color(), weight: FontWeight.w700)
                     ],
                   ),
-                  SizedBox(height: 12.h,),
+                  SizedBox(height: 0.h,),
                   SizedBox(width: 0.width(context), height: 480.h,child: MSCashVerticalList())
                 ],
-              )
+              ),
+              Positioned(top:MSLocalProvider.instance.ms_txing_status == true ? 424.h : 360.h,width: 0.width(context),child: MSText(text: '${MSLocalProvider.instance.ms_tx_num_index} cashouts today!  Join them, withdraw now!', size: 15, color: '#A7A7A7'.color(), weight: FontWeight.w700, align: TextAlign.center,))
             ],
           )
       ),
@@ -174,17 +175,44 @@ class MSCashVerticalList extends StatefulWidget {
 }
 
 class MSCashVerticalListState extends State<MSCashVerticalList> {
+
+  final ScrollController _scrollController = ScrollController();
+
   // 定义 7 个 Item 的尺寸（宽×高）
   final List<List<double>> itemSizes = [
-    [346,91],
-    [346,91],
-    [346,91],
+    [346.w,MSLocalProvider.instance.ms_txing_status == true ? 152.5.h : 91.h],
+    [346.w,91.h],
+    [346.w,91.h],
   ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Future.delayed(Duration(milliseconds: 150),(){
+      scrollindex();
+    });
+  }
+
+  Future<void> scrollindex() async {
+    if (MSLocalProvider.instance.ms_current_ranking == 100){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 3);
+      setState(() {});
+      _scrollToIndex(0);
+    } else {
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 100);
+      setState(() {});
+      _scrollToIndex(97);
+    }
+    if (!context.mounted) return;
+    MSDialogTool.toastRanking(context, MSLocalProvider.instance.ms_current_user_ranking);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       // 容器高度稍大于Item高度，避免裁剪
-      height: 91,
+      height: MSLocalProvider.instance.ms_txing_status == true ? 152.5.h : 91.h,
       padding: const EdgeInsets.all(0),
       child: ListView.builder(
         padding: const EdgeInsets.all(0),
@@ -196,12 +224,32 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
         itemCount: 3,
         // 每个Item之间的间距
         itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 8.8), // 右侧间距
-            child: _buildImageItem(index),
+          return Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: index == 1 ? 59.6 : 16, left: 15, right: 15), // 右侧间距
+                child: _buildImageItem(index),
+              ),
+            ],
           );
         },
       ),
+    );
+  }
+
+  void _scrollToIndex(int index) {
+    // 每个 item 的高度固定为 38（根据你的例子）
+    double itemHeight = 91.h / 3;
+
+    // 计算目标位置
+    final double offset = (index + 1) * itemHeight;
+
+    // 平滑滚动动画
+    if (_scrollController.positions.isEmpty) return;
+    _scrollController.animateTo(
+      offset,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
     );
   }
 
@@ -209,7 +257,7 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
   Widget _buildImageItem(int index) {
     final size = itemSizes[index];
     return Container(
-      width: 0.width(context) - 28,
+      width: 0.width(context) - 30,
       height: size.last,
       decoration: BoxDecoration(
           color: '#FFFFFF'.color(),
@@ -220,13 +268,16 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
   }
 
   Widget _getTxListWidget(int index){
+    if (index == 0){
+      return _getTwoTypeList(index);
+    }
     return _getOneTypeList(index);
   }
 
   Widget _getOneTypeList(int index){
     return SizedBox(
-      width: 0.width(context) - 28,
-      height: 91,
+      width: 0.width(context) - 30,
+      height: MSLocalProvider.instance.ms_txing_status == true ? 152.5.h : 91.h,
       child: Column(
         children: [
           SizedBox(height: 12.5,),
@@ -270,13 +321,13 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
               SizedBox(width: 11.3,)
             ],
           ),
-          SizedBox(height: 8.0,),
+          SizedBox(height: 16.0,),
           SizedBox(
-            width: 321,
+            width: 321.w,
             height: 15,
             child: Stack(
               children: [
-                Positioned(left: 0, top: 8.0, width: 294, height: 10,child: ClipRRect(
+                Positioned(left: 0, bottom: 0.0, width: 294.w, height: 13,child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
                   child: LinearProgressIndicator(
                     value: MSLocalProvider.instance.ms_dolas_number / tx_num_list[index],
@@ -294,11 +345,10 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
     );
   }
 
-
-  Widget _getThreeTypeList(int index){
+  Widget _getTwoTypeList(int index){
     return SizedBox(
-      width: 329,
-      height: 96,
+      width: 0.width(context) - 30,
+      height: MSLocalProvider.instance.ms_txing_status == true ? 152.5.h : 91.h,
       child: Column(
         children: [
           SizedBox(height: 12.5,),
@@ -308,19 +358,17 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 32.0,
+                  style: TextStyle(
+                    fontSize: 36,
                     fontWeight: FontWeight.w600,
-                    fontFamily: 'RocknRollOne',
+                    color: '#000000'.color(),
                   ),
                   children: <TextSpan>[
                     TextSpan(
                       text: '\$',
-                      style: TextStyle(color: index % 2 != 0 ? '#E36346'.color() : '#8137D2'.color(),fontSize: 20.0,),
                     ),
                     TextSpan(
                       text: '${tx_num_list[index]}',
-                      style: TextStyle(color: index % 2 != 0 ? '#E36346'.color() : '#8137D2'.color()),
                     ),
                   ],
                 ),
@@ -335,22 +383,241 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
                 ),
                 child: InkWell(
                   onTap: () async {
+                    tapRankAdSucess();
                   },
                   child: Center(
-                    child: MSText(text: 'Success', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
+                    child: MSText(text: 'Cash Out', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
                   ),
                 ),
               ),
               SizedBox(width: 11.3,)
             ],
           ),
-          SizedBox(height: 8.0,),
+          SizedBox(height: 12.h),
+          Container(
+            width: 0.width(context) - 51,
+            height: 89.5,
+            decoration: BoxDecoration(
+              color: '#F0F0F0'.color(),
+              borderRadius: BorderRadius.circular(8)
+            ),
+            child: _showTXTaskWidget(),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _showTXTaskWidget(){
+    return _showTXRanktaskWidget();
+    return _showTXTimetaskWidget();
+    return _showTXCardtaskWidget();
+  }
+
+  // 刮卡任务
+  Widget _showTXCardtaskWidget(){
+    return SizedBox(
+      width: 0.width(context) - 51,
+      height: 89.5,
+      child: Column(
+        mainAxisAlignment: .spaceAround,
+        children: [
+          Row(
+            mainAxisAlignment: .spaceAround,
+            children: [
+              MSImg(name: 'ms_tx_card_icon', width: 28, height: 30),
+              MSText(text: 'Scratch 10 Cards', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+              MSText(text: '${MSLocalProvider.instance.ms_tx_card_index}/10', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: .spaceAround,
+            children: [
+              MSImg(name: 'ms_tx_rili_icon', width: 24, height: 26),
+              MSText(text: 'Play Daily for 2 Days', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+              MSText(text: '1/2', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 任务
+  Widget _showTXTimetaskWidget(){
+    return SizedBox(
+      width: 0.width(context) - 51,
+      height: 89.5,
+      child: Column(
+        mainAxisAlignment: .spaceAround,
+        children: [
+          Row(
+            children: [
+              SizedBox(width: 12.w),
+              MSImg(name: 'ms_time_icon', width: 75, height: 75),
+              SizedBox(width: 5),
+              MSText(text: 'Reviewing Security\nWait 3 Days', size: 15, color: '#000000'.color(), weight: FontWeight.w700, maxLines: 2),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 任务
+  Widget _showTXRanktaskWidget(){
+    return SizedBox(
+      width: 0.width(context) - 51,
+      height: 89.5,
+      child: Column(
+        children: [
+         Consumer<MSLocalProvider>(
+           builder: (context, provider, child) {
+            return SizedBox(
+              width: 0.width(context) - 51,
+              height: 89.5,
+              child: ListView.separated(
+                physics: NeverScrollableScrollPhysics(), // 禁用滚动
+                controller: _scrollController,
+                scrollDirection: Axis.vertical,
+                padding: const EdgeInsets.symmetric(vertical: 0),
+                itemCount: provider.ms_all_ranking,
+                separatorBuilder: (context, index) => const SizedBox(width: 0),
+                itemBuilder: (context, index) {
+                  return SizedBox(
+                    width: 319.w,
+                    height: 25.h,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        SizedBox(width: 24),
+                        MSText(text: _ms_generateToList()[index], size: 18, color:provider.ms_current_ranking == index+1 ? '#000000'.color() : '#000000'.color(opacity: 0.35), weight: FontWeight.w700),
+                        Spacer(),
+                        MSImg(name: provider.ms_current_ranking == index+1 ? 'ms_user_s' : 'ms_user_n', width: 24.4, height: 24.4),
+                        SizedBox(width: 12),
+                        MSText(text: '${_returnCurrtentindex(index)}', size: 18, color: provider.ms_current_ranking == index+1 ? '#000000'.color() : '#000000'.color(opacity: 0.35), weight: FontWeight.w700),
+                        SizedBox(width: 24),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+         }),
+        ],
+      ),
+    );
+  }
+
+  Future<void> tapRankAdSucess() async {
+    await getUserCurrent_index();
+    if (MSLocalProvider.instance.ms_current_ranking == 100){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 3);
+      setState(() {});
+      _scrollToIndex(0);
+    } else {
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 100);
+      setState(() {});
+      _scrollToIndex(97);
+    }
+    if (!context.mounted) return;
+    MSDialogTool.toastRanking(context, MSLocalProvider.instance.ms_current_user_ranking);
+  }
+
+  Future<void> getUserCurrent_index() async {
+    int index = MSLocalProvider.instance.ms_current_user_ranking;
+    if (index > 10000){
+      index -= 10000;
+    } else if (index > 100 && index <= 10000) {
+      index -= 10;
+    } else if (index <= 100) {
+      index -= 1;
+    }
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_user_rankingName, index);
+  }
+
+  int _returnCurrtentindex(int index){
+    if (index + 1 == MSLocalProvider.instance.ms_current_ranking){
+      return MSLocalProvider.instance.ms_current_user_ranking;
+    } else if (index == MSLocalProvider.instance.ms_current_ranking) {
+      return MSLocalProvider.instance.ms_current_user_ranking + 1;
+    } else if (index + 2 == MSLocalProvider.instance.ms_current_ranking) {
+      return MSLocalProvider.instance.ms_current_user_ranking - 1;
+    } else {
+      return MSLocalProvider.instance.ms_current_user_ranking - index;
+    }
+  }
+
+  List<String> _ms_generateToList() {
+    final random = Random(); // 创建一个随机数生成器
+    List<String> list = List.generate(MSLocalProvider.instance.ms_all_ranking, (index) {
+      if (index == MSLocalProvider.instance.ms_current_ranking - 1) { // 第90个位置（索引为89）
+        return MSLocalProvider.instance.ms_account_id;
+      } else {
+        // 生成随机的三位数字
+        String randomPart = random.nextInt(1000).toString().padLeft(4, '0');
+        return "1****$randomPart";
+      }
+    });
+    return list;
+  }
+
+
+  Widget _getThreeTypeList(int index){
+    return SizedBox(
+      width: 0.width(context) - 30,
+      height: 91.h,
+      child: Column(
+        children: [
+          SizedBox(height: 12.5,),
+          Row(
+            children: [
+              SizedBox(width: 13.7,),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w600,
+                    color: '#000000'.color(),
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: '\$',
+                    ),
+                    TextSpan(
+                      text: '${tx_num_list[index]}',
+                    ),
+                  ],
+                ),
+              ),
+              Spacer(),
+              Container(
+                width: 130,
+                height: 31,
+                decoration: BoxDecoration(
+                    color: '#3256CD'.color(),
+                    borderRadius: BorderRadius.circular(16)
+                ),
+                child: InkWell(
+                  onTap: () async {
+                    MSDialogTool.toast(context, 'The withdrawal was successful; please wait 1-7 business days for the funds to arrive in your account.');
+                  },
+                  child: Center(
+                    child: MSText(text: 'Earn Now!', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
+                  ),
+                ),
+              ),
+              SizedBox(width: 11.3,)
+            ],
+          ),
+          SizedBox(height: 16.0,),
           SizedBox(
-            width: 321,
+            width: 321.w,
             height: 15,
             child: Stack(
               children: [
-                Positioned(left: 0, top: 8.0, width: 294, height: 10,child: ClipRRect(
+                Positioned(left: 0, bottom: 0.0, width: 294.w, height: 13,child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
                   child: LinearProgressIndicator(
                     value: 1.0,
@@ -368,6 +635,5 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
     );
   }
 }
-
 
 

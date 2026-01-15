@@ -1,0 +1,274 @@
+{
+  "lucky_number": {
+    "winup_number": 80000,
+    "point": 0.5,
+    "prizes": [
+      {
+        "first_number": 0,
+        "prize": [
+          10,
+          15
+        ],
+        "end_number": 300
+      },
+      {
+        "first_number": 300,
+        "prize": [
+          8,
+          10
+        ],
+        "end_number": 600
+      },
+      {
+        "first_number": 600,
+        "prize": [
+          5,
+          8
+        ],
+        "end_number": 800
+      },
+      {
+        "first_number": 800,
+        "prize": [
+          3,
+          5
+        ],
+        "end_number": 1000
+      }
+    ]
+  },
+  "card_diamonds": {
+    "diamonds0": 0.1,
+    "diamonds3": 0.3,
+    "diamonds4": 0.2,
+    "diamonds5": 0.3,
+    "diamonds6": 0.06,
+    "diamonds7": 0.03,
+    "diamonds8": 0.01,
+    "prizes": [
+      {
+        "first_number": 0,
+        "prize": [
+          20,
+          30
+        ],
+        "end_number": 300
+      },
+      {
+        "first_number": 300,
+        "prize": [
+          15,
+          20
+        ],
+        "end_number": 600
+      },
+      {
+        "first_number": 600,
+        "prize": [
+          5,
+          10
+        ],
+        "end_number": 800
+      },
+      {
+        "first_number": 800,
+        "prize": [
+          1,
+          5
+        ],
+        "end_number": 1000
+      }
+    ]
+  },
+  "card_fruit": {
+    "point_face": 0.4,
+    "prizes": [
+      {
+        "first_number": 0,
+        "prize": [
+          45,
+          50
+        ],
+        "end_number": 300
+      },
+      {
+        "first_number": 300,
+        "prize": [
+          35,
+          45
+        ],
+        "end_number": 600
+      },
+      {
+        "first_number": 600,
+        "prize": [
+          25,
+          35
+        ],
+        "end_number": 800
+      },
+      {
+        "first_number": 800,
+        "prize": [
+          20,
+          25
+        ],
+        "end_number": 1000
+      }
+    ]
+  },
+  "card_emoji": {
+    "winup_number": 80000,
+    "point": 0.4,
+    "prizes": [
+      {
+        "first_number": 0,
+        "prize": [
+          45,
+          50
+        ],
+        "end_number": 300
+      },
+      {
+        "first_number": 300,
+        "prize": [
+          35,
+          45
+        ],
+        "end_number": 600
+      },
+      {
+        "first_number": 600,
+        "prize": [
+          25,
+          35
+        ],
+        "end_number": 800
+      },
+      {
+        "first_number": 800,
+        "prize": [
+          20,
+          25
+        ],
+        "end_number": 1000
+      }
+    ]
+  },
+  "card_gold_pot": {
+    "winup_number": 80000,
+    "point": 0.4,
+    "prizes": [
+      {
+        "first_number": 0,
+        "prize": [
+          20,
+          30
+        ],
+        "end_number": 300
+      },
+      {
+        "first_number": 300,
+        "prize": [
+          15,
+          20
+        ],
+        "end_number": 600
+      },
+      {
+        "first_number": 600,
+        "prize": [
+          5,
+          10
+        ],
+        "end_number": 800
+      },
+      {
+        "first_number": 800,
+        "prize": [
+          3,
+          5
+        ],
+        "end_number": 1000
+      }
+    ]
+  },
+  "card_77earn": {
+    "point_nowin": 0.1,
+    "point_7": 0.3,
+    "point_77": 0.5,
+    "point_777": 0.2,
+    "prizes": [
+      {
+        "first_number": 0,
+        "prize": [
+          35,
+          45
+        ],
+        "end_number": 300
+      },
+      {
+        "first_number": 300,
+        "prize": [
+          25,
+          35
+        ],
+        "end_number": 600
+      },
+      {
+        "first_number": 600,
+        "prize": [
+          20,
+          25
+        ],
+        "end_number": 800
+      },
+      {
+        "first_number": 800,
+        "prize": [
+          15,
+          20
+        ],
+        "end_number": 1000
+      }
+    ]
+  },
+  "lucky_cash": {
+    "winup_number": 80000,
+    "point": 0.3,
+    "prizes": [
+      {
+        "first_number": 0,
+        "prize": [
+          100,
+          120
+        ],
+        "end_number": 300
+      },
+      {
+        "first_number": 300,
+        "prize": [
+          80,
+          100
+        ],
+        "end_number": 600
+      },
+      {
+        "first_number": 600,
+        "prize": [
+          50,
+          80
+        ],
+        "end_number": 800
+      },
+      {
+        "first_number": 800,
+        "prize": [
+          45,
+          50
+        ],
+        "end_number": 1000
+      }
+    ]
+  }
+}

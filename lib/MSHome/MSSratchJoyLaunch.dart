@@ -7,6 +7,7 @@ import 'package:megascratch/MSTool/ms_text.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import '../MSTool/ms_NoticeTool.dart';
 import '../MSTool/ms_extension_help.dart';
 import '../MSTool/ms_img.dart';
 import '../main.dart';
@@ -31,24 +32,29 @@ class MSSratchJoyLaunchState extends State<MSSratchJoyLaunch>  with SingleTicker
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     ms_setConfigDateInfoData();
     ms_getUserCloakConfig();
+    MSNoticeHelp().setNoticeStatus();
   }
 
   Future<void> ms_setConfigDateInfoData() async {
     // text
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    _daydateString = prefs.getString('sj_day_date') ?? '';
+    _daydateString = prefs.getString('ms_day_date') ?? '';
     DateTime today = DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd').format(today);
-    prefs.setBool('sj_old_guide', true);
+    prefs.setBool('ms_old_guide', true);
     if (_daydateString == '') {
-      prefs.setString('sj_day_date', formattedDate);
+      prefs.setString('ms_day_date', formattedDate);
       // 首次
-      prefs.setBool('sj_first_instll', true);
+      prefs.setBool('ms_first_instll', true);
+
+      prefs.setInt('ms_tx_num_index', Random().nextInt(500) + 500);
     } else {
       if (_daydateString != formattedDate) {
         // 隔天
-        prefs.setString('sj_day_date', formattedDate);
-        prefs.setBool('sj_old_guide', false);
+        prefs.setString('ms_day_date', formattedDate);
+        prefs.setBool('ms_old_guide', false);
+        prefs.setInt('ms_today_card_index', 0);
+        prefs.setInt('ms_tx_num_index', Random().nextInt(500) + 500);
       }
     }
 
@@ -58,22 +64,22 @@ class MSSratchJoyLaunchState extends State<MSSratchJoyLaunch>  with SingleTicker
     // try {
     //   var responseData = await SJRequestHelpers().getCloak();
     //   print('Solitairejoy Config Result: $responseData');
-    //   sj_event_fire("cloak_req", {});
-    //   sj_event_fire("cloak_suc", {
+    //   ms_event_fire("cloak_req", {});
+    //   ms_event_fire("cloak_suc", {
     //     "cloak_user": responseData.toString() == "meredith" ? 1 : 0,
     //   });
     //   final SharedPreferences prefs = await SharedPreferences.getInstance();
     //   if (prefs.getBool('sp_install_status') == null){
-    //     sj_install_fire();
+    //     ms_install_fire();
     //     prefs.setBool('sp_install_status', true);
     //   }
-    //   SJFKManger().sj_add_tabsession_custom();
-    //   sj_session_fire();
-    //   SJLocalProvider.instance.updateBool(SJLocalProvider.instance.sj_cloak_statusName, responseData.toString() == "meredith" ? true : false);
+    //   SJFKManger().ms_add_tabsession_custom();
+    //   ms_session_fire();
+    //   SJLocalProvider.instance.updateBool(SJLocalProvider.instance.ms_cloak_statusName, responseData.toString() == "meredith" ? true : false);
     // } catch (e) {
     //   print('Solitaireplayland Request Error: $e');
     //   Future.delayed(Duration(seconds: 1), () {
-    //     sj_getSBUserCloakConfig();
+    //     ms_getSBUserCloakConfig();
     //   });
     // }
   }

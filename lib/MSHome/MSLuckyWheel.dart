@@ -10,6 +10,7 @@ import '../MSTool/MSScratchWheelPage.dart';
 import '../MSTool/ms_LocalProvider.dart';
 import '../MSTool/ms_extension_help.dart';
 import '../MSTool/ms_img.dart';
+import '../MSTool/ms_wheel_spin.dart';
 import 'MSHome.dart';
 
 
@@ -24,6 +25,8 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
   BuildContext get ctx => context;
 
   Timer? _timer;
+
+  bool is_tap = false;
 
   @override
   void initState() {
@@ -68,7 +71,7 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
                       ),
                       child: InkWell(onTap: (){
                         tapwheelSender();
-                      },child: MSScratchWheelPage(imagePath: 'ms_wheel_center_bg'.image(),)),
+                      },child: MSScratchWheelPage(imagePath: 'ms_wheel_center_bg_b'.image(),)),
                     ),
                     Container(
                       width: 327.w,
@@ -163,6 +166,11 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
 
   Future<void> tapwheelSender() async {
 
+    if (is_tap){
+      return;
+    }
+    is_tap = true;
+
     if (MSLocalProvider.instance.ms_wheel_number <= 0) {
 
       context.tipShow(MSNeedsADialog());
@@ -171,24 +179,44 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
 
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_numberName, MSLocalProvider.instance.ms_wheel_number - 1);
 
-      List<int> numbers = [0, 1, 3, 5, 6, 8];
-
-      List<int> awards = [100, 200, 300, 500, 1000, 3000];
-
       // 创建一个 Random 实例
-      Random random = Random();
-
+      int random = WheelSpin().spinWheel();
       // 生成一个随机索引
-      int randomIndex = random.nextInt(numbers.length); // 获取随机索引
+      int randomIndex = 1;
+      // 获取随机索引
+     'random=$random'.log();
+      if (random == 100){
+        randomIndex = 1;
+      } else if (random == 1000) {
+        randomIndex = 2;
+      } else if (random == 20) {
+        randomIndex = 3;
+      } else if (random == 80) {
+        randomIndex = 5;
+      } else if (random == 50) {
+        randomIndex = 0;
+      }
 
-      // 获取随机数
-      int randomNumber = numbers[randomIndex];
-
-      MSScratchWheelStartNotificationService.sendToStartIndexNotification(randomNumber);
+      MSScratchWheelStartNotificationService.sendToStartIndexNotification(randomIndex);
 
       Future.delayed(Duration(milliseconds: 1000), () async {
+        is_tap = false;
         if (!mounted) return;
-        context.tipShow(MSWheelAwardADialog(award: awards[randomIndex]));
+        if (random == 1000){
+          // 卡片
+          Random random = Random();
+          // 生成 0 到 2 之间的随机整数
+          int randomNumber = random.nextInt(3);
+          if (randomNumber == 0) {
+            context.tipShow(MSFruitCardDialog());
+          } else if (randomNumber == 1) {
+            context.tipShow(MSDoubleCardDialog());
+          } else if (randomNumber == 2) {
+            context.tipShow(MS777baoCardDialog());
+          }
+        } else {
+          context.tipShow(MSYouWinDialog(award_num: random.toDouble()));
+        }
       });
 
     }

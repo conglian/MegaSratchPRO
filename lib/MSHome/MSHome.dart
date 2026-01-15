@@ -2,13 +2,16 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
 import 'package:megascratch/MSTool/ms_LocalProvider.dart';
 import 'package:megascratch/MSTool/ms_stroke_text.dart';
 import 'package:megascratch/MSTool/ms_text.dart';
 import 'package:provider/provider.dart';
 import '../MSDialog/MSDialog.dart';
 import '../MSTool/ms_GradientNumber.dart';
+import '../MSTool/ms_NoticeTool.dart';
 import '../MSTool/ms_extension_help.dart';
+import '../MSTool/ms_fkmanger.dart';
 import '../MSTool/ms_img.dart';
 import '../MSTool/ms_scratch_card_image_prize.dart';
 import 'MSScratchDetailsB.dart';
@@ -20,8 +23,6 @@ class MSHomeContentPage extends StatefulWidget {
 }
 
 class _MSHomeContentPageState extends State<MSHomeContentPage> {
-  // 用于控制页面内容的变量
-  String pageContent = "这是首页内容"; // 初始内容
 
   @override
   void initState() {
@@ -34,6 +35,8 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
     MSSUpdateHomeListNotificationService.stream.listen((value) async {
       setState(() {});
     });
+    MSFKManger().initFK();
+    MSNoticeHelp().initNotice();
   }
 
   Future<void> shownewguide() async {
@@ -61,7 +64,28 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
                      VerticalListView(),
                    ],
                  ),
-               )
+               ),
+              Positioned(
+                child: Consumer<MSLocalProvider>(
+                    builder: (context, provider, child) {
+                      return Visibility(visible: provider.ms_show_dolas_ani, child: Padding(
+                        padding: EdgeInsets.only(top: 8.h),
+                        child: Lottie.asset(
+                            width: 0.width(context),
+                            height: 720.h,
+                            fit: BoxFit.fill,
+                            "ms_dolas_aniamtion.zip".files(),
+                            repeat: false,
+                            onLoaded: (composition) async {
+                              Future.delayed(Duration(milliseconds: 1800), (){
+                                MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_show_dolas_aniName, false);
+                              });
+                            }
+                        ),
+                      ));
+                    }
+                ),
+              )
             ],
           )
       ),
@@ -154,22 +178,19 @@ class VerticalListView extends StatelessWidget {
                    )
                 )
                 ),
-                Positioned(bottom: 57.h,child: Row(
+                Positioned(bottom: getNameToBottomH(index),child: Row(
                   children: [
                     SizedBox(width: 118.w,),
                     MSStrokeText(text: 'Win Up To', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#413210'.color()),
                     SizedBox(width: 10.w,),
-                    MSImg(name: 'ms_domands_icons', width: 19, height: 19,),
+                    MSImg(name: 'ms_dolas_icon_s', width: 22, height: 22,),
                     SizedBox(width: 10.w,),
                     MSStrokeText(text: '${1000 * (index + 1)}', size: 16, color: '#FBF544'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#322107'.color()),
                   ],
                 )),
                 Positioned(
-                  right: 15.w,
-                  top: 33.h,
-                  child: Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.rotationZ(pi / 4),
+                  right: 40.w,
+                  bottom: getindexToBottomH(index),
                   child: Consumer<MSLocalProvider>(
                            builder:(context, provider, child) {
                              if (index == 0){
@@ -190,7 +211,6 @@ class VerticalListView extends StatelessWidget {
                              return MSStrokeText(text: '0/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
                            })
                    ),
-                )
               ],
             ),
           );
@@ -198,6 +218,32 @@ class VerticalListView extends StatelessWidget {
       ),
     );
   }
+
+  double getNameToBottomH(int index){
+    double doubles = 50.h;
+    if (index == 2){
+      doubles = 56.h;
+    }
+    if (index == 4){
+      doubles = 48.h;
+    }
+    return doubles;
+  }
+
+  double getindexToBottomH(int index){
+    double doubles = 54.h;
+    if (index == 2){
+      doubles = 59.h;
+    }
+    if (index == 3){
+      doubles = 50.h;
+    }
+    if (index == 4){
+      doubles = 50.h;
+    }
+    return doubles;
+  }
+
   String _getGoBtnName(int index){
     if (index == 2 && (MSLocalProvider.instance.ms_Level_number < 3 || MSLocalProvider.instance.ms_scratch_status_2 == false)) {
       if (MSLocalProvider.instance.ms_scratch_status_2 == true) {
@@ -443,13 +489,24 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
                     onTap: (){
                       context.tipShow(MSPopTaskADialog());
                     },
-                    child: MSImg(name: 'ms_task_icon', width: 43, height: 42,),
+                    child: Container(
+                      width: 42,
+                      height: 43,
+                      decoration: BoxDecoration(
+                        image: MSDImg('ms_tasks_icon')
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(right: 0,top: -2,child: MSImg(name: 'ms_tasks_gantan',width: 15, height: 15,))
+                        ],
+                      ),
+                    ),
                   ),
                   SizedBox(width: 7.27.w,),
                   InkWell(
                     onTap: (){
                       // context.tipShow(MSPopSettingDialog());
-                      context.tipShow(MSTXDayFourOneToastDialog());
+                      context.tipShow(MSNoticeDialog());
                     },
                     child: MSImg(name: 'ms_set_icon', width: 43, height: 42,),
                   ),
@@ -489,93 +546,154 @@ class _MSBottomBarWidgetState extends State<MSBottomBarWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-        width: 0.width(context),
-        height: 88,
-        decoration: BoxDecoration(
-            image: MSDImg('ms_bottom_bar_bg')
-        ),
-        child: Row(
-          children: [
-            SizedBox(width: 17.09.w,),
-            InkWell(
-              onTap: (){
-                Navigator.pop(context);// 外部调用
+      width: 0.width(context),
+      height: 102,
+      decoration: BoxDecoration(
+          image: MSDImg('ms_tabbar_bgs')
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: (0.width(context) - 156) * 0.5,
+            height: 102,
+            child: InkWell(
+              onTap: () {
+                Navigator.pop(context); // 外部调用
                 MSNavigationService().changeTab(1);
               },
-              child: Container(
-                width: 55,
-                height: 50,
-                decoration: BoxDecoration(
-                    image: MSDImg('ms_wheel_b_btn')
-                ),
-                child: Stack(
-                  children: [
+              child: Stack(
+                children: [
                   Positioned(
-                    right: 2,
-                    top: 5,
+                    top: 20,
+                    left: 18.w,
                     child: Container(
-                    width: 26,
-                    height: 11,
-                    decoration: BoxDecoration(
-                      color: '#000000'.color(opacity: 0.38),
-                      borderRadius: BorderRadius.circular(5.5),
-                    ),
-                    child: Center(
-                      child:
-                      Consumer<MSLocalProvider>(
-                          builder: (context, provider, child) {
-                            return MSStrokeText(text: '${provider.ms_wheel_index}/5', size: 11, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.3, skColor: '#000000'.color());
-                          }
+                      width: 55,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          image: MSDImg('ms_wheel_b_btn')
                       ),
-                     ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            right: 2,
+                            top: 5,
+                            child: Container(
+                              width: 26,
+                              height: 11,
+                              decoration: BoxDecoration(
+                                color: '#000000'.color(opacity: 0.38),
+                                borderRadius: BorderRadius.circular(5.5),
+                              ),
+                              child: Center(
+                                child: Consumer<MSLocalProvider>(
+                                    builder: (context, provider, child) {
+                                      return MSStrokeText(
+                                          text: '${provider.ms_wheel_index}/5',
+                                          size: 11,
+                                          color: '#FFFFFF'.color(),
+                                          weight: FontWeight.w700,
+                                          skWidth: 0.3,
+                                          skColor: '#000000'.color()
+                                      );
+                                    }
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  ],
-                ),
+                  Positioned(
+                      left: 22.w,
+                      top: 60,
+                      child: MSStrokeText(
+                          text: 'Wheel',
+                          size: 16,
+                          color: '#FFFFFF'.color(),
+                          weight: FontWeight.w700,
+                          skWidth: 1,
+                          skColor: '#360859'.color()
+                      )
+                  ),
+                ],
               ),
             ),
-            SizedBox(width: 11.25.w,),
-            Container(
-              width: 207,
-              height: 59,
-              decoration: BoxDecoration(
-                  image: MSDImg('ms_green_b_btn')
-              ),
-              child: InkWell(
-                onTap: () async {
-                  'ms_scractch_auto=${MSLocalProvider.instance.ms_scractch_auto}'.log();
-                  if (!MSLocalProvider.instance.ms_scractch_auto){
-                    await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scractch_autoName, true);
-                    MSScratchUpdateNotificationService.sendToDomandNumberNotification(1);
-                  }
-                },
-                child: Center(
-                  child: MSStrokeText(text: 'REVEAL ALL', size: 22, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#FFFFFF'.color()),
-                ),
-              ),
-            ),
-            Spacer(),
-            InkWell(
-              onTap: (){
-                Navigator.pop(context);
-              },
+          ),
+          // 中间按钮
+          SizedBox(
+            width: 156,
+            height: 102,
+            child: Padding(
+              padding: EdgeInsets.only(top: 30, bottom: 10),
               child: Container(
-                width: 37,
-                height: 40,
-                decoration: BoxDecoration(
-                    image: MSDImg('ms_back_icon')
+                  width: 156,
+                  height: 59,
+                  decoration: BoxDecoration(
+                      image: MSDImg('ms_tabbar_bottom_btn')
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      'ms_scractch_auto=${MSLocalProvider.instance.ms_scractch_auto}'.log();
+                      if (!MSLocalProvider.instance.ms_scractch_auto) {
+                        await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scractch_autoName, true);
+                        MSScratchUpdateNotificationService.sendToDomandNumberNotification(1);
+                      }
+                    },
+                    child: Center(
+                      child: MSStrokeText(
+                          text: 'REVEAL ALL',
+                          size: 22,
+                          color: '#FFFFFF'.color(),
+                          weight: FontWeight.w700,
+                          skWidth: 1,
+                          skColor: '#0E820E'.color()
+                      ),
+                    ),
+                  ),
                 ),
-                child: Stack(
-                  children: [
-                  ],
-                ),
+            ),
+          ),
+          SizedBox(
+            width: (0.width(context) - 156) * 0.5,
+            height: 102,
+            child: InkWell(
+              onTap: () {
+                Navigator.pop(context); // 外部调用
+                MSNavigationService().changeTab(2);
+              },
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 20,
+                    right: 18.w,
+                    child: Container(
+                      width: 61.73,
+                      height: 61.73,
+                      decoration: BoxDecoration(
+                          image: MSDImg('ms_tabbar_cash')
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                      right: 36.w,
+                      top: 64,
+                      child: MSStrokeText(
+                          text: 'Cash',
+                          size: 16,
+                          color: '#FFFFFF'.color(),
+                          weight: FontWeight.w700,
+                          skWidth: 1,
+                          skColor: '#360859'.color()
+                      )
+                  ),
+                ],
               ),
             ),
-            SizedBox(width: 20.w,),
-          ],
-        )
+          ),
+        ],
+      ),
     );
   }
 }

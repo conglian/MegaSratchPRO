@@ -151,10 +151,7 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
       _repaintFlag++;
       _autoCoinPosition = null;
     });
-    await MSMP3Player().pauseEffectguaka();
-    if (MSLocalProvider.instance.ms_bg_music){
-      await MSMP3Player().playBackground();
-    }
+    await MSAudioUtils().stopAllTempAudio();
   }
 
   void _resetScratchCard() {
@@ -279,10 +276,7 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
       _autoScratchSubscription?.cancel();
       _autoScratchSubscription = null;
     });
-    await MSMP3Player().pauseEffectguaka();
-    if (MSLocalProvider.instance.ms_bg_music) {
-      await MSMP3Player().playBackground();
-    }
+    await MSAudioUtils().stopAllTempAudio();
   }
 
   @override
@@ -307,11 +301,8 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
           _autoCoinPosition = null;
         });
         // ms_event_fire('scratch_card', {'type' : 'user'});
-        if (MSLocalProvider.instance.ms_bg_music) {
-          await MSMP3Player().pauseBackground();
-        }
         if (MSLocalProvider.instance.ms_sound_music) {
-          await MSMP3Player().playEffectguaka();
+          await MSAudioUtils().playGuakaAudio();
         }
       },
       onPanUpdate: _isAutoScratching ? null : (details) => _handlePanUpdate(details, Size(widget.contentW, widget.contentH)),

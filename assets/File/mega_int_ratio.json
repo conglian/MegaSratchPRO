@@ -1,0 +1,27 @@
+{"intad_point": [
+  {
+    "first_number":0,
+    "point":0,
+    "end_number":10
+  },
+  {
+    "first_number": 10,
+    "point": 50,
+    "end_number": 300
+  },
+  {
+    "first_number":300,
+    "point":50,
+    "end_number":600
+  },
+  {
+    "first_number":600,
+    "point":80,
+    "end_number":800
+  },
+  {
+    "first_number":800,
+    "point":100,
+    "end_number":99999
+  }
+]}

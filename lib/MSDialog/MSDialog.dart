@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -6,6 +7,7 @@ import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:megascratch/MSTool/ms_GradientText.dart';
+import 'package:megascratch/MSTool/ms_ad_manger.dart';
 import 'package:megascratch/MSTool/ms_text.dart';
 import 'package:provider/provider.dart';
 import '../MSHome/MSHome.dart';
@@ -20,6 +22,8 @@ import '../MSTool/ms_img.dart';
 import '../MSTool/ms_mp3_player.dart';
 import '../MSTool/ms_stroke_text.dart';
 import 'package:spine_flutter/spine_flutter.dart' as spine;
+import 'package:app_settings/app_settings.dart';
+import '../MSTool/ms_wheel_spin.dart';
 
 class MSDialogTool {
   // tosat
@@ -236,7 +240,7 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
                   Positioned(
                     top: 22,
                     child: MSGradientStrokeText(
-                      text: '\$${widget.award_num}',
+                      text: '\$${widget.award_num.toStringAsFixed(2)}',
                       gradientColors: ['#FFFFD7'.color(), '#FFEA8F'.color(), '#FFD20B'.color(), '#FFD20B'.color()],
                       width: 297,
                       height: 20,
@@ -253,7 +257,10 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                  MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
+                  Navigator.pop(context, 1);
+                });
               },
               child: Container(
                 width: 237,
@@ -283,9 +290,21 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
             top: 538.h + 64,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                if (await MSMegaAds().getIntShow()) {
+                  if (!context.mounted) return;
+                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                    Navigator.pop(context, 1);
+                  }, adDidClosed: (adDidClosed){
+                    MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                    Navigator.pop(context, 1);
+                  });
+                } else {
+                  await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                  if (!context.mounted) return;
+                  Navigator.pop(context, 1);
+                }
               },
-              child: Container(
+              child: SizedBox(
                 width: 237,
                 height: 64,
                 child: Center(
@@ -478,7 +497,10 @@ class MSJackPotDialogState extends State<MSJackPotDialog> with TickerProviderSta
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                  MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
+                  Navigator.pop(context, 1);
+                });
               },
               child: Container(
                 width: 237,
@@ -508,9 +530,21 @@ class MSJackPotDialogState extends State<MSJackPotDialog> with TickerProviderSta
             top: 538.h + 64,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                if (await MSMegaAds().getIntShow()) {
+                  if (!context.mounted) return;
+                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                    Navigator.pop(context, 1);
+                  }, adDidClosed: (adDidClosed){
+                    MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                    Navigator.pop(context, 1);
+                  });
+                } else {
+                  await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                  if (!context.mounted) return;
+                  Navigator.pop(context, 1);
+                }
               },
-              child: Container(
+              child: SizedBox(
                 width: 237,
                 height: 64,
                 child: Center(
@@ -700,7 +734,10 @@ class MSBigWinDialogState extends State<MSBigWinDialog> with TickerProviderState
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                  MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
+                  Navigator.pop(context, 1);
+                });
               },
               child: Container(
                 width: 237,
@@ -730,9 +767,21 @@ class MSBigWinDialogState extends State<MSBigWinDialog> with TickerProviderState
             top: 538.h + 64,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                if (await MSMegaAds().getIntShow()) {
+                  if (!context.mounted) return;
+                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                    Navigator.pop(context, 1);
+                  }, adDidClosed: (adDidClosed){
+                    MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                    Navigator.pop(context, 1);
+                  });
+                } else {
+                  await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                  if (!context.mounted) return;
+                  Navigator.pop(context, 1);
+                }
               },
-              child: Container(
+              child: SizedBox(
                 width: 237,
                 height: 64,
                 child: Center(
@@ -923,7 +972,10 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                  MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
+                  Navigator.pop(context, 1);
+                });
               },
               child: Container(
                 width: 237,
@@ -953,7 +1005,19 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
             top: 538.h + 64,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                if (await MSMegaAds().getIntShow()) {
+                  if (!context.mounted) return;
+                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                    Navigator.pop(context, 1);
+                  }, adDidClosed: (adDidClosed){
+                    MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                    Navigator.pop(context, 1);
+                  });
+                } else {
+                  await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                  if (!context.mounted) return;
+                  Navigator.pop(context, 1);
+                }
               },
               child: SizedBox(
                 width: 237,
@@ -1047,7 +1111,17 @@ class MSUnAwardDialogState extends State<MSUnAwardDialog> with TickerProviderSta
             top: 480.h,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                if (await MSMegaAds().getIntShow()) {
+                  if (!context.mounted) return;
+                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                    Navigator.pop(context, 1);
+                  }, adDidClosed: (adDidClosed){
+                    Navigator.pop(context, 1);
+                  });
+                } else {
+                  if (!context.mounted) return;
+                  Navigator.pop(context, 1);
+                }
               },
               child: Container(
                 width: 237,
@@ -1370,7 +1444,10 @@ class MS777baoCardDialogState extends State<MS777baoCardDialog> with TickerProvi
             top: 500.h,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                  Navigator.pop(context);
+                  MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_777_cardName, true);
+                });
               },
               child: Container(
                 width: 237,
@@ -1492,7 +1569,11 @@ class MSDoubleCardDialogState extends State<MSDoubleCardDialog> with TickerProvi
             top: 510.h,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                'doule'.log();
+                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                  Navigator.pop(context);
+                  MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_double_cardName, true);
+                });
               },
               child: Container(
                 width: 237,
@@ -1617,7 +1698,10 @@ class MSFruitCardDialogState extends State<MSFruitCardDialog> with TickerProvide
             top: 510.h,
             child: InkWell(
               onTap: () async {
-                Navigator.pop(context);
+                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                  Navigator.pop(context);
+                  MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_double_cardName, true);
+                });
               },
               child: Container(
                 width: 237,
@@ -2115,6 +2199,138 @@ class MSTXTXDialogState extends State<MSTXTXDialog> with SingleTickerProviderSta
   }
 }
 
+// 转盘弹框
+class MSLuckyWheelDialog extends StatefulWidget {
+  MSLuckyWheelDialog({super.key});
+
+  @override
+  State<MSLuckyWheelDialog> createState() => MSLuckyWheelDialogState();
+}
+
+class MSLuckyWheelDialogState extends State<MSLuckyWheelDialog> with SingleTickerProviderStateMixin {
+
+  bool is_tap = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 0.width(context),
+      height: 0.height(context),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              MSImg(name: 'ms_lucky_wheel_title', width: 347, height: 72),
+              Container(
+                width: 375.w,
+                height: 445.w,
+                decoration: BoxDecoration(
+                    image: MSDImg('ms_wheel_center_bg_0')
+                ),
+                child: InkWell(onTap: (){
+                  tapwheelSender();
+                },child: MSScratchWheelPage(imagePath: 'ms_wheel_center_bg_b'.image(),)),
+              ),
+              MSImg(name: 'ms_lucky_wheel_title2', width: 100, height: 38.5),
+            ],
+          ),
+          Positioned(left: (0.width(context) - 104) * 0.51,top: 350.78.h,child: Container(
+            width: 104, height: 126.8,
+            decoration: BoxDecoration(
+                image: MSDImg('ms_wheel_btn')
+            ),
+            child: InkWell(
+              onTap: (){
+                tapwheelSender();
+              },
+              child: Stack(
+                children: [
+                  Positioned(top: 56,left: 25,child: MSImg(name: 'ms_wheel_btn1', width: 55, height: 42,))
+                ],
+              ),
+            ),
+          )
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+  Future<void> tapwheelSender() async {
+
+    if (is_tap){
+      return;
+    }
+    is_tap = true;
+
+    await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_wheel_pop_showName, false);
+
+    if (MSLocalProvider.instance.ms_wheel_number <= 0) {
+
+      context.tipShow(MSNeedsADialog());
+
+    } else {
+      await MSLocalProvider.instance.updateint(
+          MSLocalProvider.instance.ms_wheel_numberName,
+          MSLocalProvider.instance.ms_wheel_number - 1);
+
+      // 创建一个 Random 实例
+      int random = WheelSpin().spinWheel();
+      // 生成一个随机索引
+      int randomIndex = 1;
+      // 获取随机索引
+      'random=$random'.log();
+      if (random == 100) {
+        randomIndex = 1;
+      } else if (random == 1000) {
+        randomIndex = 2;
+      } else if (random == 20) {
+        randomIndex = 3;
+      } else if (random == 80) {
+        randomIndex = 5;
+      } else if (random == 50) {
+        randomIndex = 0;
+      }
+
+      MSScratchWheelStartNotificationService.sendToStartIndexNotification(
+          randomIndex);
+
+      Future.delayed(Duration(milliseconds: 1000), () async {
+        is_tap = false;
+        if (!mounted) return;
+        if (random == 1000) {
+          // 卡片
+          Random random = Random();
+          // 生成 0 到 2 之间的随机整数
+          int randomNumber = random.nextInt(3);
+          if (randomNumber == 0) {
+            context.tipShow(MSFruitCardDialog());
+          } else if (randomNumber == 1) {
+            context.tipShow(MSDoubleCardDialog());
+          } else if (randomNumber == 2) {
+            context.tipShow(MS777baoCardDialog());
+          }
+        } else {
+          context.tipShow(MSYouWinDialog(award_num: random.toDouble()));
+        }
+      });
+    }
+  }
+}
 // 发起提现
 class MSTXSubmitDialog extends StatefulWidget {
   MSTXSubmitDialog({super.key});
@@ -2264,6 +2480,86 @@ class MSTXSubmitDialogState extends State<MSTXSubmitDialog> with SingleTickerPro
           )
         ],
       ),
+    );
+  }
+}
+// 通知二次召唤
+class MSNoticeDialog extends StatefulWidget {
+  MSNoticeDialog({super.key});
+
+  @override
+  State<MSNoticeDialog> createState() => MSNoticeDialogState();
+}
+
+class MSNoticeDialogState extends State<MSNoticeDialog> {
+
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 0.width(context),
+      height: 0.height(context),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 326.5.w,
+            height: 390.h,
+            decoration: BoxDecoration(
+              image: MSDImg('ms_notice_bg')
+            ),
+            child: Column(
+              children: [
+                SizedBox(height: 25.11.h),
+                MSText(text: 'Priority Cash-Out Alerts!', size: 24, color: '#000000'.color(), weight: FontWeight.w700),
+                SizedBox(height: 12.h),
+                MSImg(name: 'ms_notice_icon', width: 179.5, height: 175.5),
+                MSText(text: 'Loyal user exclusive! Enable notifications \n for priority cash-out & high-yield alerts.', size: 15, color: '#363636'.color(), weight: FontWeight.w700, maxLines: 2, align: TextAlign.center),
+                SizedBox(height: 27.88.h),
+                Container(
+                  width: 300,
+                  height: 52,
+                  decoration: BoxDecoration(
+                      color: '#4183EC'.color(),
+                      borderRadius: BorderRadius.circular(26)
+                  ),
+                  child: InkWell(
+                    onTap: (){
+                      Navigator.pop(context, 1);
+                      AppSettings.openAppSettings(
+                        type: AppSettingsType.notification,
+                      );
+                    },
+                    child: MSStrokeText(text: 'Enable for Cash-Out', size: 26, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0, skColor: '#1D5814'.color(),is_btn: true,),
+                  ),
+                ),
+                SizedBox(height: 15),
+                SizedBox(
+                  width: 300,
+                  height: 52,
+                  child: InkWell(
+                    onTap: (){
+                      Navigator.pop(context, 1);
+                    },
+                    child: MSStrokeText(text: 'Give Up', size: 15, color: '#7D7D7D'.color(), weight: FontWeight.w700, skWidth: 0, skColor: '#7D7D7D'.color()),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      )
     );
   }
 }
@@ -2577,15 +2873,160 @@ class MSTXDayFourTwoToastDialogState extends State<MSTXDayFourTwoToastDialog> wi
                     ),
                     child: Column(
                       children: [
-                        SizedBox(height: 24.h,),
+                        SizedBox(height: 8.5.h,),
+                        MSText(text: 'Payment Processing', size: 24, color: '#363636'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 1),
                         MSImg(name: 'ms_time_icon', width: 218.w, height: 218.w),
                       ],
                     ),
                   ),
-                  Positioned(top: 165.h,child: SizedBox(width: 327.w, height:60.h,child: MSText(text: '5 Extra Scratch Cards\nToday', size: 24, color: '#363636'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 2,))),
+                  Positioned(top: 202.h,left: 72.w,child: MSText(text: 'Estimated Wait: 2 Days', size: 20, color: '#363636'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 1),),
+                  Positioned(top: 228.h,left: 32.w,child: Container(
+                    width: 295,
+                    height: 52,
+                    decoration: BoxDecoration(
+                        color: '#4183EC'.color(),
+                        borderRadius: BorderRadius.circular(26)
+                    ),
+                    child: InkWell(
+                      onTap: (){
+                        Navigator.pop(context);
+
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          MSImg(name: 'ms_ad_icon',width: 25, height: 25,),
+                          SizedBox(width: 8,),
+                          MSStrokeText(text: 'Speed Up!', size: 24, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0, skColor: '#1D5814'.color(),is_btn: true,)
+                        ],
+                      ),
+                    ),
+                  )),
+                  Positioned(top: 278.h,left: 140.w,child: MSText(text: 'Wait', size: 20, color: '#808080'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 1),),
                 ],
               ),
-              SizedBox(height: 14.28.h),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+// 广告到达上限
+class MSAdLimitDialog extends StatefulWidget {
+  MSAdLimitDialog({super.key});
+
+  @override
+  State<MSAdLimitDialog> createState() => MSAdLimitDialogState();
+}
+
+class MSAdLimitDialogState extends State<MSAdLimitDialog> with SingleTickerProviderStateMixin {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 0.width(context),
+      height: 0.height(context),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    width:326.w, height: 303.h,
+                    decoration: BoxDecoration(
+                        image: MSDImg('ms_shenhe_bg')
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 8.5.h,),
+                        MSText(text: 'Daily Ad Limit Reached', size: 24, color: '#363636'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 1),
+                        MSImg(name: 'ms_limit_icon', width: 179.02.w, height: 179.02.w),
+                      ],
+                    ),
+                  ),
+                  Positioned(top: 202.h,left: 72.w,child: MSText(text: 'Come Back Tomorrow!\nDaily Rewards Await!', size: 20, color: '#808080'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 2),),
+                  Positioned(top: 248.h,left: 32.w,child: Container(
+                    width: 295,
+                    height: 52,
+                    decoration: BoxDecoration(
+                        color: '#4183EC'.color(),
+                        borderRadius: BorderRadius.circular(26)
+                    ),
+                    child: InkWell(
+                      onTap: (){
+                        Navigator.pop(context);
+
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          MSStrokeText(text: 'Got it', size: 24, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0, skColor: '#1D5814'.color(),is_btn: true,)
+                        ],
+                      ),
+                    ),
+                  )),
+                ],
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+// 广告加载失败现实
+class MSAdShowFaildDialog extends StatefulWidget {
+  MSAdShowFaildDialog({super.key});
+
+  @override
+  State<MSAdShowFaildDialog> createState() => MSAdShowFaildDialogState();
+}
+
+class MSAdShowFaildDialogState extends State<MSAdShowFaildDialog> with SingleTickerProviderStateMixin {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 0.width(context),
+      height: 0.height(context),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          MSText(text: 'Oops! Ad Issue', size: 40, color: '#FFFFFF'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 1),
+          SizedBox(height: 12.h),
+          MSImg(name: 'ms_ad_faild_icon', width: 142.w, height: 142.w),
+          SizedBox(height: 12.h),
+          MSText(text: 'Reward Automatically Added to\nYour Account', size: 20, color: '#E1E1E1'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 2),
+          SizedBox(height: 12.h),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               Container(
                 width: 295,
                 height: 52,
@@ -2596,18 +3037,16 @@ class MSTXDayFourTwoToastDialogState extends State<MSTXDayFourTwoToastDialog> wi
                 child: InkWell(
                   onTap: (){
                     Navigator.pop(context);
-                    context.tipShow(MSTXFourToastDialog());
+
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      MSImg(name: 'ms_ad_icon',width: 25, height: 25,),
-                      SizedBox(width: 4,),
-                      MSStrokeText(text: 'Earn More', size: 24, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0, skColor: '#1D5814'.color(),is_btn: true,)
+                      MSStrokeText(text: 'Claim', size: 24, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0, skColor: '#1D5814'.color(),is_btn: true,)
                     ],
                   ),
                 ),
-              ),
+              )
             ],
           )
         ],
@@ -3458,7 +3897,9 @@ class MSCashActHorizontalImageListState extends State<MSCashActHorizontalImageLi
 
 // 瓜分奖金池
 class MSAwardPoolDialog extends StatefulWidget {
-  MSAwardPoolDialog({super.key});
+  final int award_num;
+  final int time_index;
+  MSAwardPoolDialog({super.key, required this.award_num, required this.time_index});
 
   @override
   State<MSAwardPoolDialog> createState() => MSAwardPoolDialogState();
@@ -3466,8 +3907,14 @@ class MSAwardPoolDialog extends StatefulWidget {
 
 class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
     with SingleTickerProviderStateMixin {
+
   late AnimationController _rotationController;
+
   late Animation<double> _rotationAnimation;
+  // 总倒计时时间，单位是秒
+  int _remainingTime = MSLocalProvider.instance.ms_dao_time_index; // 5 分钟倒计时（300秒）
+
+  late Timer _timer;
 
   @override
   void initState() {
@@ -3482,6 +3929,40 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
 
     _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * 3.14159) // 完整旋转 360 度
         .animate(CurvedAnimation(parent: _rotationController, curve: Curves.linear));
+  }
+
+  // 启动倒计时
+  void _startCountdown() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTime > 0) {
+        setState(() {
+          _remainingTime--;
+          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, _remainingTime);
+        });
+      } else {
+        setState(() {
+          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 0);
+        });
+        _timer.cancel(); // 时间到，取消定时器
+      }
+    });
+  }
+
+  // 将秒数转化为格式化时间（00:00:00）
+  String _formatTime(int seconds) {
+    int hours = seconds ~/ 3600;
+    int minutes = (seconds % 3600) ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '${_twoDigits(hours)}:${_twoDigits(minutes)}:${_twoDigits(remainingSeconds)}';
+  }
+
+  // 保证时间两位数
+  String _twoDigits(int n) {
+    if (n >= 10) {
+      return "$n";
+    } else {
+      return "0$n";
+    }
   }
 
   @override
@@ -3525,7 +4006,7 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
                     ),
                     Positioned(left: (284.w - 149.w) * 0.55, top: 28.h,child: MSImg(name: 'ms_dao_icon', width: 149.w, height: 158.h)),
                     Positioned(top: 120,child: MSGradientStrokeText(
-                      text: '\$100',
+                      text: '\$${widget.award_num}',
                       gradientColors: [
                         '#FFFFD7'.color(),
                         '#FFEA8F'.color(),
@@ -3545,7 +4026,21 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
               SizedBox(height: 32.h),
               InkWell(
                 onTap: () async {
-                  Navigator.pop(context);
+                  // 首次不看广告
+                  if (!MSLocalProvider.instance.ms_first_pool) {
+                    await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_poolName, true);
+                    await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + widget.award_num);
+                    await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_pool_showName, false);
+                    if (!context.mounted)return;
+                    Navigator.pop(context);
+                  } else {
+                    MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed) async {
+                      await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + widget.award_num);
+                      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_pool_showName, false);
+                      if (!context.mounted)return;
+                      Navigator.pop(context);
+                    });
+                  }
                 },
                 child: Container(
                   width: 255,
@@ -3570,16 +4065,38 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
                   ),
                 ),
               ),
+              InkWell(
+                onTap: () async {
+                  Navigator.pop(context);
+                },
+                child: SizedBox(
+                  width: 255,
+                  height: 44,
+                  child: Center(
+                    child: MSStrokeText(
+                      text: 'Skip Early Access',
+                      size: 15,
+                      color: '#FFFFFF'.color(),
+                      weight: FontWeight.w700,
+                      skWidth: 1,
+                      skColor: '#000000'.color(),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-          Positioned(left: 104.w,top: 396.h,child: Container(
-            width: 193,
-            height: 42,
-            decoration: BoxDecoration(
-                image: MSDImg('ms_dao_bgs')
-            ),
-            child: Center(
-              child: MSStrokeText(text: '24:00:00', size: 24, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#000000'.color()),
+          Positioned(left: 104.w,top: 396.h,child: Visibility(
+            visible: _remainingTime > 0,
+            child: Container(
+              width: 193,
+              height: 42,
+              decoration: BoxDecoration(
+                  image: MSDImg('ms_dao_bgs')
+              ),
+              child: Center(
+                child: MSStrokeText(text: _formatTime(_remainingTime), size: 24, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#000000'.color()),
+              ),
             ),
           )),
         ],
@@ -3836,16 +4353,10 @@ class MSYouWinADialogState extends State<MSYouWinADialog> with TickerProviderSta
   }
 
   Future<void> playbgMUsic() async {
-    if (MSLocalProvider.instance.ms_bg_music) {
-      await MSMP3Player().pauseBackground();
-    }
     if (MSLocalProvider.instance.ms_sound_music){
-      await MSMP3Player().playEffect();
+      await MSAudioUtils().playAward1Audio();
       Future.delayed(Duration(milliseconds: 1000), () async {
-        await MSMP3Player().pauseEffect();
-        if (MSLocalProvider.instance.ms_bg_music){
-          await MSMP3Player().playBackground();
-        }
+        await MSAudioUtils().playAward1Audio();
       });
     }
   }
@@ -4124,16 +4635,10 @@ class MSMissADialogState extends State<MSMissADialog>
   }
 
   Future<void> playbgMUsic() async {
-    if (MSLocalProvider.instance.ms_bg_music) {
-      await MSMP3Player().pauseBackground();
-    }
     if (MSLocalProvider.instance.ms_sound_music){
-      await MSMP3Player().playEffect4();
+      await MSAudioUtils().playUnAwardAudio();
       Future.delayed(Duration(milliseconds: 1000), () async {
-        await MSMP3Player().pauseEffect4();
-        if (MSLocalProvider.instance.ms_bg_music){
-          await MSMP3Player().playBackground();
-        }
+        await MSAudioUtils().stopAllTempAudio();
       });
     }
   }
@@ -4227,7 +4732,7 @@ class MSNeedsADialogState extends State<MSNeedsADialog>
                 image: MSDImg('ms_wheel_center_bg_0')
             ),
             child: InkWell(onTap: (){
-            },child: MSScratchWheelPage(imagePath: 'ms_wheel_center_bg'.image(),)),
+            },child: MSScratchWheelPage(imagePath: 'ms_wheel_center_bg_b'.image(),)),
           )),
           Positioned(left: (0.width(context) - 104) * 0.5,top: 373.78.h,child: Container(
             width: 104, height: 126.8,
@@ -4542,10 +5047,10 @@ class MSPopSettingDialogState extends State<MSPopSettingDialog> {
                     InkWell(
                       onTap: () async {
                         if (MSLocalProvider.instance.ms_bg_music){
-                          await MSMP3Player().pauseBackground();
+                          await MSAudioUtils().pauseBGM();
                           await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_bg_musicName, false);
                         } else {
-                          await MSMP3Player().playBackground();
+                          await MSAudioUtils().playBGM();
                           await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_bg_musicName, true);
                         }
                         setState(() {});
