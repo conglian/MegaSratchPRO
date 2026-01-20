@@ -4,14 +4,20 @@ import 'package:adjust_sdk/adjust_attribution.dart';
 import 'package:adjust_sdk/adjust_config.dart';
 import 'package:applovin_max/applovin_max.dart';
 import 'package:facebook_app_events/facebook_app_events.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_lifecycle_detector/flutter_lifecycle_detector.dart';
 import 'package:flutter_tba_info/flutter_tba_info.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../MSModel/MSAdModel.dart';
+import '../MSModel/MSCardNumberModel.dart';
+import '../MSModel/MSFkModel.dart';
+import '../MSModel/MSIntRatioModel.dart';
 import 'ms_AdAHelp.dart';
 import 'ms_LocalProvider.dart';
+import 'ms_NumberHelper.dart';
 import 'ms_TBAInfoTool.dart';
 import 'ms_ad_manger.dart';
 import 'ms_extension_help.dart';
@@ -40,9 +46,9 @@ class MSSDKHelpers {
   String _daydateString = '';
 
   Future<void> initSDK() async {
-    // _initAppMAX();
-    _initLifecycleListener();
+    _initAppMAX();
     ms_getSBUserCloakConfig();
+    _msinitloadFireBase();
   }
 
 
@@ -64,6 +70,10 @@ class MSSDKHelpers {
     // AppLovinMAX.showMediationDebugger();
     //
     if (configuration != null) {
+      ms_event_fire('pppuz_ad_initsuc', {
+        'ad_platform' : 'max',
+        'ad_init_time' : DateTime.now().difference(ms_max_start).inMilliseconds
+      });
       MSAdAHelper().initRewardAdDatasource();
       MSMegaAds().init();
     }
@@ -101,6 +111,7 @@ class MSSDKHelpers {
       });
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       if (prefs.getBool('sp_install_status') == null){
+        ms_event_fire('event_launch_first', {'device_id' : FlutterTbaInfo.instance.getDistinctId(),'system' : 'Android'});
         ms_install_fire();
         prefs.setBool('sp_install_status', true);
       }
@@ -113,26 +124,6 @@ class MSSDKHelpers {
         ms_getSBUserCloakConfig();
       });
     }
-  }
-
-
-  Future<void> _initLifecycleListener() async {
-
-    FlutterLifecycleDetector().onBackgroundChange.listen((isBackground) async {
-      /// `isBackground` is true => background
-      /// `isBackground` is false => foreground
-      print('Status background $isBackground');
-      if (isBackground == true) {
-        print('App进入后台');
-        MSAudioUtils().pauseBGM();
-        // 执行后台逻辑
-      } else {
-        print('App进入前台');
-        if (MSLocalProvider.instance.ms_bg_music){
-          MSAudioUtils().playBGM();
-        }
-      }
-    });
   }
 
   _initAdjust() async {
@@ -175,6 +166,90 @@ class MSSDKHelpers {
     };
     Adjust.initSdk(config);
     ms_event_fire('adjust_req', {});
+  }
+
+  void _msinitloadFireBase() async {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(
+      RemoteConfigSettings(
+        fetchTimeout: const Duration(seconds: 10),
+        minimumFetchInterval: const Duration(hours: 1),
+      ),
+    );
+    "app firebase init".log();
+    "app firebase loading".log();
+    try {
+      await remoteConfig.fetchAndActivate();
+
+      final pppuz_ad_config =
+      remoteConfig.getValue("pppuz_ad_config").asString();
+      'pppuz_ad_config=$pppuz_ad_config'.log();
+      // ad
+      if (pppuz_ad_config != ''){
+        try {
+          Map<String, dynamic> jsonMap = json.decode(pppuz_ad_config);
+          var adEntity = MSAdModel.fromJson(jsonMap);
+          MSMegaAds().init(inputAd: adEntity);
+          "app firebase remoteconfig pppuz_ad_config data ${jsonMap}".log();
+        } catch (error) {
+          print("app firebase remoteconfig pppuz_ad_config error ${error}");
+        }
+      }
+      // risk_control
+      final risk_control = remoteConfig.getValue('risk_control').asString();
+      if (risk_control != ''){
+        try {
+          Map<String, dynamic> jsonMap = json.decode(risk_control);
+          var fkEntity = MSFkModel.fromJson(jsonMap);
+          MSFKManger().fkModel = fkEntity;
+          "app firebase remoteconfig risk_control data ${jsonMap}".log();
+        } catch (error) {
+          print("app firebase remoteconfig risk_control error ${error}");
+        }
+      }
+
+      // 插屏概率
+      final ad =
+      remoteConfig.getValue("ad").asString();
+      'ad=$pppuz_ad_config'.log();
+      // ad
+      if (ad != ''){
+        try {
+          Map<String, dynamic> jsonMap = json.decode(ad);
+          var ad_int_model = MSResponseModel.fromJson(jsonMap);
+          MSMegaAds().ad_int_model = ad_int_model;
+          "app firebase remoteconfig ad data ${jsonMap}".log();
+        } catch (error) {
+          print("app firebase remoteconfig ad error ${error}");
+        }
+      }
+
+      final task =
+      remoteConfig.getValue("task").asString();
+      'task=$task'.log();
+      // task
+      if (task != ''){
+        try {
+          Map<String, dynamic> jsonMap = json.decode(task);
+          var taskEntity = MSCardNumberModel.fromJson(jsonMap);
+          MSNumberAHelper().numberBEntry = taskEntity;
+          "app firebase remoteconfig task data ${jsonMap}".log();
+        } catch (error) {
+          print("app firebase remoteconfig task error ${error}");
+        }
+      }
+
+    } catch (e, s) {
+      print("RemoteConfig fetch error: $e");
+      ms_remoteConfigTryCount += 1;
+      if (ms_remoteConfigTryCount <= 60) {
+        Future.delayed(Duration(seconds: 1), () {
+          _msinitloadFireBase();
+        });
+      } else {
+        MSMegaAds().init();
+      }
+    }
   }
 
 

@@ -1,5 +1,6 @@
 import 'package:flutter_lifecycle_detector/flutter_lifecycle_detector.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_tba_info/flutter_tba_info.dart';
 import '../MSDialog/MSDialog.dart';
 import '../MSHome/MSTbabar.dart';
 import 'ms_ad_manger.dart';
@@ -35,7 +36,7 @@ class MSNoticeHelp {
       onDidReceiveNotificationResponse: (response) {
         'nf click response:${response}'.log();
         final String? payload = response.payload;
-        ms_event_fire('all_noti_c', {'type': payload ?? ''});
+        ms_event_fire('inform_c', {'type': payload ?? ''});
         if(payload == null)return;
       },
     );
@@ -51,7 +52,7 @@ class MSNoticeHelp {
       bool didNotificationLaunchApp =
           notificationAppLaunchDetails.didNotificationLaunchApp ?? false;
       if (didNotificationLaunchApp) {
-        ms_event_fire('all_noti_c', {'type': notificationResponse?.payload ?? ''});
+        ms_event_fire('inform_c', {'type': notificationResponse?.payload ?? ''});
       }
     }
 
@@ -69,7 +70,7 @@ class MSNoticeHelp {
     _repeatNotification3();
     _repeatNotification4();
     _subscribeFcmTopic();
-    _subscribeFcmTopic2();
+    // _subscribeFcmTopic2();
     _showUnlockNotification();
     _msinitNotificationCount();
   }
@@ -81,7 +82,7 @@ class MSNoticeHelp {
       "==initNotificationCount==localcount:$locals==".log();
       if (locals > 0) {
         for (int i = 0; i < locals; i++) {
-          ms_event_fire('all_noti_t', {'type' : "noti1"});
+          ms_event_fire('push', {'type' : "noti1"});
         }
       }
       int locals2 = await AndroidFlutterLocalNotificationsPlugin()
@@ -89,7 +90,7 @@ class MSNoticeHelp {
       "==initNotificationCount==localcount:$locals2==".log();
       if (locals2 > 0) {
         for (int i = 0; i < locals2; i++) {
-          ms_event_fire('all_noti_t', {'type' : "noti2"});
+          ms_event_fire('push', {'type' : "noti2"});
         }
       }
       int locals3 = await AndroidFlutterLocalNotificationsPlugin()
@@ -97,7 +98,7 @@ class MSNoticeHelp {
       "==initNotificationCount==localcount:$locals3==".log();
       if (locals3 > 0) {
         for (int i = 0; i < locals3; i++) {
-          ms_event_fire('all_noti_t', {'type' : "noti3"});
+          ms_event_fire('push', {'type' : "noti3"});
         }
       }
       int locals4 = await AndroidFlutterLocalNotificationsPlugin()
@@ -105,7 +106,7 @@ class MSNoticeHelp {
       "==initNotificationCount==localcount:$locals4==".log();
       if (locals4 > 0) {
         for (int i = 0; i < locals4; i++) {
-          ms_event_fire('all_noti_t', {'type' : "noti4"});
+          ms_event_fire('push', {'type' : "noti4"});
         }
       }
       int fcms = await AndroidFlutterLocalNotificationsPlugin()
@@ -113,7 +114,7 @@ class MSNoticeHelp {
       "==initNotificationCount==localcount:$fcms==".log();
       if (fcms > 0) {
         for (int i = 0; i < fcms; i++) {
-          ms_event_fire('all_noti_t', {'type' : "fcm"});
+          ms_event_fire('push', {'type' : "fcm"});
         }
       }
 
@@ -122,7 +123,7 @@ class MSNoticeHelp {
       "==initNotificationCount==localcount:$unlocks==".log();
       if (unlocks > 0) {
         for (int i = 0; i < unlocks; i++) {
-          ms_event_fire('all_noti_t', {'type' : "unlock"});
+          ms_event_fire('push', {'type' : "unlock"});
         }
       }
     } catch (e) {
@@ -280,9 +281,9 @@ class MSNoticeHelp {
 
   Future<void> _subscribeFcmTopic() async {
     await AndroidFlutterLocalNotificationsPlugin().subscribeToTopic(
-      'C130_us_data_fcm',
+      'c140-d4533',
        AndroidNotificationDetails(
-        '130_us_data_fcm',
+        'c140-d4533',
         'MegaScractch',
         styleInformation: BeautyStyleInformation(
           '',
@@ -373,8 +374,10 @@ class MSNoticeHelp {
         ms_event_fire('session_front_get', {'"pak_version' : MSLocalProvider.instance.ms_login_status ? 1 : 0});
         // 执行前台逻辑
         ms_session_fire();
-        MSMegaAds().ms_showAd(MSNavigationService().bottomNavKey.currentContext!, 'scxji_launch', onCacheResponse: (onCacheResponse){
-          }, adDidClosed: (adDidClosed){
+        MSMegaAds().ms_showAd(MSNavigationService().bottomNavKey.currentContext!, 'pppuz_launch', onCacheResponse: (onCacheResponse){
+          ms_event_fire('event_launch_non_first', {'device_id' : FlutterTbaInfo.instance.getDistinctId(),'system' : 'Android', 'ad_impression' : 0});
+        }, adDidClosed: (adDidClosed){
+          ms_event_fire('event_launch_non_first', {'device_id' : FlutterTbaInfo.instance.getDistinctId(),'system' : 'Android', 'ad_impression' : 1});
         });
       }
     });
@@ -397,52 +400,56 @@ class StepMotivationManager {
   // 文案数据列表
   static final List<StepMotivation> _motivations = [
     StepMotivation(
-      title: "Last Chance! \$800 Vanish in 60 Mins!",
-      body: 'Your cash bonus disappears at midnight! Tap NOW to rescue it!',
+      title: "Scratch to Earn Cash！",
+      body: 'Open App → Split the prize pool & cash out instantly!',
     ),
     StepMotivation(
-      title: "Swipe to Unlock \$800!",
-      body: "Your magic move: Slide right → Claim cash instantly!",
+      title: "Scratch to Earn Cash！",
+      body: "Split \$10,000 prize pool! Cash out when you win!",
     ),
     StepMotivation(
-      title: "1 More Step = \$800 Cash!",
-      body: "Complete ANY task now - Boom! Money lands in wallet.",
+      title: "Cash-Out So Close！",
+      body: "Scratch 1 more card → Win \$50 in one go! Tap to check!",
     ),
     StepMotivation(
-      title: "Beat the Clock: 90s= \$800!",
-      body: "Tap faster → Higher cash! The timer starts NOW!",
+      title: "Cash-Out So Close！",
+      body: "Scratch more, Earn more!",
     ),
     StepMotivation(
-      title: "Your Exclusive Cash Drop! 🔐",
-      body: "This \$800 offer disappears in 2 hrs. Yours only.",
+      title: "Cash Out Pending",
+      body: "You have \$1,000 waiting! Tap to claim to PayPal!",
     ),
     StepMotivation(
-      title: "Congrats! You've Earned a lot! 🎉",
-      body: "Another \$ 500 cash in your pocket! Keep playing for more!",
+      title: "You Can Cash Out!",
+      body: "Balance over \$1,000! Tap here to cash out & turn earnings into REAL CASH!",
     ),
     StepMotivation(
-      title: "Feeling Lucky Today? 🍀",
-      body: "Come and try your luck, win a fortune!",
+      title: "Daily Cash Reward",
+      body: "Open App → Claim Cash Now!",
     ),
     StepMotivation(
-      title: "Pending withdraw amount💰",
-      body: "\$500 has arrived in your account",
+      title: "Cash Out Successful!",
+      body: "Cash out processed! Tap to check your PayPal balance!",
     ),
     StepMotivation(
-      title: "Your Next Cash Reward is Ready! 👉",
-      body: "Just a few more games to claim your \$800 cash!",
+      title: "Next Scratch = More Cash!",
+      body: "Hurry! 00:59 left → Play now & cash out bigger rewards!",
     ),
     StepMotivation(
-      title: "\$1,000,000 Spectacular",
-      body: "🎰 Congrats! Your \$1,000,000 Spectacular ticket is activated!",
+      title: "Double Cash in Next Game!",
+      body: "Countdown: 01:29 → Open App, scratch & cash out more!",
     ),
     StepMotivation(
-      title: "💥Fast \$50s – Speed Boost Activated!",
-      body: "💸 Your Fast \$50s ticket is ready!",
+      title: "Bigger Wins Await! Hurry!",
+      body: "00:45 left → Play next scratch, earn more & cash out fast!",
     ),
     StepMotivation(
-      title: "💰Multiplier Rewards Available!",
-      body: "24-hour special: Next multiplier DOUBLED!",
+      title: "Last Chance for Extra Cash!",
+      body: "00:19 left → Next scratch = bigger rewards! Cash out soon!",
+    ),
+    StepMotivation(
+      title: "Play Scratch for Cash!",
+      body: "Scratch cards → Earn & cash out big!",
     ),
   ];
 

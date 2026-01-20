@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../MSDialog/MSDialog.dart';
 import '../MSTool/ms_GradientNumber.dart';
 import '../MSTool/ms_NoticeTool.dart';
+import '../MSTool/ms_TBAInfoTool.dart';
 import '../MSTool/ms_extension_help.dart';
 import '../MSTool/ms_fkmanger.dart';
 import '../MSTool/ms_img.dart';
@@ -28,8 +29,11 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    ms_event_fire('home_page', {});
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      showsignDialog();
       shownewguide();
+      showTXPopDialog();
     });
 
     MSSUpdateHomeListNotificationService.stream.listen((value) async {
@@ -38,11 +42,61 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
     MSFKManger().initFK();
     MSNoticeHelp().initNotice();
   }
+  // 显示签到
+  Future<void> showsignDialog() async {
+    if (MSLocalProvider.instance.ms_today_sign_status == false && MSLocalProvider.instance.ms_today_sign_show == false && MSLocalProvider.instance.ms_new_guide1 == true){
+      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_today_sign_showName, true);
+      if (!mounted) return;
+      context.tipShow(MSPopTaskBDialog(is_guide: false));
+    }
+  }
 
   Future<void> shownewguide() async {
     if (!MSLocalProvider.instance.ms_new_guide2){
       if (!mounted) return;
       context.tipShow(MSNewGuideADialog());
+    }
+  }
+  // 隔天显示提现流程
+  Future<void> showTXPopDialog() async {
+    if (MSLocalProvider.instance.ms_txing_status == true){
+      int code = await _checkIfConsecutive();
+       if (code == 1) {
+         // 连续日期
+         if (MSLocalProvider.instance.ms_tx_task_day_index == 0) {
+           if (!mounted) return;
+            context.tipShow(MSTXNextDayOneToastDialog());
+         } else if (MSLocalProvider.instance.ms_tx_task_day_index == 1) {
+           if (!mounted) return;
+           context.tipShow(MSTXDayThreeOneToastDialog());
+         } else if (MSLocalProvider.instance.ms_tx_task_day_index == 2) {
+           if (!mounted) return;
+           context.tipShow(MSTXDayFourOneToastDialog());
+         }
+       } else if (code == 2){
+         // 隔天
+         if (!mounted) return;
+         context.tipShow(MSTXNextDayFourToastDialog());
+       }
+    }
+  }
+
+  // 判断保存的日期和当前日期是否连续
+  Future<int> _checkIfConsecutive() async {
+    DateTime savedDate = DateTime.parse(MSLocalProvider.instance.ms_tx_date_str);
+    if (savedDate == null) {
+      return 0;
+    }
+    final difference = DateTime.now().difference(savedDate).inDays;
+    // 判断差值是否为1，表示连续日期（例如：昨天）
+    if (difference == 1) {
+      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_zhongduan_statusName, false);
+      return 1; // 连续日期
+    } else if (difference == 0) {
+      return 0; // 当天不处理
+    } else {
+      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_zhongduan_statusName, false);
+      return 2; // 隔天
     }
   }
 
@@ -60,7 +114,7 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
                SingleChildScrollView(
                  child: Column(
                    children: [
-                     MSNavBarWidget(),
+                     MSNavBarWidget(source_from: 'home'),
                      VerticalListView(),
                    ],
                  ),
@@ -185,7 +239,7 @@ class VerticalListView extends StatelessWidget {
                     SizedBox(width: 10.w,),
                     MSImg(name: 'ms_dolas_icon_s', width: 22, height: 22,),
                     SizedBox(width: 10.w,),
-                    MSStrokeText(text: '${1000 * (index + 1)}', size: 16, color: '#FBF544'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#322107'.color()),
+                    MSStrokeText(text: '${50 + (10 * index)}', size: 16, color: '#FBF544'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#322107'.color()),
                   ],
                 )),
                 Positioned(
@@ -306,6 +360,7 @@ class VerticalListView extends StatelessWidget {
   }
   // 详情页
   void pushTodetails(int index, BuildContext cxt){
+    ms_event_fire('card_list_c', {});
     if (index == 2 && (MSLocalProvider.instance.ms_Level_number < 3 || MSLocalProvider.instance.ms_scratch_status_2 == false)) {
       if (MSLocalProvider.instance.ms_scratch_status_2 == true) {
         pushdetails(cxt, index);
@@ -387,7 +442,8 @@ class VerticalListView extends StatelessWidget {
 }
 
 class MSNavBarWidget extends StatefulWidget {
-  MSNavBarWidget({super.key});
+  final String source_from;
+  MSNavBarWidget({super.key, required this.source_from});
   @override
   State<MSNavBarWidget> createState() => _MSNavBarWidgetState();
 }
@@ -396,7 +452,7 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
 
   @override
   Widget build(BuildContext context) {
-
+    ms_event_fire('7day_status', {'task_status' : MSLocalProvider.instance.ms_today_sign_status == true ? 1 : 0});
     return Container(
       width: 0.width(context),
       height: 118,
@@ -411,25 +467,31 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
               Row(
                 children: [
                   SizedBox(width: 10.22.w,),
-                  Container(
-                    width: 130.w,
-                    height: 27.h,
-                    decoration: BoxDecoration(
-                      image: MSDImg('ms_plays_n')
+                  InkWell(
+                    onTap: (){
+                      ms_event_fire('home_reward_c', {});
+                      MSNavigationService().changeTab(2);
+                    },
+                    child: Container(
+                      width: 130.w,
+                      height: 27.h,
+                      decoration: BoxDecoration(
+                        image: MSDImg('ms_plays_n')
+                      ),
+                      child: Padding(padding: EdgeInsets.only(left: 38.w, top: 1.h),child: Consumer<MSLocalProvider>(
+                          builder: (context, provider, child) {
+                            return MSGradientNumberRoller(
+                                value: provider.ms_dolas_number,
+                                duration: 800,
+                                fontSize: 20.0,
+                                gradientColors: ['#FFFFFF'.color(), '#FFFFFF'.color()],
+                                borderColor: '#FFFFFF'.color(),
+                                borderWidth: 0.0,
+                                decimalPlaces: 2,
+                              );
+                          }
+                      ),),
                     ),
-                    child: Padding(padding: EdgeInsets.only(left: 38.w, top: 1.h),child: Consumer<MSLocalProvider>(
-                        builder: (context, provider, child) {
-                          return MSGradientNumberRoller(
-                              value: provider.ms_dolas_number,
-                              duration: 800,
-                              fontSize: 20.0,
-                              gradientColors: ['#FFFFFF'.color(), '#FFFFFF'.color()],
-                              borderColor: '#FFFFFF'.color(),
-                              borderWidth: 0.0,
-                              decimalPlaces: 2,
-                            );
-                        }
-                    ),),
                   ),
                   SizedBox(width: 3.83.w,),
                   Container(
@@ -487,17 +549,26 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
                   Spacer(),
                   InkWell(
                     onTap: (){
-                      context.tipShow(MSPopTaskADialog());
+                      if (widget.source_from == 'home'){
+                        ms_event_fire('7day_c', {'source_from' : widget.source_from});
+                        if (MSLocalProvider.instance.ms_today_sign_status == false){
+                          context.tipShow(MSPopTaskBDialog(is_guide: false));
+                        } else {
+                          MSDialogTool.toast(context, "You've already checked in today, please come back tomorrow.");
+                        } 
+                      } else {
+                        Navigator.pop(context, 1);
+                      }
                     },
                     child: Container(
                       width: 42,
                       height: 43,
                       decoration: BoxDecoration(
-                        image: MSDImg('ms_tasks_icon')
+                        image: MSDImg(widget.source_from == 'home' ? (MSLocalProvider.instance.ms_today_sign_status == true ? 'ms_sigin_btn' : 'ms_tasks_icon') : 'ms_back_icon')
                       ),
                       child: Stack(
                         children: [
-                          Positioned(right: 0,top: -2,child: MSImg(name: 'ms_tasks_gantan',width: 15, height: 15,))
+                          Visibility(visible: !MSLocalProvider.instance.ms_today_sign_status && widget.source_from == 'home',child: Positioned(right: 0,top: -2,child: MSImg(name:'ms_tasks_gantan',width: 15, height: 15,)))
                         ],
                       ),
                     ),
@@ -505,8 +576,8 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
                   SizedBox(width: 7.27.w,),
                   InkWell(
                     onTap: (){
-                      // context.tipShow(MSPopSettingDialog());
-                      context.tipShow(MSNoticeDialog());
+                      context.tipShow(MSPopSettingDialog());
+                      // context.tipShow(MSCardPoolDialog());
                     },
                     child: MSImg(name: 'ms_set_icon', width: 43, height: 42,),
                   ),
@@ -560,6 +631,7 @@ class _MSBottomBarWidgetState extends State<MSBottomBarWidget> {
             child: InkWell(
               onTap: () {
                 Navigator.pop(context); // 外部调用
+                ms_event_fire('wheel_c', {'source_from' : 'card'});
                 MSNavigationService().changeTab(1);
               },
               child: Stack(

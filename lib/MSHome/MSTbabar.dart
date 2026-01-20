@@ -4,6 +4,7 @@ import 'package:megascratch/MSHome/MSLuckyWheel.dart';
 import 'package:megascratch/MSTool/ms_extension_help.dart';
 import 'package:megascratch/MSTool/ms_stroke_text.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import '../MSTool/ms_TBAInfoTool.dart';
 import 'MSCashs.dart';
 import 'MSHome.dart';
 
@@ -85,6 +86,9 @@ class _MSBottomNavigationExampleState extends State<MSBottomNavigationExample> {
         ],
         selectedIndex: _currentIndex,
         onItemSelected: (index) {
+          if (index == 1){
+            ms_event_fire('wheel_c', {'source_from' : 'home'});
+          }
           setState(() {
             _currentIndex = index;
           });
@@ -128,7 +132,7 @@ class CustomNavBarWidget extends StatelessWidget {
           // 图标
           Positioned(
             top: 0,
-            child: Container(
+            child: SizedBox(
               width: 78, // 图标宽度
               height: 78, // 图标高度
               child: isSelected ? item.icon : item.inactiveIcon,

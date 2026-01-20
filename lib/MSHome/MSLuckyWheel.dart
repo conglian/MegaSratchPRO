@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:megascratch/MSTool/ms_TBAInfoTool.dart';
 import 'package:megascratch/MSTool/ms_stroke_text.dart';
 import 'package:provider/provider.dart';
 import '../MSDialog/MSDialog.dart';
@@ -61,7 +62,7 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
               children: [
                 Column(
                   children: [
-                    MSNavBarWidget(),
+                    MSNavBarWidget(source_from: 'home'),
                     SizedBox(height: 113.37.h,),
                     Container(
                       width: 375.w,
@@ -172,11 +173,11 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
     is_tap = true;
 
     if (MSLocalProvider.instance.ms_wheel_number <= 0) {
-
+      ms_event_fire('wheel_unlock_c', {});
       context.tipShow(MSNeedsADialog());
 
     } else {
-
+      ms_event_fire('wheel_go_c', {});
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_numberName, MSLocalProvider.instance.ms_wheel_number - 1);
 
       // 创建一个 Random 实例
@@ -215,7 +216,7 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
             context.tipShow(MS777baoCardDialog());
           }
         } else {
-          context.tipShow(MSYouWinDialog(award_num: random.toDouble()));
+          context.tipShow(MSYouWinDialog(award_num: random.toDouble(), index: 0, is_wheel: true));
         }
       });
 

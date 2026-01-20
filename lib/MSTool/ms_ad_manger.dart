@@ -84,6 +84,8 @@ class MSMegaAds {
 
   MSAdModel? _MSJoyAdModel;
 
+  MSResponseModel ad_int_model = MSResponseModel();
+
   bool _pigAdDelegateCreated = false;
 
   String? quizAdPlaceID;
@@ -108,6 +110,7 @@ class MSMegaAds {
   final bool skipAd = false;
 
   Future<void> init({MSAdModel? inputAd}) async {
+    _initadintjson();
     _ads = [];
     "$runtimeType init ad json,remote value is $inputAd".log();
     try {
@@ -169,16 +172,20 @@ class MSMegaAds {
       return;
     }
     // 风控
-    if (await MSFKManger().ms_checkAllStatus()){
-      '风控不发起广告显示'.log();
-      MSDialogTool.toast(context, 'Something went wrong, please try again later.');
-      onCacheResponse.call(false);
-      resetHandler();
-      return;
-    }
+    // if (await MSFKManger().ms_checkAllStatus()){
+    //   '风控不发起广告显示'.log();
+    //   MSDialogTool.toast(context, 'Something went wrong, please try again later.');
+    //   ms_event_fire('ms_interception_fk', {});
+    //   onCacheResponse.call(false);
+    //   resetHandler();
+    //   return;
+    // }
 
     if (someAdIsShowing()) {
       "$runtimeType ad is showing,cancel this request".log();
+      if (context != null && showDialog == true && !placeID.contains('launch')) {
+        showfaildDiolog(context);
+      }
       return;
     }
     onAdClosed ??= adDidClosed;
@@ -187,7 +194,7 @@ class MSMegaAds {
     bool defaultMode = _MSJoyAdModel!.pppuz_switch;
     "$runtimeType ad service request to show [$quizAdPlaceID], ad type is $adType, use mode #$defaultMode"
         .log();
-    ms_event_fire('scxji_ad_chance', {"ad_pos_id": placeID});
+    ms_event_fire('pppuz_ad_chance', {"ad_pos_id": placeID});
 
     if (defaultMode == false) {
       _showA(adType, onCacheResponse, context: context, showDialog: showDialog);
@@ -358,17 +365,14 @@ class MSMegaAds {
   void adImpression({required MSJoyAdModel ad, required String placeID}) async {
     adRevenues(ad.ecpm);
     {
-      ms_event_fire(
-        "ad_impression",
-        {
-          "ad_pre_ecpm": ad.ecpm * 1000000,
-          "ad_network": ad.networkName,
-          "ad_source_client": ad.sdk,
-          "ad_code_id": ad.ad_identifer,
-          "ad_pos_id": placeID,
-          "ad_format": ad.getTypeToServer(),
-        },
-      );
+      ms_ad_fire({
+        "ad_pre_ecpm": ad.ecpm * 1000000,
+        "ad_network": ad.networkName,
+        "ad_source_client": ad.sdk,
+        "ad_code_id": ad.ad_identifer,
+        "ad_pos_id": placeID,
+        "ad_format": ad.getTypeToServer(),
+      });
     }
     {
       // to sdk
@@ -413,7 +417,7 @@ class MSMegaAds {
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_ad_all_numberName, MSLocalProvider.instance.ms_ad_all_number + 1);
     if (MSLocalProvider.instance.ms_ad_show_number % 5 == 0 && MSLocalProvider.instance.ms_ad_show_number > 0) {
       ms_event_fire(
-        "pv_dall",
+        "cash_ad_detail",
         {
           "ad": MSLocalProvider.instance.ms_ad_show_number ?? "",
         },
@@ -442,11 +446,15 @@ class MSMegaAds {
 
   }
 
+  _initadintjson() async {
+    String jsonString = await rootBundle.loadString("mega_int_ratio".jsons());
+    Map<String, dynamic> jsonMap = json.decode(jsonString);
+    ad_int_model = MSResponseModel.fromJson(jsonMap);
+    'mega_int_ratio=$jsonString'.log();
+  }
+
   Future<bool> getIntShow() async {
-      String jsonString = await rootBundle.loadString("mega_int_ratio".jsons());
-      'mega_int_ratio=$jsonString'.log();
-      Map<String, dynamic> jsonMap = json.decode(jsonString);
-      bool result = getRandomBool(getPointByValue(MSLocalProvider.instance.ms_dolas_number.toInt(), MSResponseModel.fromJson(jsonMap)));
+      bool result = getRandomBool(getPointByValue(MSLocalProvider.instance.ms_dolas_number.toInt(), ad_int_model));
       return result;
   }
 
@@ -520,7 +528,7 @@ extension AdServiceExtension on MSMegaAds {
         "$runtimeType ad requesting [requested] status = $status, type is $type, source is $source, id is $adID"
             .log();
       }
-      ms_event_fire('ad_request', {'type' : type, 'source' : source, 'id' : adID});
+      ms_event_fire('ad_request', {'ad_platform' : type, 'ad_format' : source, 'ad_code_id' : adID});
     }
   }
 
@@ -791,7 +799,7 @@ extension AdServiceExtension on MSMegaAds {
         .log();
 
     ms_event_fire(
-      "scxji_ad_return",
+      "pppuz_ad_return",
        {
         "ad_code_id": _ads[index].ad_identifer,
         "ad_format": _ads[index].type == "reward" ? "rv" : "int",
@@ -810,7 +818,7 @@ extension AdServiceExtension on MSMegaAds {
     }
 
     ms_event_fire(
-      "scxji_ad_return_fail",
+      "pppuz_ad_return_fail",
        {
         "ad_code_id": quizAdPlaceID ?? "",
         "ad_format": _ads[index].getTypeToServer(),
@@ -878,7 +886,7 @@ extension AdServiceExtension on MSMegaAds {
     "$runtimeType ad did hidden success id = $adId".log();
     _ads[index].status = 0;
     ms_event_fire(
-      "scxji_ad_imp_close",
+      "pppuz_ad_imp_close",
       {
         "ad_pos_id": quizAdPlaceID ?? "none",
         "msg": "impsus",
@@ -921,7 +929,7 @@ extension AdServiceExtension on MSMegaAds {
         .log();
 
     ms_event_fire(
-      "scxji_ad_impression_fail",
+      "pppuz_ad_impression_fail",
       {"ad_pos_id": quizAdPlaceID ?? "", "reason": errorString},
     );
 

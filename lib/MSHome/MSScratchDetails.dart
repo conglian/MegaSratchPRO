@@ -141,7 +141,7 @@ class _MSScrachDetailsState extends State<MSScrachDetails> {
                 Positioned(top:100.h,left: (0.width(context) - 322.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}', width: 322.w, height: 143.h,)),
               Column(
                 children: [
-                  MSNavBarWidget(),
+                  MSNavBarWidget(source_from: 'card'),
                   Spacer(),
                   MSBottomBarWidget(),
                 ],

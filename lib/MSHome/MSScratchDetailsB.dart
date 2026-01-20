@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:megascratch/MSTool/ms_GradientText.dart';
+import 'package:megascratch/MSTool/ms_TBAInfoTool.dart';
 import 'package:megascratch/MSTool/ms_scratch_card_image_prize.dart';
 import 'package:megascratch/MSTool/ms_stroke_text.dart';
 import 'package:megascratch/MSTool/ms_text.dart';
@@ -71,6 +72,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
   void initState() {
     // TODO: implement initState
     super.initState();
+    ms_event_fire('card_detail_page', {'source_from' : _getindexName()});
     // 开始倒计时
     _startCountdown();
 
@@ -89,6 +91,24 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
         controller.animationState.setAnimationByName(0, "animation", true);
       });
     });
+  }
+
+  String _getindexName(){
+    String name = 'number';
+    if (widget.index == 1){
+    name = 'diamond';
+    } else if (widget.index == 2){
+    name = 'fruit';
+    } else if (widget.index == 3){
+    name = 'emoji';
+    } else if (widget.index == 4){
+    name = 'pot';
+    } else if (widget.index == 5){
+    name = '77';
+    } else if (widget.index == 6){
+    name = 'cash';
+    }
+    return name;
   }
 
   // 启动倒计时
@@ -190,7 +210,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
               Positioned(
                 child: Column(
                   children: [
-                    MSNavBarWidget(),
+                    MSNavBarWidget(source_from: 'card'),
                     Spacer(),
                     MSBottomBarWidget(),
                   ],
@@ -214,7 +234,9 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                   "ms_scratch_guide.zip".files(),
                   repeat: false,
                   onLoaded: (composition) async {
+                    ms_event_fire('card_guide_v', {});
                     Future.delayed(Duration(milliseconds: 1200), () async {
+                      ms_event_fire('card_guide_c', {});
                       await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_new_guide2Name, true);
                       _show_guide = false;
                       setState(() {});
@@ -223,11 +245,16 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
               ))),
               Positioned(left: 12.w,top: 155.h,child: Consumer<MSLocalProvider>(
                   builder: (context, provider, child) {
+                    if (provider.ms_pool_show){
+                      ms_event_fire('new_bonus_pool_v', {});
+                    }
                     return Visibility(
                       visible: provider.ms_pool_show,
                       child: InkWell(
                         onTap: (){
-                          context.tipShow(MSAwardPoolDialog(award_num: award_pool_number, time_index: _remainingTime));
+                          ms_event_fire('new_bonus_pool_c', {});
+                          ms_event_fire('bonus_pool_c_n', {});
+                          context.tipShow(MSAwardPoolDialog(award_num: award_pool_number, time_index: _remainingTime, index: widget.index));
                         },
                         child:SizedBox(
                           width: 72,
@@ -260,9 +287,13 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
               ), ),
               Positioned(right: 12.w,top: 110.h,child: InkWell(
                 onTap: (){
-                  context.tipShow(MSPopTaskBDialog(is_guide: false));
+                  if (MSLocalProvider.instance.ms_today_sign_status == false){
+                    context.tipShow(MSPopTaskBDialog(is_guide: false));
+                  } else {
+                    MSDialogTool.toast(context, "You've already checked in today, please come back tomorrow.");
+                  }
                 },
-                child: MSImg(name: 'ms_sigin_btn', width: 45, height: 45),
+                child: MSImg(name: MSLocalProvider.instance.ms_today_sign_status == true ? 'ms_sigin_btn' : 'ms_tasks_icon', width: 45, height: 45),
               )),
               Positioned(
                 child: Consumer<MSLocalProvider>(
@@ -307,17 +338,20 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     return h;
   }
 
-  Future<void> showAwardDialog(int index, int award, bool isWin) async {
+  Future<void> showAwardDialog(int index, double award, bool isWin) async {
     if (isWin){
       showWheelCardDialog(index, award);
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_card_award_indexName, MSLocalProvider.instance.ms_card_award_index + 1);
     } else {
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_card_award_indexName, 0);
       if (!mounted)return;
-      int code = await context.tipShow(MSUnAwardDialog());
+      int code = await context.tipShow(MSUnAwardDialog(index: widget.index));
       if (code >= 0){
         backToHome(index);
       }
     }
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_card_numberName, MSLocalProvider.instance.ms_card_number + 1);
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_card_indexName, MSLocalProvider.instance.ms_tx_card_index + 1);
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_Level_inedxName, MSLocalProvider.instance.ms_Level_inedx + 1);
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_indexName, MSLocalProvider.instance.ms_pool_index + 1);
@@ -335,43 +369,44 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     }
   }
 
-  Future<void> showAwardTool(int index, int award) async {
+  Future<void> showAwardTool(int index, double award) async {
     // 显示中奖dialog
     if (MSLocalProvider.instance.ms_card_award_index == 0){
-      int code = await context.tipShow(MSYouWinDialog(award_num: award.toDouble()));
+      int code = await context.tipShow(MSYouWinDialog(award_num: award.toDouble(), index: widget.index, is_wheel: false));
       if (code >= 0){
         backToHome(index);
       }
     } else if (MSLocalProvider.instance.ms_card_award_index == 1){
-      int code = await context.tipShow(MSJackPotDialog(award_num: award.toDouble()));
+      int code = await context.tipShow(MSJackPotDialog(award_num: award.toDouble(), index: widget.index));
       if (code >= 0){
         backToHome(index);
       }
     } else if (MSLocalProvider.instance.ms_card_award_index == 2){
-      int code = await context.tipShow(MSBigWinDialog(award_num: award.toDouble()));
+      int code = await context.tipShow(MSBigWinDialog(award_num: award.toDouble(), index: widget.index));
       if (code >= 0){
         backToHome(index);
       }
     } else if (MSLocalProvider.instance.ms_card_award_index >= 3){
-      int code = await context.tipShow(MSSuperWinDialog(award_num: award.toDouble()));
+      int code = await context.tipShow(MSSuperWinDialog(award_num: award.toDouble(), index: widget.index));
       if (code >= 0){
         backToHome(index);
       }
     }
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_card_indexName, MSLocalProvider.instance.ms_tx_card_index + 1);
   }
   // 判断有没有概率卡需要现实的内容
-  Future<void> showWheelCardDialog(int index, int award) async {
+  Future<void> showWheelCardDialog(int index, double award) async {
     if (MSLocalProvider.instance.ms_double_card == true) {
        context.tipShow(MSX2Dialog());
        Future.delayed(const Duration(seconds: 1), () {
          if (!mounted) return;
-         showAwardTool(index, award);
+         showAwardTool(index, award * 2.0);
        });
     } else if (MSLocalProvider.instance.ms_fruit_card == true && widget.index == 2) {
       context.tipShow(MSFruitCardDialog());
       Future.delayed(const Duration(seconds: 1), () {
         if (!mounted) return;
-        showAwardTool(index, award);
+        showAwardTool(index, award * 1.5);
       });
     } else {
       showAwardTool(index, award);
@@ -403,11 +438,11 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       Navigator.pop(context, 0);
     } else {
       // 每刮五张出现
-      if (MSLocalProvider.instance.ms_wheel_pop_show == true) {
+      if (MSLocalProvider.instance.ms_wheel_pop_show == true && (MSLocalProvider.instance.ms_tx_first_status == true && MSLocalProvider.instance.ms_dolas_number >= 1000)) {
         context.tipShow(MSLuckyWheelDialog());
       }
       // 每日首次刮卡
-      if (MSLocalProvider.instance.ms_today_card_index == 1){
+      if (MSLocalProvider.instance.ms_today_card_index == 1 && (MSLocalProvider.instance.ms_tx_first_status == true && MSLocalProvider.instance.ms_dolas_number >= 1000)){
         context.tipShow(MSCardPoolDialog());
       }
     }
@@ -419,7 +454,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     });
     if (index == 0){
       Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(0, result1!.totalNumber.toInt(), result1!.isWin);
+        showAwardDialog(0, result1!.totalNumber.toDouble(), result1!.isWin);
         setState(() {
           result1 = MSNumberAHelper().generatelucku_Numbers();
           _show_animation = false;
@@ -433,7 +468,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 1){
       Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(1, result2!.totalNumber.toInt(), result2!.isWin);
+        showAwardDialog(1, result2!.totalNumber.toDouble(), result2!.isWin);
         setState(() {
           result2 = MSNumberAHelper().generatelucku_diamonds();
           _show_animation = false;
@@ -447,7 +482,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 2){
       Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(2, result3!.totalNumber.toInt(), result3!.isWin);
+        showAwardDialog(2, result3!.totalNumber.toDouble(), result3!.isWin);
         setState(() {
           result3 = MSNumberAHelper().generatelucku_partpay();
           _show_animation = false;
@@ -461,7 +496,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 3){
       Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(3, result4!.totalNumber.toInt(), result4!.isWin);
+        showAwardDialog(3, result4!.totalNumber.toDouble(), result4!.isWin);
         setState(() {
           result4 = MSNumberAHelper().generatelucku_emojifun();
           _show_animation = false;
@@ -514,7 +549,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
         });
       }
       Future.delayed(Duration(seconds: 3), () {
-        showAwardDialog(4, result5!.totalNumber.toInt(), result5!.isWin);
+        showAwardDialog(4, result5!.totalNumber.toDouble(), result5!.isWin);
         _show_animation1 = false;
         _show_animation2 = false;
         _show_animation3 = false;
@@ -534,7 +569,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 5){
       Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(5, result6!.totalNumber.toInt(), result6!.isWin);
+        showAwardDialog(5, result6!.totalNumber.toDouble(), result6!.isWin);
         setState(() {
           result6 = MSNumberAHelper().generatelucku_77n();
           _show_animation = false;
@@ -548,7 +583,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 6){
       Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(6, result7!.totalNumber.toInt(), result7!.isWin);
+        showAwardDialog(6, result7!.totalNumber.toDouble(), result7!.isWin);
         setState(() {
           result7 = MSNumberAHelper().generatelucku_coincraze();
           _show_animation = false;
@@ -937,7 +972,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
 
   Widget _buildScratchCard5(int index){
     return MSLocalImageScratchCard(onScratchEnd: (){
-      // _scratchEndtap(index);
+      _scratchEndtap(index);
     }, coverImagePath: 'ms_scratch_top_4_b'.image(), contentW: 0.width(context), contentH: 500.h, child: Container(
       width: 0.width(context),
       height: 500.h,

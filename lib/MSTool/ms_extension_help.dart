@@ -408,8 +408,8 @@ class BoomUniqueStringUtil {
 }
 
 // 记录cash数值100倍数不重复
-class SJThresholdTrigger {
-  static const String _key = "sj_triggered_levels";
+class MSThresholdTrigger {
+  static const String _key = "ms_triggered_levels";
   Set<int> _triggered = {};
 
   /// 初始化，从本地加载

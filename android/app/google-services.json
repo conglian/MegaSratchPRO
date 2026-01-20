@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "451357445728",
-    "project_id": "c140scratchjoy",
-    "storage_bucket": "c140scratchjoy.firebasestorage.app"
+    "project_number": "219725379685",
+    "project_id": "c140-d4533",
+    "storage_bucket": "c140-d4533.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:451357445728:android:cf842ba6540199ba857d05",
+        "mobilesdk_app_id": "1:219725379685:android:f8ed1f89de3c0b72dc2e8c",
         "android_client_info": {
-          "package_name": "com.example.megascratch"
+          "package_name": "com.luckyscratch.game2"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA9l2fwu35DKgWNqPofetCQtry4iZJXmOI"
+          "current_key": "AIzaSyAL8nyHb59Z6rnvv1C2L7u66A5-PSz8WRY"
         }
       ],
       "services": {

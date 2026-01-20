@@ -7,11 +7,14 @@ import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:megascratch/MSTool/ms_GradientText.dart';
+import 'package:megascratch/MSTool/ms_TBAInfoTool.dart';
 import 'package:megascratch/MSTool/ms_ad_manger.dart';
 import 'package:megascratch/MSTool/ms_text.dart';
 import 'package:provider/provider.dart';
+import '../MSHome/MSCashs.dart';
 import '../MSHome/MSHome.dart';
 import '../MSHome/MSScratchDetails.dart';
+import '../MSHome/MSScratchDetailsB.dart';
 import '../MSHome/MSTbabar.dart';
 import '../MSTool/MSScratchWheelPage.dart';
 import '../MSTool/ms_AdAHelp.dart';
@@ -90,8 +93,10 @@ class MSDialogTool {
 
 // YouWin
 class MSYouWinDialog extends StatefulWidget {
+  final bool is_wheel;
+  final int index;
   final double award_num;
-  MSYouWinDialog({super.key, required this.award_num});
+  MSYouWinDialog({super.key, required this.award_num, required this.index, required this.is_wheel});
 
   @override
   State<MSYouWinDialog> createState() => MSYouWinDialogState();
@@ -107,6 +112,12 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
   @override
   void initState() {
     super.initState();
+
+    if (!MSLocalProvider.instance.ms_first_box_tips){
+      ms_event_fire('first_reward_v', {});
+    } else {
+      ms_event_fire('coin_pop', {'source_from' : _getindexName()});
+    }
 
     // 初始化 Spine 控制器
     _controller0 = spine.SpineWidgetController(onInitialized: (controller) {
@@ -151,6 +162,26 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
 
     // 启动缩放动画
     _scaleController.repeat(reverse: true);  // 缩放动画来回播放
+  }
+
+  String _getindexName(){
+    String name = 'number';
+    if (widget.index == 1){
+      name = 'diamond';
+    } else if (widget.index == 2){
+      name = 'fruit';
+    } else if (widget.index == 3){
+      name = 'emoji';
+    } else if (widget.index == 4){
+      name = 'pot';
+    } else if (widget.index == 5){
+      name = '77';
+    } else if (widget.index == 6){
+      name = 'cash';
+    } else if (widget.index == 0){
+      name = 'wheel';
+    }
+    return name;
   }
 
   @override
@@ -257,10 +288,15 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                MSMegaAds().ms_showAd(context, widget.is_wheel ? 'pppuz_wheeldollor_rv' : 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
                   Navigator.pop(context, 1);
                 });
+                if (!MSLocalProvider.instance.ms_first_box_tips){
+                  await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_box_tipsName, true);
+                  ms_event_fire('first_reward_c', {});
+                }
+                ms_event_fire('coin_pop_c', {'source_from' : _getindexName()});
               },
               child: Container(
                 width: 237,
@@ -292,7 +328,7 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
               onTap: () async {
                 if (await MSMegaAds().getIntShow()) {
                   if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(context, widget.is_wheel ? 'pppuz_wheeldollor_int' : 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
                     Navigator.pop(context, 1);
                   }, adDidClosed: (adDidClosed){
                     MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
@@ -303,6 +339,11 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
                   if (!context.mounted) return;
                   Navigator.pop(context, 1);
                 }
+                if (!MSLocalProvider.instance.ms_first_box_tips){
+                  await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_box_tipsName, true);
+                  ms_event_fire('first_reward_c', {});
+                }
+                ms_event_fire('coin_pop_close', {'source_from' : _getindexName()});
               },
               child: SizedBox(
                 width: 237,
@@ -330,8 +371,9 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
 
 // YouWin
 class MSJackPotDialog extends StatefulWidget {
+  final int index;
   final double award_num;
-  MSJackPotDialog({super.key, required this.award_num});
+  MSJackPotDialog({super.key, required this.award_num, required this.index});
 
   @override
   State<MSJackPotDialog> createState() => MSJackPotDialogState();
@@ -360,6 +402,8 @@ class MSJackPotDialogState extends State<MSJackPotDialog> with TickerProviderSta
         }
       });
     });
+
+    ms_event_fire('coin_pop', {'source_from' : _getindexName()});
 
     // 初始化旋转动画控制器
     _rotationController = AnimationController(
@@ -391,6 +435,26 @@ class MSJackPotDialogState extends State<MSJackPotDialog> with TickerProviderSta
 
     // 启动缩放动画
     _scaleController.repeat(reverse: true);  // 缩放动画来回播放
+  }
+
+  String _getindexName(){
+    String name = 'number';
+    if (widget.index == 1){
+      name = 'diamond';
+    } else if (widget.index == 2){
+      name = 'fruit';
+    } else if (widget.index == 3){
+      name = 'emoji';
+    } else if (widget.index == 4){
+      name = 'pot';
+    } else if (widget.index == 5){
+      name = '77';
+    } else if (widget.index == 6){
+      name = 'cash';
+    } else if (widget.index == 0){
+      name = 'wheel';
+    }
+    return name;
   }
 
   @override
@@ -497,7 +561,8 @@ class MSJackPotDialogState extends State<MSJackPotDialog> with TickerProviderSta
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                ms_event_fire('coin_pop_c', {'source_from' : _getindexName()});
+                MSMegaAds().ms_showAd(context, 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
                   Navigator.pop(context, 1);
                 });
@@ -530,9 +595,10 @@ class MSJackPotDialogState extends State<MSJackPotDialog> with TickerProviderSta
             top: 538.h + 64,
             child: InkWell(
               onTap: () async {
+                ms_event_fire('coin_pop_close', {'source_from' : _getindexName()});
                 if (await MSMegaAds().getIntShow()) {
                   if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(context, 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
                     Navigator.pop(context, 1);
                   }, adDidClosed: (adDidClosed){
                     MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
@@ -567,8 +633,9 @@ class MSJackPotDialogState extends State<MSJackPotDialog> with TickerProviderSta
 }
 // Bigwin
 class MSBigWinDialog extends StatefulWidget {
+  final int index;
   final double award_num;
-  MSBigWinDialog({super.key, required this.award_num});
+  MSBigWinDialog({super.key, required this.award_num, required this.index});
 
   @override
   State<MSBigWinDialog> createState() => MSBigWinDialogState();
@@ -584,7 +651,7 @@ class MSBigWinDialogState extends State<MSBigWinDialog> with TickerProviderState
   @override
   void initState() {
     super.initState();
-
+    ms_event_fire('coin_pop', {'source_from' : _getindexName()});
     // 初始化 Spine 控制器
     _controller0 = spine.SpineWidgetController(onInitialized: (controller) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -628,6 +695,26 @@ class MSBigWinDialogState extends State<MSBigWinDialog> with TickerProviderState
 
     // 启动缩放动画
     _scaleController.repeat(reverse: true);  // 缩放动画来回播放
+  }
+
+  String _getindexName(){
+    String name = 'number';
+    if (widget.index == 1){
+      name = 'diamond';
+    } else if (widget.index == 2){
+      name = 'fruit';
+    } else if (widget.index == 3){
+      name = 'emoji';
+    } else if (widget.index == 4){
+      name = 'pot';
+    } else if (widget.index == 5){
+      name = '77';
+    } else if (widget.index == 6){
+      name = 'cash';
+    } else if (widget.index == 0){
+      name = 'wheel';
+    }
+    return name;
   }
 
   @override
@@ -734,7 +821,8 @@ class MSBigWinDialogState extends State<MSBigWinDialog> with TickerProviderState
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                ms_event_fire('coin_pop_c', {'source_from' : _getindexName()});
+                MSMegaAds().ms_showAd(context, 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
                   Navigator.pop(context, 1);
                 });
@@ -767,9 +855,10 @@ class MSBigWinDialogState extends State<MSBigWinDialog> with TickerProviderState
             top: 538.h + 64,
             child: InkWell(
               onTap: () async {
+                ms_event_fire('coin_pop_close', {'source_from' : _getindexName()});
                 if (await MSMegaAds().getIntShow()) {
                   if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(context, 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
                     Navigator.pop(context, 1);
                   }, adDidClosed: (adDidClosed){
                     MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
@@ -805,8 +894,9 @@ class MSBigWinDialogState extends State<MSBigWinDialog> with TickerProviderState
 
 // SuperWin
 class MSSuperWinDialog extends StatefulWidget {
+  final int index;
   final double award_num;
-  MSSuperWinDialog({super.key, required this.award_num});
+  MSSuperWinDialog({super.key, required this.award_num, required this.index});
 
   @override
   State<MSSuperWinDialog> createState() => MSSuperWinDialogState();
@@ -822,7 +912,7 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
   @override
   void initState() {
     super.initState();
-
+    ms_event_fire('coin_pop', {'source_from' : _getindexName()});
     // 初始化 Spine 控制器
     _controller0 = spine.SpineWidgetController(onInitialized: (controller) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -866,6 +956,26 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
 
     // 启动缩放动画
     _scaleController.repeat(reverse: true);  // 缩放动画来回播放
+  }
+
+  String _getindexName(){
+    String name = 'number';
+    if (widget.index == 1){
+      name = 'diamond';
+    } else if (widget.index == 2){
+      name = 'fruit';
+    } else if (widget.index == 3){
+      name = 'emoji';
+    } else if (widget.index == 4){
+      name = 'pot';
+    } else if (widget.index == 5){
+      name = '77';
+    } else if (widget.index == 6){
+      name = 'cash';
+    } else if (widget.index == 0){
+      name = 'wheel';
+    }
+    return name;
   }
 
   @override
@@ -972,7 +1082,8 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                ms_event_fire('coin_pop_c', {'source_from' : _getindexName()});
+                MSMegaAds().ms_showAd(context, 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
                   Navigator.pop(context, 1);
                 });
@@ -1005,9 +1116,10 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
             top: 538.h + 64,
             child: InkWell(
               onTap: () async {
+                ms_event_fire('coin_pop_close', {'source_from' : _getindexName()});
                 if (await MSMegaAds().getIntShow()) {
                   if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(context, 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
                     Navigator.pop(context, 1);
                   }, adDidClosed: (adDidClosed){
                     MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
@@ -1043,7 +1155,8 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
 
 // 未中奖
 class MSUnAwardDialog extends StatefulWidget {
-  MSUnAwardDialog({super.key});
+  final int index;
+  MSUnAwardDialog({super.key, required this.index});
 
   @override
   State<MSUnAwardDialog> createState() => MSUnAwardDialogState();
@@ -1058,7 +1171,7 @@ class MSUnAwardDialogState extends State<MSUnAwardDialog> with TickerProviderSta
   @override
   void initState() {
     super.initState();
-
+    ms_event_fire('paly_failed_pop', {'source_from' : _getindexName()});
     // 初始化缩放动画控制器
     _scaleController = AnimationController(
       vsync: this,
@@ -1075,6 +1188,26 @@ class MSUnAwardDialogState extends State<MSUnAwardDialog> with TickerProviderSta
 
     // 启动缩放动画
     _scaleController.repeat(reverse: true);  // 缩放动画来回播放
+  }
+
+  String _getindexName(){
+    String name = 'number';
+    if (widget.index == 1){
+      name = 'diamond';
+    } else if (widget.index == 2){
+      name = 'fruit';
+    } else if (widget.index == 3){
+      name = 'emoji';
+    } else if (widget.index == 4){
+      name = 'pot';
+    } else if (widget.index == 5){
+      name = '77';
+    } else if (widget.index == 6){
+      name = 'cash';
+    } else if (widget.index == 0){
+      name = 'wheel';
+    }
+    return name;
   }
 
   @override
@@ -1111,9 +1244,10 @@ class MSUnAwardDialogState extends State<MSUnAwardDialog> with TickerProviderSta
             top: 480.h,
             child: InkWell(
               onTap: () async {
+                ms_event_fire('paly_failed_pop_c', {'source_from' : _getindexName()});
                 if (await MSMegaAds().getIntShow()) {
                   if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(context, 'pppuz_srctry_int', onCacheResponse: (onCacheResponse){
                     Navigator.pop(context, 1);
                   }, adDidClosed: (adDidClosed){
                     Navigator.pop(context, 1);
@@ -1167,11 +1301,12 @@ class MSCardPoolDialogState extends State<MSCardPoolDialog> with TickerProviderS
   List<AnimationController> _controllers = []; // 动画控制器
   List<Animation<double>> _animations = []; // 动画值
   bool isAnimating = false; // 标记是否正在进行翻转动画
-
+  int fan_index = 0;
+  String image_name = '';
   @override
   void initState() {
     super.initState();
-
+    image_name = _getimageName();
     // 初始化动画控制器和动画
     for (int i = 0; i < 3; i++) {
       AnimationController controller = AnimationController(
@@ -1202,12 +1337,14 @@ class MSCardPoolDialogState extends State<MSCardPoolDialog> with TickerProviderS
     setState(() {
       isAnimating = true; // 开始翻转动画
     });
-
+    Future.delayed(Duration(milliseconds: 500), () async {
+      isFlipped[index] = !isFlipped[index];
+    });
     if (isFlipped[index]) {
       // 如果是已经翻转的卡片，先反向翻转
       _controllers[index].reverse().then((value) {
         setState(() {
-          isFlipped[index] = !isFlipped[index]; // 在翻转回去时更新图片
+          // isFlipped[index] = !isFlipped[index]; // 在翻转回去时更新图片
           isAnimating = false; // 翻转动画结束，允许点击其他卡片
         });
       });
@@ -1215,10 +1352,21 @@ class MSCardPoolDialogState extends State<MSCardPoolDialog> with TickerProviderS
       // 如果是没有翻转的卡片，先翻转
       _controllers[index].forward().then((value) {
         setState(() {
-          isFlipped[index] = !isFlipped[index]; // 在翻转结束时更新图片
           isAnimating = false; // 翻转动画结束，允许点击其他卡片
         });
+        showCardAward();
       });
+    }
+  }
+
+  void showCardAward(){
+    Navigator.pop(context, 1);
+    if (fan_index == 0){
+      context.tipShow(MS777baoCardDialog());
+    } else if (fan_index == 1){
+      context.tipShow(MSDoubleCardDialog());
+    } else if (fan_index == 2){
+      context.tipShow(MSFruitCardDialog());
     }
   }
 
@@ -1255,7 +1403,7 @@ class MSCardPoolDialogState extends State<MSCardPoolDialog> with TickerProviderS
                     alignment: Alignment.center,
                     transform: Matrix4.rotationY(isFlipped[0] ? angle1 : angle),
                     child: MSImg(
-                      name: isFlipped[0] ? 'ms_77_card_icon' : 'ms_fan_card',
+                      name: isFlipped[0] ? image_name : 'ms_fan_card',
                       width: isFlipped[0] ? 150 : 120,
                       height: isFlipped[0] ? 180 : 165,
                     ),
@@ -1281,7 +1429,7 @@ class MSCardPoolDialogState extends State<MSCardPoolDialog> with TickerProviderS
                         alignment: Alignment.center,
                         transform: Matrix4.rotationY(isFlipped[1] ? angle1 : angle),
                         child: MSImg(
-                          name: isFlipped[1] ? 'ms_77_card_icon' : 'ms_fan_card',
+                          name: isFlipped[1] ? image_name : 'ms_fan_card',
                           width: isFlipped[1] ? 150 : 120,
                           height: isFlipped[1] ? 180 : 165,
                         ),
@@ -1301,7 +1449,7 @@ class MSCardPoolDialogState extends State<MSCardPoolDialog> with TickerProviderS
                         alignment: Alignment.center,
                         transform: Matrix4.rotationY(isFlipped[2] ? angle1 : angle),
                         child: MSImg(
-                          name: isFlipped[2] ? 'ms_77_card_icon' : 'ms_fan_card',
+                          name: isFlipped[2] ? image_name : 'ms_fan_card',
                           width: isFlipped[2] ? 150 : 120,
                           height: isFlipped[2] ? 180 : 165,
                         ),
@@ -1315,6 +1463,20 @@ class MSCardPoolDialogState extends State<MSCardPoolDialog> with TickerProviderS
         ],
       ),
     );
+  }
+
+  String _getimageName(){
+    String names = 'ms_77_card_icon';
+    int code = Random().nextInt(2);
+    fan_index = code;
+    if (code == 0){
+      names = 'ms_77_card_icon';
+    } else if (code == 1) {
+      names = 'ms_x2_card_icon';
+    } else if (code == 2) {
+      names = 'ms_shuiguo_card_icon';
+    }
+   return names;
   }
 }
 
@@ -1444,7 +1606,7 @@ class MS777baoCardDialogState extends State<MS777baoCardDialog> with TickerProvi
             top: 500.h,
             child: InkWell(
               onTap: () async {
-                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                MSMegaAds().ms_showAd(context, 'pppuz_wheeldaoju_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   Navigator.pop(context);
                   MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_777_cardName, true);
                 });
@@ -1569,8 +1731,7 @@ class MSDoubleCardDialogState extends State<MSDoubleCardDialog> with TickerProvi
             top: 510.h,
             child: InkWell(
               onTap: () async {
-                'doule'.log();
-                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                MSMegaAds().ms_showAd(context, 'pppuz_wheeldaoju_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   Navigator.pop(context);
                   MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_double_cardName, true);
                 });
@@ -1698,9 +1859,9 @@ class MSFruitCardDialogState extends State<MSFruitCardDialog> with TickerProvide
             top: 510.h,
             child: InkWell(
               onTap: () async {
-                MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                MSMegaAds().ms_showAd(context, 'pppuz_wheeldaoju_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   Navigator.pop(context);
-                  MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_double_cardName, true);
+                  MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_fruit_cardName, true);
                 });
               },
               child: Container(
@@ -1981,7 +2142,6 @@ class MSNewAwardDialogState extends State<MSNewAwardDialog>
   @override
   void initState() {
     super.initState();
-    MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_new_guide1Name, true);
     MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_new_guide2Name, false);
     // 初始化 Spine 控制器
     _controller0 = spine.SpineWidgetController(onInitialized: (controller) {
@@ -2005,6 +2165,7 @@ class MSNewAwardDialogState extends State<MSNewAwardDialog>
 
     _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * 3.14159) // 完整旋转 360 度
         .animate(CurvedAnimation(parent: _rotationController, curve: Curves.linear));
+    ms_event_fire('new_user_reward_v', {});
   }
 
   @override
@@ -2084,10 +2245,11 @@ class MSNewAwardDialogState extends State<MSNewAwardDialog>
               SizedBox(height: 0.h),
               InkWell(
                 onTap: () async {
+                  ms_event_fire('new_user_reward_c', {});
                   await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, (MSLocalProvider.instance.ms_dolas_number + 1.00));
                   if (!context.mounted) return;
                   Navigator.pop(context);
-                  context.tipShow(MSPopTaskBDialog(is_guide: true));
+                  context.tipShow(MSTXTXDialog());
                 },
                 child: Container(
                   width: 237,
@@ -2115,7 +2277,7 @@ class MSNewAwardDialogState extends State<MSNewAwardDialog>
   }
 }
 
-// 提现提醒
+// 奖金提醒
 class MSTXTXDialog extends StatefulWidget {
   MSTXTXDialog({super.key});
 
@@ -2156,7 +2318,7 @@ class MSTXTXDialogState extends State<MSTXTXDialog> with SingleTickerProviderSta
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
       Navigator.of(context).pop();   // ✔ 正确，关闭当前 dialog
-      // context.tipShow(SJPopTXTipsDialog()); // ✔ 正确，继续显示下一个提示
+      context.tipShow(MSPopTaskBDialog(is_guide: true));
     });
 
   }
@@ -2281,6 +2443,8 @@ class MSLuckyWheelDialogState extends State<MSLuckyWheelDialog> with SingleTicke
 
     if (MSLocalProvider.instance.ms_wheel_number <= 0) {
 
+      Navigator.pop(context, 1);
+      if (!mounted) return;
       context.tipShow(MSNeedsADialog());
 
     } else {
@@ -2318,14 +2482,18 @@ class MSLuckyWheelDialogState extends State<MSLuckyWheelDialog> with SingleTicke
           // 生成 0 到 2 之间的随机整数
           int randomNumber = random.nextInt(3);
           if (randomNumber == 0) {
+            Navigator.pop(context, 1);
             context.tipShow(MSFruitCardDialog());
           } else if (randomNumber == 1) {
+            Navigator.pop(context, 1);
             context.tipShow(MSDoubleCardDialog());
           } else if (randomNumber == 2) {
+            Navigator.pop(context, 1);
             context.tipShow(MS777baoCardDialog());
           }
         } else {
-          context.tipShow(MSYouWinDialog(award_num: random.toDouble()));
+          Navigator.pop(context, 1);
+          context.tipShow(MSYouWinDialog(award_num: random.toDouble(), index: 0, is_wheel: true));
         }
       });
     }
@@ -2333,7 +2501,9 @@ class MSLuckyWheelDialogState extends State<MSLuckyWheelDialog> with SingleTicke
 }
 // 发起提现
 class MSTXSubmitDialog extends StatefulWidget {
-  MSTXSubmitDialog({super.key});
+  final int tx_account_index;
+  final int tx_number_index;
+  MSTXSubmitDialog({super.key, required this.tx_account_index, required this.tx_number_index});
 
   @override
   State<MSTXSubmitDialog> createState() => MSTXSubmitDialogState();
@@ -2451,22 +2621,20 @@ class MSTXSubmitDialogState extends State<MSTXSubmitDialog> with SingleTickerPro
                       borderRadius: BorderRadius.circular(26)
                   ),
                   child: InkWell(
-                    onTap: (){
+                    onTap: () async {
                       // ms_event_fire('cash_confirm_pop_c', {});
                       if (_controller.text.isNotEmpty){
                         MSDialogTool.toast(context, 'Congratulations on your successful submission');
-                        // SBUserAHelpers().set_sb_tx_ing_number(widget.number_index);
-                        // SBUserAHelpers().set_sb_tx_ing_account(SBUserAHelpers().sb_account_seled_index);
-                        // SBUserAHelpers().add_sb_dolas_number(-(SBGetNumberHelper().numberbEntity.card_range[widget.number_index]));
-                        // SBUserAHelpers().updateTXInStatus(1);
-                        // SBUserAHelpers().set_sb_tx_bubble_index(0);
-                        // SBUserAHelpers().set_sb_tx_card_index(0);
-                        // SBUserAHelpers().set_sb_tx_wheel_index(0);
-                        // SBUserAHelpers().set_sb_tx_task_index(0);
-                        // CashSeletcdNotificationService.sendToDomandNumberNotification(0);
-                        // AddDomandNotificationService.sendToDomandNumberNotification(0);
-                        // Navigator.pop(context, 1);
-                        // NavigationService().navigatorKey.currentContext!.tipShow(PopRankingsWidget());
+                        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_ing_numberName, widget.tx_number_index);
+                        await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_txing_statusName, true);
+                        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_ing_accountName, widget.tx_account_index);
+                        await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number - tx_num_list[widget.tx_number_index]);
+                        await MSLocalProvider.instance.updateTXInStatus(1);
+                        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_card_indexName, 0);
+                        await MSLocalProvider.instance.updateString(MSLocalProvider.instance.ms_tx_date_str, DateTime.now().toIso8601String());
+                        if (!context.mounted) return;
+                        Navigator.pop(context, 1);
+                        MSNavigationService().navigatorKey.currentContext!.tipShow(MSTXOneToastDialog());
                       } else {
                         MSDialogTool.toast(context, 'Please Input Your Account ID');
                       }
@@ -2748,7 +2916,11 @@ class MSTXDayThreeThreeToastDialogState extends State<MSTXDayThreeThreeToastDial
                 child: InkWell(
                   onTap: (){
                     Navigator.pop(context);
-                    context.tipShow(MSTXFourToastDialog());
+                    MSMegaAds().ms_showAd(context, 'pppuz_withdraw_d3_rv', onCacheResponse: (onCacheResponse) async {
+                      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                    }, adDidClosed: (adDidClosed) async {
+                      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                    });
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -2890,7 +3062,11 @@ class MSTXDayFourTwoToastDialogState extends State<MSTXDayFourTwoToastDialog> wi
                     child: InkWell(
                       onTap: (){
                         Navigator.pop(context);
-
+                        MSMegaAds().ms_showAd(context, 'pppuz_withdraw_d4_rv', onCacheResponse: (onCacheResponse) async {
+                          await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                        }, adDidClosed: (adDidClosed) async {
+                          await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                        });
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -2902,7 +3078,19 @@ class MSTXDayFourTwoToastDialogState extends State<MSTXDayFourTwoToastDialog> wi
                       ),
                     ),
                   )),
-                  Positioned(top: 278.h,left: 140.w,child: MSText(text: 'Wait', size: 20, color: '#808080'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 1),),
+                  Positioned(top: 278.h,left: 140.w,child: InkWell(onTap: () async {
+                    ms_event_fire('queue_wait_c', {});
+                    Navigator.pop(context);
+                    if (MSMegaAds().getIntShow() == true){
+                      MSMegaAds().ms_showAd(context, 'pppuz_withdraw_d4_int', onCacheResponse: (onCacheResponse) async {
+                        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                      }, adDidClosed: (adDidClosed) async {
+                        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                      });
+                    } else {
+                      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                    }
+                  },child: MSText(text: 'Wait', size: 20, color: '#808080'.color(), weight: FontWeight.w700,align: TextAlign.center, maxLines: 1)),),
                 ],
               ),
             ],
@@ -3238,8 +3426,11 @@ class MSTXNextDayThreeToastDialogState extends State<MSTXNextDayThreeToastDialog
                 child: InkWell(
                   onTap: (){
                     Navigator.pop(context);
-                    // ad
-                    context.tipShow(MSTXNextDayFourToastDialog());
+                    MSMegaAds().ms_showAd(context, 'pppuz_withdraw_d2_rv', onCacheResponse: (onCacheResponse) async {
+                      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                    }, adDidClosed: (adDidClosed) async {
+                      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                    });
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -3252,7 +3443,18 @@ class MSTXNextDayThreeToastDialogState extends State<MSTXNextDayThreeToastDialog
                 ),
               ),
               SizedBox(height: 8),
-              SizedBox(width: 0.width(context), height:18,child: MSText(text: 'Pay 20% Fee', size: 15, color: '#FFFFFF'.color(), weight: FontWeight.w700, align: TextAlign.center))
+              InkWell(
+                onTap: (){
+                  Navigator.pop(context);
+                  if (MSMegaAds().getIntShow() == true){
+                    MSMegaAds().ms_showAd(context, 'pppuz_withdraw_d2_int', onCacheResponse: (onCacheResponse) async {
+                      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                    }, adDidClosed: (adDidClosed) async {
+                      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_task_day_indexName, MSLocalProvider.instance.ms_tx_task_day_index + 1);
+                    });
+                  }
+                },
+                  child: SizedBox(width: 0.width(context), height:25,child: MSText(text: 'Pay 20% Fee', size: 15, color: '#FFFFFF'.color(), weight: FontWeight.w700, align: TextAlign.center)))
             ],
           )
         ],
@@ -3260,7 +3462,7 @@ class MSTXNextDayThreeToastDialogState extends State<MSTXNextDayThreeToastDialog
     );
   }
 }
-// 提现第二天第四步
+// 中断任务弹框
 class MSTXNextDayFourToastDialog extends StatefulWidget {
   MSTXNextDayFourToastDialog({super.key});
 
@@ -3317,8 +3519,17 @@ class MSTXNextDayFourToastDialogState extends State<MSTXNextDayFourToastDialog> 
                 ),
                 child: InkWell(
                   onTap: (){
-                    Navigator.pop(context);
-                    context.tipShow(MSTXFourToastDialog());
+                    ms_event_fire('cash_break_c', {});
+                    MSMegaAds().ms_showAd(context, 'pppuz_withdraw_breakoff_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                      Navigator.pop(context, 1);
+                      if (MSLocalProvider.instance.ms_tx_task_day_index == 0) {
+                        context.tipShow(MSTXNextDayOneToastDialog());
+                      } else if (MSLocalProvider.instance.ms_tx_task_day_index == 1) {
+                        context.tipShow(MSTXDayThreeOneToastDialog());
+                      } else if (MSLocalProvider.instance.ms_tx_task_day_index == 2) {
+                        context.tipShow(MSTXDayFourOneToastDialog());
+                      }
+                    });
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -3327,6 +3538,29 @@ class MSTXNextDayFourToastDialogState extends State<MSTXNextDayFourToastDialog> 
                       SizedBox(width: 4,),
                       MSStrokeText(text: 'Missed Check-In', size: 24, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0, skColor: '#1D5814'.color(),is_btn: true,)
                     ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 295,
+                height: 52,
+                child: InkWell(
+                  onTap: () async {
+                    if (MSMegaAds().getIntShow() == true) {
+                      MSMegaAds().ms_showAd(context, 'pppuz_withdraw_breakoff_int', onCacheResponse: (onCacheResponse) async {
+                        Navigator.pop(context, 1);
+                        await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_zhongduan_statusName, true);
+                      }, adDidClosed: (adDidClosed) async {
+                        Navigator.pop(context, 1);
+                        await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_zhongduan_statusName, true);
+                      });
+                    } else {
+                      Navigator.pop(context, 1);
+                      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_zhongduan_statusName, true);
+                    }
+                  },
+                  child: Center(
+                    child: MSStrokeText(text: 'Give up', size: 18, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0, skColor: '#1D5814'.color(),is_btn: true,),
                   ),
                 ),
               ),
@@ -3381,6 +3615,7 @@ class MSTXOneToastDialogState extends State<MSTXOneToastDialog> with SingleTicke
                 ),
                 child: InkWell(
                   onTap: (){
+                    ms_event_fire('security_boost_c', {});
                     Navigator.pop(context);
                     context.tipShow(MSTXTwoToastDialog());
                   },
@@ -3503,7 +3738,21 @@ class MSTXThreeToastDialogState extends State<MSTXThreeToastDialog> with SingleT
                           ),
                         ),
                         SizedBox(height: 12.h,),
-                        SizedBox(width: 327.w, height:16.h,child: MSText(text: 'Wait 3 Days', size: 15, color: '#7D7D7D'.color(), weight: FontWeight.w700,align: TextAlign.center,))
+                        InkWell(onTap: (){
+                          ms_event_fire('queue_wait_c', {});
+                          if (MSMegaAds().getIntShow() == true){
+                            MSMegaAds().ms_showAd(context, 'pppuz_withdraw_safe_int', onCacheResponse: (onCacheResponse){
+                              Navigator.pop(context);
+                              context.tipShow(MSTXFourToastDialog());
+                            }, adDidClosed: (adDidClosed){
+                              Navigator.pop(context);
+                              context.tipShow(MSTXFourToastDialog());
+                            });
+                          } else {
+                            Navigator.pop(context);
+                            context.tipShow(MSTXFourToastDialog());
+                          }
+                        },child: SizedBox(width: 327.w, height:16.h,child: MSText(text: 'Wait 3 Days', size: 15, color: '#7D7D7D'.color(), weight: FontWeight.w700,align: TextAlign.center,)))
                       ],
                     ),
                   ),
@@ -3619,6 +3868,7 @@ class MSTXFourToastDialogState extends State<MSTXFourToastDialog> with SingleTic
                           ),
                           child: InkWell(
                             onTap: (){
+                              ms_event_fire('task_go_c', {});
                               Navigator.pop(context);
                               context.tipShow(MSTXFiveToastDialog());
                             },
@@ -3897,9 +4147,10 @@ class MSCashActHorizontalImageListState extends State<MSCashActHorizontalImageLi
 
 // 瓜分奖金池
 class MSAwardPoolDialog extends StatefulWidget {
+  final int index;
   final int award_num;
   final int time_index;
-  MSAwardPoolDialog({super.key, required this.award_num, required this.time_index});
+  MSAwardPoolDialog({super.key, required this.award_num, required this.time_index, required this.index});
 
   @override
   State<MSAwardPoolDialog> createState() => MSAwardPoolDialogState();
@@ -3919,6 +4170,8 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
   @override
   void initState() {
     super.initState();
+    ms_event_fire('new_bonus_pop_v', {});
+    ms_event_fire('bonus_pool_v_n', {});
     WidgetsBinding.instance.addPostFrameCallback((_) async {
     });
     // 初始化 AnimationController 进行旋转
@@ -4026,6 +4279,8 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
               SizedBox(height: 32.h),
               InkWell(
                 onTap: () async {
+                  ms_event_fire('new_bonus_pop_c', {});
+                  ms_event_fire('bonus_pop_c', {'source_from:' : _getindexName()});
                   // 首次不看广告
                   if (!MSLocalProvider.instance.ms_first_pool) {
                     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_poolName, true);
@@ -4034,7 +4289,7 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
                     if (!context.mounted)return;
                     Navigator.pop(context);
                   } else {
-                    MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed) async {
+                    MSMegaAds().ms_showAd(context, 'pppuz_bonus_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed) async {
                       await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + widget.award_num);
                       await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_pool_showName, false);
                       if (!context.mounted)return;
@@ -4103,7 +4358,28 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
       ),
     );
   }
+
+  String _getindexName(){
+    String name = 'number';
+    if (widget.index == 1){
+      name = 'diamond';
+    } else if (widget.index == 2){
+      name = 'fruit';
+    } else if (widget.index == 3){
+      name = 'emoji';
+    } else if (widget.index == 4){
+      name = 'pot';
+    } else if (widget.index == 5){
+      name = '77';
+    } else if (widget.index == 6){
+      name = 'cash';
+    } else if (widget.index == 0){
+      name = 'wheel';
+    }
+    return name;
+  }
 }
+// 签到
 class MSPopTaskBDialog extends StatefulWidget {
   final bool is_guide;
   MSPopTaskBDialog({super.key, required this.is_guide});
@@ -4114,6 +4390,17 @@ class MSPopTaskBDialog extends StatefulWidget {
 class MSPopTaskBDialogState extends State<MSPopTaskBDialog> {
 
   List<int> awardNum = [1, 12, 28, 35, 45, 47, 50];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (widget.is_guide){
+      ms_event_fire('7day_task_v', {});
+    } else {
+      ms_event_fire('old_user_7day_v', {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -4214,11 +4501,24 @@ class MSPopTaskBDialogState extends State<MSPopTaskBDialog> {
                 SizedBox(height: 36.h,),
                 InkWell(
                   onTap: () async {
-                    // ad
-                    Navigator.pop(context);
                     if (widget.is_guide){
-                      context.tipShow(MSNewGuideADialog());
+                      ms_event_fire('7day_task_c', {});
+                    } else {
+                      ms_event_fire('old_user_7day_c', {});
                     }
+                    // ad
+                    MSMegaAds().ms_showAd(context, 'pppuz_7d_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed) async {
+                      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_sign_indexName, MSLocalProvider.instance.ms_sign_index + 1);
+                      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_today_sign_statusName, true);
+                      if (MSLocalProvider.instance.ms_sign_index >= 7){
+                        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_sign_indexName, 0);
+                      }
+                      Navigator.pop(context);
+                      if (widget.is_guide){
+                        if (!context.mounted) return;
+                        context.tipShow(MSNewGuideADialog());
+                      }
+                    });
                   },
                   child: Container(
                     width: 237,
@@ -4248,17 +4548,13 @@ class MSPopTaskBDialogState extends State<MSPopTaskBDialog> {
           ),
           Positioned(right: 30.w, top: (0.height(context) - 551.h) * 0.35, child: InkWell(
             onTap: (){
-              if (MSAdAHelper().getIntShow()){
-                MSAdAHelper().show_int(context, (hasCache){
-                  if (!hasCache){
-                    MSAdAHelper().resetBlock();
-                    Navigator.pop(context, 0);
-                    if (widget.is_guide){
-                      context.tipShow(MSNewGuideADialog());
-                    }
+              if (MSMegaAds().getIntShow() == true){
+                MSMegaAds().ms_showAd(context, 'pppuz_7d_close_int', onCacheResponse: (onCacheResponse){
+                  Navigator.pop(context, 0);
+                  if (widget.is_guide){
+                    context.tipShow(MSNewGuideADialog());
                   }
-                }, (finished){
-                  MSAdAHelper().resetBlock();
+                }, adDidClosed: (adDidClosed) async {
                   Navigator.pop(context, 0);
                   if (widget.is_guide){
                     context.tipShow(MSNewGuideADialog());
@@ -4441,6 +4737,7 @@ class MSNewGuideADialogState extends State<MSNewGuideADialog>
         controller.animationState.setAnimationByName(0, "animation", true);
       });
     });
+    ms_event_fire('card_list_guide_v', {});
   }
 
   @override
@@ -4454,12 +4751,14 @@ class MSNewGuideADialogState extends State<MSNewGuideADialog>
       width: 0.width(context),
       height: 0.height(context),
       child: InkWell(
-        onTap: (){
+        onTap: () async {
+          ms_event_fire('card_list_guide_c', {});
+          await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_new_guide1Name, true);
           Navigator.pop(context, 0);
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (builder) {
-                return MSScrachDetails(
+                return MSScrachDetails_b(
                     index: 0);
               },
             ),
@@ -4474,9 +4773,9 @@ class MSNewGuideADialogState extends State<MSNewGuideADialog>
                 SizedBox(width: 118.w,),
                 MSStrokeText(text: 'Win Up To', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#413210'.color()),
                 SizedBox(width: 10.w,),
-                MSImg(name: 'ms_domands_icons', width: 19, height: 19,),
+                MSImg(name: 'ms_dolas_icon', width: 19, height: 19,),
                 SizedBox(width: 10.w,),
-                MSStrokeText(text: '1000', size: 16, color: '#FBF544'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#322107'.color()),
+                MSStrokeText(text: '50', size: 16, color: '#FBF544'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#322107'.color()),
               ],
             )),
             Positioned(top: 260.h,left: (0.width(context) - 196) * 0.5,child: InkWell(
@@ -4496,16 +4795,12 @@ class MSNewGuideADialogState extends State<MSNewGuideADialog>
             )
             ),
             Positioned(
-              right: 15.w,
-              top: 138.h,
-              child: Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.rotationZ(pi / 4),
-                  child: Consumer<MSLocalProvider>(
-                      builder:(context, provider, child) {
-                        return MSStrokeText(text: '0/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
-                      })
-              ),
+              right: 38.w,
+              top: 231.h,
+              child: Consumer<MSLocalProvider>(
+                  builder:(context, provider, child) {
+                    return MSStrokeText(text: '0/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
+                  }),
             ),
             Positioned(
               top: 240.h,
@@ -4707,6 +5002,7 @@ class MSNeedsADialogState extends State<MSNeedsADialog>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
     });
+    ms_event_fire('wheel_pop_v', {});
   }
 
   @override
@@ -4752,6 +5048,7 @@ class MSNeedsADialogState extends State<MSNeedsADialog>
               hoverColor: Colors.transparent,
               focusColor: Colors.transparent,
               onTap: (){
+                ms_event_fire('wheel_pop_c', {});
                 // ad->自动转
                 MSAdAHelper().show(context, (hasCache){
                   if (!hasCache){
@@ -4810,6 +5107,7 @@ class MSUnlockDialogState extends State<MSUnlockDialog>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
     });
+    ms_event_fire('unlock_free_v', {});
   }
 
   @override
@@ -4847,14 +5145,8 @@ class MSUnlockDialogState extends State<MSUnlockDialog>
                   decoration: BoxDecoration(image: MSDImg('ms_green_bg_btn')),
                   child: InkWell(
                     onTap: (){
-                      MSAdAHelper().show(context, (hasCache){
-                        if (!hasCache){
-                          Navigator.pop(context, 1);
-                          MSAdAHelper().resetBlock();
-                        }
-                      }, (finished) async {
-                        Navigator.pop(context, 1);
-                        MSAdAHelper().resetBlock();
+                      ms_event_fire('unlock_free_c', {});
+                      MSMegaAds().ms_showAd(context, 'pppuz_unlockpop_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed) async {
                         if (widget.indexs == 2){
                           await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_2Name, true);
                         } else if (widget.indexs == 3){
@@ -4867,7 +5159,29 @@ class MSUnlockDialogState extends State<MSUnlockDialog>
                           await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_6Name, true);
                         }
                         MSSUpdateHomeListNotificationService.sendToDomandNumberNotification(0);
+                        Navigator.pop(context, 0);
                       });
+                      // MSAdAHelper().show(context, (hasCache){
+                      //   if (!hasCache){
+                      //     Navigator.pop(context, 1);
+                      //     MSAdAHelper().resetBlock();
+                      //   }
+                      // }, (finished) async {
+                      //   Navigator.pop(context, 1);
+                      //   MSAdAHelper().resetBlock();
+                      //   if (widget.indexs == 2){
+                      //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_2Name, true);
+                      //   } else if (widget.indexs == 3){
+                      //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_3Name, true);
+                      //   } else if (widget.indexs == 4){
+                      //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_4Name, true);
+                      //   } else if (widget.indexs == 5){
+                      //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_5Name, true);
+                      //   } else if (widget.indexs == 6){
+                      //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_6Name, true);
+                      //   }
+                      //   MSSUpdateHomeListNotificationService.sendToDomandNumberNotification(0);
+                      // });
                     },
                     child: Stack(
                       children: [
@@ -4881,27 +5195,29 @@ class MSUnlockDialogState extends State<MSUnlockDialog>
                   width: 255, height: 40,
                   child: InkWell(
                     onTap: () async {
-                        if (MSLocalProvider.instance.ms_domand_number < 2000){
-                          Navigator.pop(context, 0);
-                          MSDialogTool.toast(context, "You don't have enough gold coins! Play games to earn more gold coins!");
-                        } else {
-                          Navigator.pop(context, 1);
-                          await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_domand_numberName, MSLocalProvider.instance.ms_domand_number - 2000);
-                          if (widget.indexs == 2){
-                            await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_2Name, true);
-                          } else if (widget.indexs == 3){
-                            await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_3Name, true);
-                          } else if (widget.indexs == 4){
-                            await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_4Name, true);
-                          } else if (widget.indexs == 5){
-                            await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_5Name, true);
-                          } else if (widget.indexs == 6){
-                            await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_6Name, true);
-                          }
-                          MSSUpdateHomeListNotificationService.sendToDomandNumberNotification(0);
-                        }
+                        // if (MSLocalProvider.instance.ms_domand_number < 2000){
+                        //   Navigator.pop(context, 0);
+                        //   MSDialogTool.toast(context, "You don't have enough gold coins! Play games to earn more gold coins!");
+                        // } else {
+                        //   Navigator.pop(context, 1);
+                        //   await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_domand_numberName, MSLocalProvider.instance.ms_domand_number - 2000);
+                        //   if (widget.indexs == 2){
+                        //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_2Name, true);
+                        //   } else if (widget.indexs == 3){
+                        //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_3Name, true);
+                        //   } else if (widget.indexs == 4){
+                        //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_4Name, true);
+                        //   } else if (widget.indexs == 5){
+                        //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_5Name, true);
+                        //   } else if (widget.indexs == 6){
+                        //     await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scratch_status_6Name, true);
+                        //   }
+                        //   MSSUpdateHomeListNotificationService.sendToDomandNumberNotification(0);
+                        // }
+                      Navigator.pop(context, 0);
                     },
-                    child: MSStrokeText(text: 'Spend 2000 Coins', size: 15, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#000000'.color()),
+                    child: MSStrokeText(text: 'Scratch to Upgrade', size: 15, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#000000'.color()),
+                    // child: MSStrokeText(text: 'Spend 2000 Coins', size: 15, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#000000'.color()),
                   ),
                 ),
               ],
@@ -4958,14 +5274,10 @@ class MSAll10DialogState extends State<MSAll10Dialog>
                   decoration: BoxDecoration(image: MSDImg('ms_green_bg_btn')),
                   child: InkWell(
                     onTap: (){
-                      MSAdAHelper().show(context, (hasCache){
-                        if (!hasCache){
-                          Navigator.pop(context, 1);
-                          MSAdAHelper().resetBlock();
-                        }
-                      }, (finished) async {
+                      MSMegaAds().ms_showAd(context, '', onCacheResponse: (onCacheResponse){
                         Navigator.pop(context, 1);
-                        MSAdAHelper().resetBlock();
+                      }, adDidClosed: (adDidClosed) async {
+                        Navigator.pop(context, 1);
                         if (widget.type == 0){
                           await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_0Name, 0);
                         } else if (widget.type == 1){
@@ -4983,6 +5295,31 @@ class MSAll10DialogState extends State<MSAll10Dialog>
                         }
                         MSSUpdateHomeListNotificationService.sendToDomandNumberNotification(0);
                       });
+                      // MSAdAHelper().show(context, (hasCache){
+                      //   if (!hasCache){
+                      //     Navigator.pop(context, 1);
+                      //     MSAdAHelper().resetBlock();
+                      //   }
+                      // }, (finished) async {
+                      //   Navigator.pop(context, 1);
+                      //   MSAdAHelper().resetBlock();
+                      //   if (widget.type == 0){
+                      //     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_0Name, 0);
+                      //   } else if (widget.type == 1){
+                      //     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_1Name, 0);
+                      //   } else if (widget.type == 2){
+                      //     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_2Name, 0);
+                      //   } else if (widget.type == 3){
+                      //     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_3Name, 0);
+                      //   } else if (widget.type == 4){
+                      //     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_4Name, 0);
+                      //   } else if (widget.type == 5){
+                      //     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_5Name, 0);
+                      //   } else if (widget.type == 6){
+                      //     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_6Name, 0);
+                      //   }
+                      //   MSSUpdateHomeListNotificationService.sendToDomandNumberNotification(0);
+                      // });
                     },
                     child: Stack(
                       children: [

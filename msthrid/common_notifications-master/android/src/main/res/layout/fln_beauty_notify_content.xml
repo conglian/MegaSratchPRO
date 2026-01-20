@@ -44,7 +44,7 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textColor="#000000"
-                android:textSize="17sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 tools:text="This is title" />
 

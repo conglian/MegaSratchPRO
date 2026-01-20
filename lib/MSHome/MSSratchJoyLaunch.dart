@@ -8,7 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import '../MSTool/ms_NoticeTool.dart';
+import '../MSTool/ms_TBAInfoTool.dart';
 import '../MSTool/ms_extension_help.dart';
+import '../MSTool/ms_fkmanger.dart';
 import '../MSTool/ms_img.dart';
 import '../main.dart';
 import 'MSHome.dart';
@@ -31,8 +33,8 @@ class MSSratchJoyLaunchState extends State<MSSratchJoyLaunch>  with SingleTicker
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     ms_setConfigDateInfoData();
-    ms_getUserCloakConfig();
     MSNoticeHelp().setNoticeStatus();
+    ms_event_fire('launch_page', {});
   }
 
   Future<void> ms_setConfigDateInfoData() async {
@@ -53,35 +55,12 @@ class MSSratchJoyLaunchState extends State<MSSratchJoyLaunch>  with SingleTicker
         // 隔天
         prefs.setString('ms_day_date', formattedDate);
         prefs.setBool('ms_old_guide', false);
+        prefs.setBool('ms_today_sign_show', false);
         prefs.setInt('ms_today_card_index', 0);
         prefs.setInt('ms_tx_num_index', Random().nextInt(500) + 500);
       }
     }
 
-  }
-
-  void ms_getUserCloakConfig() async {
-    // try {
-    //   var responseData = await SJRequestHelpers().getCloak();
-    //   print('Solitairejoy Config Result: $responseData');
-    //   ms_event_fire("cloak_req", {});
-    //   ms_event_fire("cloak_suc", {
-    //     "cloak_user": responseData.toString() == "meredith" ? 1 : 0,
-    //   });
-    //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-    //   if (prefs.getBool('sp_install_status') == null){
-    //     ms_install_fire();
-    //     prefs.setBool('sp_install_status', true);
-    //   }
-    //   SJFKManger().ms_add_tabsession_custom();
-    //   ms_session_fire();
-    //   SJLocalProvider.instance.updateBool(SJLocalProvider.instance.ms_cloak_statusName, responseData.toString() == "meredith" ? true : false);
-    // } catch (e) {
-    //   print('Solitaireplayland Request Error: $e');
-    //   Future.delayed(Duration(seconds: 1), () {
-    //     ms_getSBUserCloakConfig();
-    //   });
-    // }
   }
 
   @override

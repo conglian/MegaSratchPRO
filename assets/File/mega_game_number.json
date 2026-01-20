@@ -39,34 +39,34 @@
   },
   "card_diamonds": {
     "diamonds0": 0.1,
-    "diamonds3": 0.3,
+    "diamonds3": 0.4,
     "diamonds4": 0.2,
     "diamonds5": 0.3,
-    "diamonds6": 0.06,
-    "diamonds7": 0.03,
-    "diamonds8": 0.01,
+    "diamonds6": 0,
+    "diamonds7": 0,
+    "diamonds8": 0,
     "prizes": [
       {
         "first_number": 0,
         "prize": [
-          20,
-          30
+          8,
+          10
         ],
         "end_number": 300
       },
       {
         "first_number": 300,
         "prize": [
-          15,
-          20
+          5,
+          8
         ],
         "end_number": 600
       },
       {
         "first_number": 600,
         "prize": [
-          5,
-          10
+          3,
+          5
         ],
         "end_number": 800
       },
@@ -74,7 +74,7 @@
         "first_number": 800,
         "prize": [
           1,
-          5
+          3
         ],
         "end_number": 1000
       }

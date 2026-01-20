@@ -15,6 +15,7 @@ import 'MSTool/ms_extension_help.dart';
 import 'MSTool/ms_fkmanger.dart';
 import 'MSTool/ms_init_sdk.dart';
 
+final trigger = MSThresholdTrigger();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,7 @@ Future<void> main() async {
   final localStorageProvider = MSLocalProvider.instance;
   await localStorageProvider.init();
   await MSFKManger().initFKJson();
+  await trigger.init();
   print(BoomUniqueStringUtil.decrypt('wcr7+8jd1cbH49bF5Prvws3dyc7O3c3I3/vN+9/Nxs7NwdXguMfv9u703dXv3s/D69/EvOD23vjq+cWj5urq1MPU/MTZ1N7a4b/P3uX1wsC4wbnZvNr1v/3Pp8TDurij7b3W1r7Kyu/HwMu6tePD+tnnz/nB/rzPzfvJzc3dsbE=', 140));
   await MegascratchFK.instance.ms_initNumberUnit(apiKey: BoomUniqueStringUtil.decrypt('wcr7+8jd1cbH49bF5Prvws3dyc7O3c3I3/vN+9/Nxs7NwdXguMfv9u703dXv3s/D69/EvOD23vjq+cWj5urq1MPU/MTZ1N7a4b/P3uX1wsC4wbnZvNr1v/3Pp8TDurij7b3W1r7Kyu/HwMu6tePD+tnnz/nB/rzPzfvJzc3dsbE=', 140));
   // 2. 注入Provider，包裹MyApp

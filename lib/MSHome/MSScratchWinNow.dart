@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:megascratch/MSTool/ms_img.dart';
 import '../MSDialog/MSDialog.dart';
+import '../MSTool/ms_TBAInfoTool.dart';
 import '../MSTool/ms_extension_help.dart';
 import 'MSTbabar.dart'; // 目标页面示例
 
@@ -23,7 +24,7 @@ class MSSratchWinNowState extends State<MSSratchWinNow> with SingleTickerProvide
   void initState() {
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
-
+    ms_event_fire('new_user_guide', {});
   }
 
   @override

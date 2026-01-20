@@ -62,10 +62,30 @@ class MSNumberAHelper {
     return random.nextInt(maxBonus - minBonus + 1) + minBonus;
   }
 
+  // 获取当前范围的奖金
+  List<int> getDiceValueByBalance(List<MSPrize> models) {
+    for (var item in models) {
+      int start = item.firstNumber;
+      int end = item.endNumber;
+      if (MSLocalProvider.instance.ms_dolas_number >= start && MSLocalProvider.instance.ms_dolas_number < end) {
+        return item.prize;
+      }
+    }
+    /// 如果超出所有区间，取最后一个区间
+    var last = models.last;
+    return last.prize;
+  }
+
+  // 生成[min, max]之间随机整数（兼容 double）
+  int _randomBetween(double min, double max) {
+    final r = Random();
+    return min.toInt() + r.nextInt(max.toInt() - min.toInt() + 1);
+  }
+
   /// 🎲 生成 lucku_moment 模式结果
   MSPlayJoyResult generatelucku_Numbers({ bool forceWin = false }) {
     final _rand = Random();
-    MSReward mode = numberAEntry.luckyNumbers.first;
+    MSLuckyNumber mode = numberBEntry.luckyNumber;
 
     // 1️⃣ 生成3个不重复的中奖数字 (10~99)
     List<int> allNumbers = List.generate(90, (i) => i + 10);
@@ -83,26 +103,18 @@ class MSNumberAHelper {
 
     // 生成一个 0 到 1 之间的随机数，用于判断是否中奖
     double randomProbability = _rand.nextDouble(); // 获取一个 [0.0, 1.0) 之间的随机数
-    num probability = 0;
     int multiplier = 0;
     int coins = 100;
     // 遍历 luckyNumbers，检查中奖规则
-    for (var luckyNumber in MSNumberAHelper().numberAEntry.luckyNumbers) {
-      if (luckyNumber.Probability >= randomProbability) {
-        probability = luckyNumber.Probability;
-        multiplier = luckyNumber.Multiplier;
-        coins = luckyNumber.Coins;
-        if (coins <= 0){
-          coins = 100;
-        }
-        mode = luckyNumber;
-        break;  // 找到匹配的项后，跳出循环
-      }
+    if (mode.point >= randomProbability) {
+        multiplier = 1;
     }
+
+    List<int> fan = getDiceValueByBalance(mode.prizes);
 
     // 3️⃣ 每个显示数字对应的中奖值
     List<int> winMatchNumbers = List.generate(
-        15, (_) => _rand.nextInt(coins) + 10);
+        15, (_) => _randomBetween(fan.first.toDouble(), fan.last.toDouble()));
 
     // 4️⃣ 判断是否中奖
     bool isWin = forceWin || multiplier > 0;
@@ -147,25 +159,29 @@ class MSNumberAHelper {
   MSPlayJoyResult generatelucku_diamonds({ bool forceWin = false }) {
     final _rand = Random();
 
-    MSReward mode = numberAEntry.luckyDiamond.first;
+    MSCardDiamonds mode = numberBEntry.cardDiamonds;
 
     // 1️⃣ 概率判定
     double randomProbability = _rand.nextDouble();
-
+    'randomProbability=${mode.diamonds0} ${mode.diamonds3} ${mode.diamonds5} ${mode.diamonds7} ${mode.diamonds8}'.log();
+    'randomProbability=$randomProbability'.log();
     int multiplier = 0;
-    int coins = 100;
-    for (var luckyNumber in MSNumberAHelper().numberAEntry.luckyDiamond) {
-      if (luckyNumber.Probability >= randomProbability) {
-        multiplier = luckyNumber.Multiplier;
-        coins = luckyNumber.Coins;
-        if (coins <= 0){
-          coins = 100;
-        }
-        mode = luckyNumber;
-        break;  // 找到匹配的项后，跳出循环
-      }
+    if (randomProbability >= mode.diamonds3) {
+      multiplier = 3;
+    } else if (randomProbability >= mode.diamonds4) {
+      multiplier = 4;
+    } else if (randomProbability >= mode.diamonds5) {
+      multiplier = 5;
+    } else if (randomProbability >= mode.diamonds6) {
+      multiplier = 6;
+    } else if (randomProbability >= mode.diamonds7) {
+      multiplier = 7;
+    } else if (randomProbability >= mode.diamonds8) {
+      multiplier = 8;
+    } else if (randomProbability >= mode.diamonds0) {
+      multiplier = 0;
     }
-
+    'multiplier=$multiplier'.log();
     // 2️⃣ 是否中奖
     bool isWin = forceWin || multiplier > 0;
 
@@ -177,7 +193,10 @@ class MSNumberAHelper {
     // ==============================
     // 4️⃣ 生成 12 个奖励数值 (10~99)
     // ==============================
-    List<int> rewardValues = List.generate(12, (_) => _rand.nextInt(coins) + 10);  // 奖励数值范围10~99
+    List<int> fan = getDiceValueByBalance(mode.prizes);
+    // 3️⃣ 每个显示数字对应的中奖值
+    List<int> rewardValues = List.generate(
+        12, (_) => _randomBetween(fan.first.toDouble(), fan.last.toDouble()));
 
     List<int> winIndices = [];
 
@@ -196,7 +215,6 @@ class MSNumberAHelper {
           // 替换为 0
           displayNumbers[index] = 0;
           winIndices.add(index);
-
           // 累加奖励数值
           totalReward += rewardValues[index];
         }
@@ -225,23 +243,17 @@ class MSNumberAHelper {
 
 
   MSPlayJoyResult generatelucku_partpay({ bool forceWin = false }) {
+
     final _rand = Random();
-    MSReward mode = numberAEntry.fruitPartyPay.first;
+
+    MSCardFruit mode = numberBEntry.cardFruit;
 
     // 1️⃣ 概率判定
     double randomProbability = _rand.nextDouble();
     int multiplier = 0;
-    int coins = 100;
-    for (var luckyNumber in MSNumberAHelper().numberAEntry.fruitPartyPay) {
-      if (luckyNumber.Probability >= randomProbability) {
-        multiplier = luckyNumber.Multiplier;
-        coins = luckyNumber.Coins;
-        if (coins <= 0){
-          coins = 100;
-        }
-        mode = luckyNumber;
-        break;  // 找到匹配的项后，跳出循环
-      }
+    'randomProbability=$randomProbability pointFace = ${mode.pointFace}'.log();
+    if (mode.pointFace >= randomProbability) {
+      multiplier = 1;
     }
 
     // 2️⃣ 是否中奖
@@ -255,8 +267,10 @@ class MSNumberAHelper {
     // ==============================
     // 4️⃣ 生成 9 个奖励数值
     // ==============================
-    List<int> rewardValues =
-    List.generate(9, (_) => _rand.nextInt(coins) + 10);
+    List<int> fan = getDiceValueByBalance(mode.prizes);
+    // 3️⃣ 每个显示数字对应的中奖值
+    List<int> rewardValues = List.generate(
+        9, (_) => _randomBetween(fan.first.toDouble(), fan.last.toDouble()));
 
     List<int> winIndices = [];
     int totalReward = 0;
@@ -319,22 +333,13 @@ class MSNumberAHelper {
 
   MSPlayJoyResult generatelucku_emojifun({ bool forceWin = false }) {
     final _rand = Random();
-    MSReward mode = numberAEntry.emojiFunReward.first;
+    MSCardEmoji mode = numberBEntry.cardEmoji;
 
     // 1️⃣ 概率判定
     double randomProbability = _rand.nextDouble();
     int multiplier = 0;
-    int coins = 100;
-    for (var luckyNumber in MSNumberAHelper().numberAEntry.emojiFunReward) {
-      if (luckyNumber.Probability >= randomProbability) {
-        multiplier = luckyNumber.Multiplier;
-        coins = luckyNumber.Coins;
-        if (coins <= 0){
-          coins = 100;
-        }
-        mode = luckyNumber;
-        break;  // 找到匹配的项后，跳出循环
-      }
+    if (mode.point >= randomProbability) {
+      multiplier = 1;
     }
 
     // 2️⃣ 是否中奖
@@ -348,8 +353,10 @@ class MSNumberAHelper {
     // ==============================
     // 4️⃣ 生成 9 个奖励数值
     // ==============================
-    List<int> rewardValues =
-    List.generate(9, (_) => _rand.nextInt(coins) + 10);
+    List<int> fan = getDiceValueByBalance(mode.prizes);
+    // 3️⃣ 每个显示数字对应的中奖值
+    List<int> rewardValues = List.generate(
+        9, (_) => _randomBetween(fan.first.toDouble(), fan.last.toDouble()));
 
     List<int> winIndices = [];
     int totalReward = 0;
@@ -357,7 +364,7 @@ class MSNumberAHelper {
     if (isWin) {
       /// ✅ 中奖：随机一整排为 0
       int zeroRow = _rand.nextInt(3); // 0,1,2
-
+      totalReward += rewardValues[zeroRow];
       for (int row = 0; row < 3; row++) {
         for (int col = 0; col < 3; col++) {
           int index = row * 3 + col;
@@ -365,7 +372,6 @@ class MSNumberAHelper {
           if (row == zeroRow) {
             displayNumbers[index] = 0;
             winIndices.add(index);
-            totalReward += rewardValues[index];
           } else {
             displayNumbers[index] = _rand.nextBool() ? 1 : 2;
           }
@@ -412,22 +418,13 @@ class MSNumberAHelper {
 
   MSPlayJoyResult generatelucku_goldpotdig({ bool forceWin = false }) {
     final _rand = Random();
-    MSReward mode = numberAEntry.goldPotDig.first;
+    MSCardGoldPot mode = numberBEntry.cardGoldPot;
 
     // 1️⃣ 概率判定
     double randomProbability = _rand.nextDouble();
     int multiplier = 0;
-    int coins = 100;
-    for (var luckyNumber in MSNumberAHelper().numberAEntry.goldPotDig) {
-      if (luckyNumber.Probability >= randomProbability) {
-        multiplier = luckyNumber.Multiplier;
-        coins = luckyNumber.Coins;
-        if (coins <= 0){
-          coins = 100;
-        }
-        mode = luckyNumber;
-        break;  // 找到匹配的项后，跳出循环
-      }
+    if (mode.point >= randomProbability){
+      multiplier = 1;
     }
 
     // 2️⃣ 是否中奖
@@ -441,7 +438,10 @@ class MSNumberAHelper {
     // ==============================
     // 4️⃣ 生成 10 个奖励数值
     // ==============================
-    List<int> rewardValues = List.generate(10, (_) => _rand.nextInt(coins) + 10);  // 奖励数值范围10~99
+    List<int> fan = getDiceValueByBalance(mode.prizes);
+    // 3️⃣ 每个显示数字对应的中奖值
+    List<int> rewardValues = List.generate(
+        10, (_) => _randomBetween(fan.first.toDouble(), fan.last.toDouble()));
 
     List<int> winIndices = [];
     int totalReward = 0;
@@ -481,23 +481,23 @@ class MSNumberAHelper {
 
   MSPlayJoyResult generatelucku_77n({ bool forceWin = false }) {
     final _rand = Random();
-    MSReward mode = numberAEntry.huntAndEarn.first;
+    MSCard77earn mode = numberBEntry.card77earn;
 
     // 1️⃣ 概率判定
     double randomProbability = _rand.nextDouble();
     int multiplier = 0;
-    int coins = 100;
-    for (var luckyNumber in MSNumberAHelper().numberAEntry.huntAndEarn) {
-      if (luckyNumber.Probability >= randomProbability) {
-        multiplier = luckyNumber.Multiplier;
-        coins = luckyNumber.Coins;
-        if (coins <= 0){
-          coins = 100;
-        }
-        mode = luckyNumber;
-        break;  // 找到匹配的项后，跳出循环
-      }
+    'randomProbability=${mode.pointNowin} ${mode.point7} ${mode.point77} ${mode.point777}'.log();
+    'randomProbability=$randomProbability'.log();
+    if (randomProbability >= mode.point7) {
+      multiplier = 1;
+    } else if (randomProbability >= mode.point77) {
+      multiplier = 2;
+    } else if (randomProbability >= mode.point777) {
+      multiplier = 3;
+    } else if (randomProbability >= mode.pointNowin) {
+      multiplier = 0;
     }
+    'multiplier=$multiplier'.log();
 
     // 2️⃣ 是否中奖
     bool isWin = forceWin || multiplier > 0;
@@ -511,8 +511,10 @@ class MSNumberAHelper {
     // ==============================
     // 4️⃣ 生成 15 个奖励数值 (10~99)
     // ==============================
-    List<int> rewardValues =
-    List.generate(15, (_) => _rand.nextInt(coins) + 10);
+    List<int> fan = getDiceValueByBalance(mode.prizes);
+    // 3️⃣ 每个显示数字对应的中奖值
+    List<int> rewardValues = List.generate(
+        15, (_) => _randomBetween(fan.first.toDouble(), fan.last.toDouble()));
 
     List<int> winIndices = [];
     int totalReward = 0;
@@ -521,14 +523,14 @@ class MSNumberAHelper {
     // 5️⃣ 中奖替换 & 奖励计算
     // ==============================
     if (isWin) {
-      int replaceCount = multiplier.clamp(0, 15);
+      int replaceCount = 1.clamp(0, 15);
       Set<int> usedIndices = {};
 
       while (usedIndices.length < replaceCount) {
         int index = _rand.nextInt(15);
         if (usedIndices.add(index)) {
           // 替换为 0 / 1 / 2
-          int replaceValue = _rand.nextInt(3);
+          int replaceValue = multiplier - 1;
           displayNumbers[index] = replaceValue;
           winIndices.add(index);
 
@@ -566,22 +568,13 @@ class MSNumberAHelper {
 
   MSPlayJoyResult generatelucku_coincraze({ bool forceWin = false }) {
     final _rand = Random();
-    MSReward mode = numberAEntry.coinCraze.first;
+    MSLuckyCash mode = numberBEntry.luckyCash;
 
     // 1️⃣ 概率判定
     double randomProbability = _rand.nextDouble();
     int multiplier = 0;
-    int coins = 100;
-    for (var luckyNumber in MSNumberAHelper().numberAEntry.coinCraze) {
-      if (luckyNumber.Probability >= randomProbability) {
-        multiplier = luckyNumber.Multiplier;
-        coins = luckyNumber.Coins;
-        if (coins <= 0){
-          coins = 100;
-        }
-        mode = luckyNumber;
-        break;  // 找到匹配的项后，跳出循环
-      }
+    if (mode.point >= randomProbability){
+      multiplier = 1;
     }
 
     // 2️⃣ 是否中奖
@@ -595,8 +588,10 @@ class MSNumberAHelper {
     // ==============================
     // 4️⃣ 生成 12 个奖励数值 (10~99)
     // ==============================
-    List<int> rewardValues =
-    List.generate(12, (_) => _rand.nextInt(coins) + 10);
+    List<int> fan = getDiceValueByBalance(mode.prizes);
+    // 3️⃣ 每个显示数字对应的中奖值
+    List<int> rewardValues = List.generate(
+        12, (_) => _randomBetween(fan.first.toDouble(), fan.last.toDouble()));
 
     List<int> winIndices = [];
     int totalReward = 0;
