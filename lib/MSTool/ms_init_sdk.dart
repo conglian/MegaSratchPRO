@@ -199,17 +199,17 @@ class MSSDKHelpers {
         }
       }
       // risk_control
-      // final risk_control = remoteConfig.getValue('risk_control').asString();
-      // if (risk_control != ''){
-      //   try {
-      //     Map<String, dynamic> jsonMap = json.decode(risk_control);
-      //     var fkEntity = MSFkModel.fromJson(jsonMap);
-      //     MSFKManger().fkModel = fkEntity;
-      //     "app firebase remoteconfig risk_control data ${jsonMap}".log();
-      //   } catch (error) {
-      //     print("app firebase remoteconfig risk_control error ${error}");
-      //   }
-      // }
+      final risk_control = remoteConfig.getValue('risk_control').asString();
+      if (risk_control != ''){
+        try {
+          Map<String, dynamic> jsonMap = json.decode(risk_control);
+          var fkEntity = MSFkModel.fromJson(jsonMap);
+          MSFKManger().fkModel = fkEntity;
+          "app firebase remoteconfig risk_control data ${jsonMap}".log();
+        } catch (error) {
+          print("app firebase remoteconfig risk_control error ${error}");
+        }
+      }
 
       // 插屏概率
       final ad =

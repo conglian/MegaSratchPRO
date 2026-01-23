@@ -77,6 +77,7 @@ class MSNoticeHelp {
     _subscribeFcmTopic();
     // _subscribeFcmTopic2();
     _showUnlockNotification();
+    _showscreenOnNotification();
     _msinitNotificationCount();
   }
 
@@ -375,6 +376,38 @@ class MSNoticeHelp {
         groupKey: "$ids",
       ),
       'unlock',
+    );
+  }
+
+  Future<void> _showscreenOnNotification() async {
+    //自定义通知ID
+    final int ids = 4592;
+    final randomMotivation = StepMotivationManager.getRandomMotivation();
+    StepMotivation randomMotivation2 = StepMotivationManager.getRandomMotivation();;
+    await AndroidFlutterLocalNotificationsPlugin().showBroadcastNotification(
+      ids,
+      randomMotivation.title,
+      randomMotivation.body,
+      //两次发送解锁通知的间隔，根据需求设置
+      const Duration(seconds: 30),
+      'android.intent.action.SCREEN_ON',
+      AndroidNotificationDetails(
+        '140MegaScractch',
+        'MegasScractchs',
+        priority: Priority.high,
+        importance: Importance.high,
+        icon: 'ms_sm_logo',
+        styleInformation: BeautyStyleInformation(
+          title: randomMotivation2.title,
+          body:randomMotivation2.body,
+          image:'ms_notice_big',
+          button:'Withdraw',
+          appIcon:'ms_logo',
+        ),
+        //“groupKey”：防止通知被系统折叠
+        groupKey: "$ids",
+      ),
+      'screenOn',
     );
   }
   // 前台服务

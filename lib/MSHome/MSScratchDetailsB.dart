@@ -365,6 +365,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
   Future<void> showAwardDialog(int index, double award, bool isWin) async {
     updateLocatice();
     if (isWin){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_today_card_indexName, MSLocalProvider.instance.ms_today_card_index + 1);
       showWheelCardDialog(index, award);
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_card_award_indexName, MSLocalProvider.instance.ms_card_award_index + 1);
     } else {
@@ -389,7 +390,6 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_indexName, MSLocalProvider.instance.ms_pool_index + 1);
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_pop_indexName, MSLocalProvider.instance.ms_wheel_pop_index + 1);
-    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_today_card_indexName, MSLocalProvider.instance.ms_today_card_index + 1);
     if (MSLocalProvider.instance.ms_pool_index >= 5){
       if (MSLocalProvider.instance.ms_pool_show == false) {
         await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 300);

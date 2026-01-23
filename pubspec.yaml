@@ -66,8 +66,6 @@ dependencies:
     path: msthrid/common_notifications-master
   megascratchFK:
     path: msthrid/megascratchFK
-  kkksyyt:
-    path: msthrid/megaScratchEvent
   gs140okspine:
     path: msthrid/gs140okspine
 

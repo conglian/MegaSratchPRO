@@ -366,12 +366,12 @@ class MSMegaAds {
     adRevenues(ad.ecpm);
     {
       ms_ad_fire({
-        "ad_pre_ecpm": ad.ecpm * 1000000,
-        "ad_network": ad.networkName,
-        "ad_source_client": ad.sdk,
-        "ad_code_id": ad.ad_identifer,
-        "ad_pos_id": placeID,
-        "ad_format": ad.getTypeToServer(),
+        "longue": ad.ecpm * 1000000,
+        "evoke": ad.networkName,
+        "skein": ad.sdk,
+        "bona": ad.ad_identifer,
+        "namesake": placeID,
+        "hugh": ad.getTypeToServer(),
       });
     }
     {

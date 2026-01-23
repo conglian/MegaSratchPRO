@@ -307,7 +307,7 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                MSMegaAds().ms_showAd(context, widget.is_wheel ? 'pppuz_wheeldollor_rv' : 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                MSMegaAds().ms_showAd(context, MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_rv' : widget.is_wheel ? 'pppuz_wheeldollor_rv' : 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
                   Navigator.pop(context, 1);
                 });
@@ -347,7 +347,7 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
               onTap: () async {
                 if (await MSMegaAds().getIntShow()) {
                   if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context, widget.is_wheel ? 'pppuz_wheeldollor_int' : 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(context,MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_int' :  widget.is_wheel ? 'pppuz_wheeldollor_int' : 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
                     Navigator.pop(context, 1);
                   }, adDidClosed: (adDidClosed){
                     MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
@@ -600,7 +600,7 @@ class MSJackPotDialogState extends State<MSJackPotDialog> with TickerProviderSta
             child: InkWell(
               onTap: () async {
                 ms_event_fire('coin_pop_c', {'source_from' : _getindexName()});
-                MSMegaAds().ms_showAd(context, 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                MSMegaAds().ms_showAd(context, MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_rv' : 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
                   Navigator.pop(context, 1);
                 });
@@ -636,7 +636,7 @@ class MSJackPotDialogState extends State<MSJackPotDialog> with TickerProviderSta
                 ms_event_fire('coin_pop_close', {'source_from' : _getindexName()});
                 if (await MSMegaAds().getIntShow()) {
                   if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context, 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(context, MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_int' : 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
                     Navigator.pop(context, 1);
                   }, adDidClosed: (adDidClosed){
                     MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
@@ -879,7 +879,7 @@ class MSBigWinDialogState extends State<MSBigWinDialog> with TickerProviderState
             child: InkWell(
               onTap: () async {
                 ms_event_fire('coin_pop_c', {'source_from' : _getindexName()});
-                MSMegaAds().ms_showAd(context, 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                MSMegaAds().ms_showAd(context, MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_rv' :  'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
                   Navigator.pop(context, 1);
                 });
@@ -915,7 +915,7 @@ class MSBigWinDialogState extends State<MSBigWinDialog> with TickerProviderState
                 ms_event_fire('coin_pop_close', {'source_from' : _getindexName()});
                 if (await MSMegaAds().getIntShow()) {
                   if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context, 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(context, MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_int' :  'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
                     Navigator.pop(context, 1);
                   }, adDidClosed: (adDidClosed){
                     MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
@@ -1161,7 +1161,7 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
             child: InkWell(
               onTap: () async {
                 ms_event_fire('coin_pop_c', {'source_from' : _getindexName()});
-                MSMegaAds().ms_showAd(context, 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                MSMegaAds().ms_showAd(context, MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_rv' : 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
                   MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
                   Navigator.pop(context, 1);
                 });
@@ -1197,7 +1197,7 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
                 ms_event_fire('coin_pop_close', {'source_from' : _getindexName()});
                 if (await MSMegaAds().getIntShow()) {
                   if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context, 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(context, MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_int' : 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
                     Navigator.pop(context, 1);
                   }, adDidClosed: (adDidClosed){
                     MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
@@ -3500,7 +3500,7 @@ class MSAdShowFaildDialogState extends State<MSAdShowFaildDialog> with SingleTic
                 child: InkWell(
                   onTap: (){
                     Navigator.pop(context);
-
+                    MSMegaAds().init();
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -5393,7 +5393,7 @@ class MSNeedsADialogState extends State<MSNeedsADialog>
               focusColor: Colors.transparent,
               onTap: (){
                 ms_event_fire('wheel_pop_c', {});
-                MSMegaAds().ms_showAd(context, 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
+                MSMegaAds().ms_showAd(context, 'pppuz_wheellock_rv', onCacheResponse: (onCacheResponse){
                   Navigator.pop(context, 0);
                 }, adDidClosed: (adDidClosed) async {
                   Navigator.pop(context, 0);
@@ -5613,7 +5613,7 @@ class MSAll10DialogState extends State<MSAll10Dialog>
                   decoration: BoxDecoration(image: MSDImg('ms_green_bg_btn')),
                   child: InkWell(
                     onTap: (){
-                      MSMegaAds().ms_showAd(context, 'pppuz_srctry_get_rv', onCacheResponse: (onCacheResponse){
+                      MSMegaAds().ms_showAd(context, 'pppuz_srcmore_rv', onCacheResponse: (onCacheResponse){
                         Navigator.pop(context, 1);
                       }, adDidClosed: (adDidClosed) async {
                         Navigator.pop(context, 1);
