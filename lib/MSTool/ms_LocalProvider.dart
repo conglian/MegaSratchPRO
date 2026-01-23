@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../MSHome/MSTbabar.dart';
 import '../MSModel/MSTXModel.dart';
 import '../main.dart';
+import 'ms_NoticeTool.dart';
 import 'ms_TBAInfoTool.dart';
 import 'ms_extension_help.dart';
 import 'ms_mp3_player.dart';
@@ -35,7 +36,8 @@ class MSLocalProvider extends ChangeNotifier {
   String ms_ratio_str = "90";
   String ms_tx_date_str = "";
 
-
+  bool ms_frist_unAward_status = true;
+  bool ms_frist_singn_status = true;
   bool ms_bg_music = true; // 存储的本地值
   bool ms_sound_music = true; // 存储的本地值
   bool ms_login_status = false; // 存储的本地值
@@ -51,6 +53,7 @@ class MSLocalProvider extends ChangeNotifier {
   bool ms_scratch_guide = true;
   bool ms_old_guide = true;
   bool ms_new_guide = false;
+  bool ms_tx_wait_status = false;
   bool is_end_Scratch = true;
   bool ms_show_dolas_ani = false;
   bool ms_show_bubble = false;
@@ -95,6 +98,16 @@ class MSLocalProvider extends ChangeNotifier {
   bool ms_tx_zhongduan_status = false;
   bool ms_today_sign_status = false;
   bool ms_today_sign_show = false;
+  bool ms_show_notice_status = false;
+  bool ms_today_tx_toast_show = false;
+  bool ms_show_animation_2 = false;
+  bool ms_show_animation_3 = false;
+  bool ms_show_animation_4 = false;
+  bool ms_show_animation_5 = false;
+  bool ms_show_animation_6 = false;
+  bool ms_show_animation_7 = false;
+  bool ms_tx_show_today_status = false;
+  bool ms_tx_showtask_today_status = false;
 
   int ms_scrach_unlock_index_0 = 0; // 存储的本地值
   int ms_scrach_unlock_index_1 = 0; // 存储的本地值
@@ -148,6 +161,8 @@ class MSLocalProvider extends ChangeNotifier {
   int ms_wheel_pop_index = 0;
   int ms_today_card_index = 0;
   int ms_tx_num_index = 520;
+  int ms_show_wheel_index_row = 0;
+  int ms_unaward_index = 0;
 
   String get ms_currentNumberIndexName => 'ms_currentNumberIndex';
   String get ms_dice_numberName => 'ms_dice_number';
@@ -258,6 +273,21 @@ class MSLocalProvider extends ChangeNotifier {
   String get ms_tx_zhongduan_statusName => 'ms_tx_zhongduan_status';
   String get ms_today_sign_statusName => 'ms_today_sign_status';
   String get ms_today_sign_showName => 'ms_today_sign_show';
+  String get ms_tx_wait_statusName => 'ms_tx_wait_status';
+  String get ms_show_notice_statusName => 'ms_show_notice_status';
+  String get ms_today_tx_toast_showName => 'ms_today_tx_toast_show';
+  String get ms_frist_singn_statusName => 'ms_frist_singn_status';
+  String get ms_frist_unAward_statusName => 'ms_frist_unAward_status';
+  String get ms_show_wheel_index_rowName => 'ms_show_wheel_index_row';
+  String get ms_unaward_indexName => 'ms_unaward_index';
+  String get ms_show_animation_2Name => 'ms_show_animation_2';
+  String get ms_show_animation_3Name => 'ms_show_animation_3';
+  String get ms_show_animation_4Name => 'ms_show_animation_4';
+  String get ms_show_animation_5Name => 'ms_show_animation_5';
+  String get ms_show_animation_6Name => 'ms_show_animation_6';
+  String get ms_show_animation_7Name => 'ms_show_animation_7';
+  String get ms_tx_show_today_statusName => 'ms_tx_show_today_status';
+  String get ms_tx_showtask_today_statusName => 'ms_tx_showtask_today_status';
 
   // 3. 初始化：从本地存储加载数据（组件初始化时调用）
   Future<void> init() async {
@@ -266,6 +296,7 @@ class MSLocalProvider extends ChangeNotifier {
     ms_dao_time_index = prefs.getInt('ms_dao_time_index') ?? 300;
     ms_card_award_index = prefs.getInt('ms_card_award_index') ?? 0;
     ms_wheel_number = prefs.getInt('ms_wheel_number') ?? 0;
+    ms_show_wheel_index_row = prefs.getInt('ms_show_wheel_index_row') ?? 0;
     ms_today_card_index = prefs.getInt('ms_today_card_index') ?? 0;
     ms_wheel_index = prefs.getInt('ms_wheel_index') ?? 0;
     ms_pool_index = prefs.getInt('ms_pool_index') ?? 0;
@@ -281,6 +312,7 @@ class MSLocalProvider extends ChangeNotifier {
     ms_card_number = prefs.getInt('ms_card_number') ?? 0;
     ms_current_user_ranking = prefs.getInt('ms_current_user_ranking') ?? 18250;
     ms_box_index = prefs.getInt('ms_box_index') ?? 0;
+    ms_unaward_index =  prefs.getInt('ms_unaward_index') ?? 0;
     ms_tx_box_index = prefs.getInt('ms_tx_box_index') ?? 0;
     ms_wheel_number = prefs.getInt('ms_wheel_number') ?? 0;
     ms_tx_card_index = prefs.getInt('ms_tx_card_index') ?? 0;
@@ -301,17 +333,23 @@ class MSLocalProvider extends ChangeNotifier {
     ms_ad_show_number = prefs.getInt('ms_ad_show_number') ?? 0;
     ms_key_number = prefs.getInt('ms_key_number') ?? 0;
     ms_bg_music = prefs.getBool('ms_bg_music') ?? true;
+    ms_frist_unAward_status = prefs.getBool('ms_frist_unAward_status') ?? true;
     ms_sound_music = prefs.getBool('ms_sound_music') ?? true;
     ms_txing_status = prefs.getBool('ms_txing_status') ?? false;
     ms_login_status = prefs.getBool('ms_login_status') ?? false;
     ms_today_sign_show = prefs.getBool('ms_today_sign_show') ?? false;
     ms_double_card = prefs.getBool('ms_double_card') ?? false;
     ms_fruit_card = prefs.getBool('ms_fruit_card') ?? false;
+    ms_tx_wait_status = prefs.getBool('ms_tx_wait_status') ?? false;
     ms_wheel_pop_show = prefs.getBool('ms_wheel_pop_show') ?? false;
     ms_777_card = prefs.getBool('ms_777_card') ?? false;
+    ms_today_tx_toast_show = prefs.getBool('ms_today_tx_toast_show') ?? false;
+    ms_show_notice_status = prefs.getBool('ms_show_notice_status') ?? false;
     ms_today_sign_status = prefs.getBool('ms_today_sign_status') ?? false;
     ms_tx_zhongduan_status = prefs.getBool('ms_tx_zhongduan_status') ?? false;
     ms_open_tx = prefs.getBool('ms_open_tx') ?? false;
+    ms_tx_show_today_status = prefs.getBool('ms_tx_show_today_status') ?? false;
+    ms_tx_showtask_today_status = prefs.getBool('ms_tx_showtask_today_status') ?? false;
     ms_show_box = prefs.getBool('ms_show_box') ?? false;
     ms_pool_show = prefs.getBool('ms_pool_show') ?? true;
     ms_first_pool = prefs.getBool('ms_first_pool') ?? false;
@@ -349,6 +387,7 @@ class MSLocalProvider extends ChangeNotifier {
     ms_login_award_6 = prefs.getBool('ms_login_award_6') ?? false;
     ms_new_guide1 = prefs.getBool('ms_new_guide1') ?? false;
     ms_new_guide2 = prefs.getBool('ms_new_guide2') ?? true;
+    ms_frist_singn_status = prefs.getBool('ms_frist_singn_status') ?? true;
     ms_ad_reawrd_all_number = prefs.getInt('ms_ad_reawrd_all_number') ?? 0;
     ms_ad_all_number = prefs.getInt('ms_ad_all_number') ?? 0;
     ms_dolas_number = prefs.getDouble('ms_dolas_number') ?? 0.00;
@@ -357,6 +396,12 @@ class MSLocalProvider extends ChangeNotifier {
     ms_Level_number = prefs.getInt('ms_Level_number') ?? 0;
     ms_Level_inedx = prefs.getInt('ms_Level_inedx') ?? 0;
     ms_sign_index = prefs.getInt('ms_sign_index') ?? 0;
+    ms_show_animation_2 = prefs.getBool('ms_show_animation_2') ?? false;
+    ms_show_animation_3 = prefs.getBool('ms_show_animation_3') ?? false;
+    ms_show_animation_4 = prefs.getBool('ms_show_animation_4') ?? false;
+    ms_show_animation_5 = prefs.getBool('ms_show_animation_5') ?? false;
+    ms_show_animation_6 = prefs.getBool('ms_show_animation_6') ?? false;
+    ms_show_animation_7 = prefs.getBool('ms_show_animation_7') ?? false;
     ms_scrach_end_number_0 = prefs.getInt('ms_scrach_end_number_0') ?? 0;
     ms_scrach_end_number_1 = prefs.getInt('ms_scrach_end_number_1') ?? 0;
     ms_scrach_end_number_2 = prefs.getInt('ms_scrach_end_number_2') ?? 0;
@@ -433,8 +478,8 @@ class MSLocalProvider extends ChangeNotifier {
       }
     }
     if (key == ms_wheel_indexName){
-      if (value >= 5){
-        value = 0;
+      if (value >= 6){
+        value = 1;
         ms_wheel_number += 1;
         await prefs.setInt(ms_wheel_numberName, ms_wheel_number);
       }
@@ -477,6 +522,7 @@ class MSLocalProvider extends ChangeNotifier {
       }
     }
     await prefs.setDouble(key, value);
+    MSNoticeHelp().startForegroundService();
     if (key == MSLocalProvider.instance.ms_dolas_numberName && value > 0){
       trigger.check(MSLocalProvider.instance.ms_dolas_number.toInt(), onTrigger: (level) {
         print("触发 → 达到 $level");
@@ -490,7 +536,7 @@ class MSLocalProvider extends ChangeNotifier {
   Future<void> showTxDialog() async {
     if (MSLocalProvider.instance.ms_tx_first_status == false) {
       await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_first_statusName, true);
-      MSNavigationService().bottomNavKey.currentState?.context.tipShow(MSTXSubmitDialog(tx_number_index: 0, tx_account_index: 0));
+      root_navigatorKey.currentState?.context.tipShow(MSTXSubmitDialog(tx_number_index: 0, tx_account_index: 0));
     }
   }
 

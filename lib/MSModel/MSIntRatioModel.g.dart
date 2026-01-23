@@ -7,16 +7,27 @@ part of 'MSIntRatioModel.dart';
 // **************************************************************************
 
 MSResponseModel _$MSResponseModelFromJson(Map<String, dynamic> json) =>
-    MSResponseModel();
+    MSResponseModel(
+      intad_point: (json['intad_point'] as List<dynamic>)
+          .map((e) => MSIntadPoint.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
 
 Map<String, dynamic> _$MSResponseModelToJson(MSResponseModel instance) =>
-    <String, dynamic>{};
+    <String, dynamic>{'intad_point': instance.intad_point};
 
-MSIntadPoint _$MSIntadPointFromJson(Map<String, dynamic> json) =>
-    MSIntadPoint();
+MSIntadPoint _$MSIntadPointFromJson(Map<String, dynamic> json) => MSIntadPoint(
+  first_number: (json['first_number'] as num).toInt(),
+  point: (json['point'] as num).toInt(),
+  end_number: (json['end_number'] as num).toInt(),
+);
 
 Map<String, dynamic> _$MSIntadPointToJson(MSIntadPoint instance) =>
-    <String, dynamic>{};
+    <String, dynamic>{
+      'first_number': instance.first_number,
+      'point': instance.point,
+      'end_number': instance.end_number,
+    };
 
 GameRule _$GameRuleFromJson(Map<String, dynamic> json) => GameRule();
 

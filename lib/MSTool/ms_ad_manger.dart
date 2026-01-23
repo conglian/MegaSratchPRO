@@ -84,7 +84,7 @@ class MSMegaAds {
 
   MSAdModel? _MSJoyAdModel;
 
-  MSResponseModel ad_int_model = MSResponseModel();
+  MSResponseModel ad_int_model = MSResponseModel(intad_point: []);
 
   bool _pigAdDelegateCreated = false;
 
@@ -172,14 +172,14 @@ class MSMegaAds {
       return;
     }
     // 风控
-    // if (await MSFKManger().ms_checkAllStatus()){
-    //   '风控不发起广告显示'.log();
-    //   MSDialogTool.toast(context, 'Something went wrong, please try again later.');
-    //   ms_event_fire('ms_interception_fk', {});
-    //   onCacheResponse.call(false);
-    //   resetHandler();
-    //   return;
-    // }
+    if (await MSFKManger().ms_checkAllStatus()){
+      '风控不发起广告显示'.log();
+      MSDialogTool.toast(context, 'Something went wrong, please try again later.');
+      ms_event_fire('ms_interception_fk', {});
+      onCacheResponse.call(false);
+      resetHandler();
+      return;
+    }
 
     if (someAdIsShowing()) {
       "$runtimeType ad is showing,cancel this request".log();
@@ -450,11 +450,10 @@ class MSMegaAds {
     String jsonString = await rootBundle.loadString("mega_int_ratio".jsons());
     Map<String, dynamic> jsonMap = json.decode(jsonString);
     ad_int_model = MSResponseModel.fromJson(jsonMap);
-    'mega_int_ratio=$jsonString'.log();
   }
 
   Future<bool> getIntShow() async {
-      bool result = getRandomBool(getPointByValue(MSLocalProvider.instance.ms_dolas_number.toInt(), ad_int_model));
+      bool result = getRandomBool(getPointByValue(MSLocalProvider.instance.ms_dolas_number, ad_int_model));
       return result;
   }
 
@@ -471,12 +470,15 @@ class MSMegaAds {
 
  // 获取插屏概率
   double getPointByValue(
-     int value,
+     double value,
      MSResponseModel model,
   ) {
-    for (final item in model.MSIntadPoints) {
-      if (value >= item.MSFirstNumber && value < item.MSEndNumber) {
-        return item.MSPoint / 100;
+    'value = $value'.log();
+    for (final item in model.intad_point) {
+      'value1 = ${item.first_number}'.log();
+      'value2 = ${item.end_number}'.log();
+      if (value >= item.first_number && value < item.end_number) {
+        return item.point / 100;
       }
     }
     return 0.0;

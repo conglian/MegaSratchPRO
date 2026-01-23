@@ -3,12 +3,12 @@ import 'package:json_annotation/json_annotation.dart';
 part 'MSIntRatioModel.g.dart';
 
 
+
 @JsonSerializable()
 class MSResponseModel {
-  @JsonKey(name: 'intad_point')
-  final List<MSIntadPoint> MSIntadPoints = [];
+  final List<MSIntadPoint> intad_point;
 
-  MSResponseModel();
+  MSResponseModel({required this.intad_point});
 
   factory MSResponseModel.fromJson(Map<String, dynamic> json) =>
       _$MSResponseModelFromJson(json);
@@ -18,22 +18,19 @@ class MSResponseModel {
 
 @JsonSerializable()
 class MSIntadPoint {
-  @JsonKey(name: 'first_number')
-  final int MSFirstNumber = 0;
+  final int first_number;
+  final int point;
+  final int end_number;
 
-  @JsonKey(name: 'point')
-  final int MSPoint = 0;
+  MSIntadPoint({
+    required this.first_number,
+    required this.point,
+    required this.end_number,
+  });
 
-  @JsonKey(name: 'end_number')
-  final int MSEndNumber = 0;
-
-  MSIntadPoint();
-
-  // 生成的工厂方法
   factory MSIntadPoint.fromJson(Map<String, dynamic> json) =>
       _$MSIntadPointFromJson(json);
 
-  // 生成的toJson方法
   Map<String, dynamic> toJson() => _$MSIntadPointToJson(this);
 }
 

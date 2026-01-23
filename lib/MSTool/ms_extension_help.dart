@@ -239,7 +239,7 @@ extension TipShow on BuildContext {
     return showGeneralDialog(
         context: this,
         barrierDismissible: false,
-        barrierColor: bc ?? Colors.black.withOpacity(0.7),
+        barrierColor: bc ?? Colors.black.withOpacity(0.8),
         transitionDuration: const Duration(milliseconds: 150),
         transitionBuilder: (ctx, animation, sAnimation, child) {
           final curvedAnimation = CurvedAnimation(

@@ -18,7 +18,7 @@ class MSwebkitview extends StatefulWidget {
 
 class _MSwebkitviewState extends State<MSwebkitview> {
   late final WebViewController _controller;
-  final String TAG = "SJwebkitview";
+  final String TAG = "MSwebkitview";
 
   @override
   void initState() {

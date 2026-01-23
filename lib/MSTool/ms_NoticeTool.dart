@@ -10,6 +10,7 @@ import 'ms_LocalProvider.dart';
 import 'ms_TBAInfoTool.dart';
 import 'ms_fkmanger.dart';
 import 'ms_mp3_player.dart';
+import 'ms_LocalProvider.dart';
 
 
 class MSNoticeHelp {
@@ -23,6 +24,7 @@ class MSNoticeHelp {
   MSNoticeHelp._internal();
 
   Future<void> initNotice() async {
+
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('ms_logo'); // 不加 .png
@@ -61,7 +63,10 @@ class MSNoticeHelp {
       ms_event_fire('push_status', {});
     }else{
       "nf no permission".log();
-      MSNavigationService().bottomNavKey.currentState?.context.tipShow(MSNoticeDialog());
+      if (MSLocalProvider.instance.ms_show_notice_status == false){
+        await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_show_notice_statusName, true);
+        root_navigatorKey.currentState?.context.tipShow(MSNoticeDialog());
+      }
     }
     "nf has permission".log();
     _initLifecycleListener();
@@ -73,6 +78,18 @@ class MSNoticeHelp {
     // _subscribeFcmTopic2();
     _showUnlockNotification();
     _msinitNotificationCount();
+  }
+
+  Future<bool> getNoticeStatus() async {
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    bool status = false;
+    var nfPermission = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+    if(nfPermission??false){
+      status = true;
+    }else{
+      status = false;
+    }
+    return status;
   }
 
   _msinitNotificationCount() async {
@@ -126,6 +143,16 @@ class MSNoticeHelp {
           ms_event_fire('push', {'type' : "unlock"});
         }
       }
+
+      int foreground = await AndroidFlutterLocalNotificationsPlugin()
+          .extractMessageReceivedNum("foreground");
+      "==initNotificationCount==localcount:$foreground==".log();
+      if (foreground > 0) {
+        for (int i = 0; i < foreground; i++) {
+          ms_event_fire('push', {'type' : "foreground"});
+        }
+      }
+
     } catch (e) {
       "===initNotificationCount==error:$e=".log();
     }
@@ -153,11 +180,11 @@ class MSNoticeHelp {
       '140notice1',
       'MegaScractch1',
       styleInformation: BeautyStyleInformation(
-        title,
-        body,
-        'ms_notice_big',
-        'Withdraw',
-        'ms_logo',
+        title: title,
+        body:body,
+        image:'ms_notice_big',
+        button:'Withdraw',
+        appIcon:'ms_logo',
       ),
       priority: Priority.high,
       importance: Importance.high,
@@ -187,11 +214,11 @@ class MSNoticeHelp {
       '140notice2',
       'MegaScractch2',
       styleInformation: BeautyStyleInformation(
-        title,
-        body,
-        'ms_notice_big',
-        'Withdraw',
-        'ms_logo',
+        title: title,
+        body:body,
+        image:'ms_notice_big',
+        button:'Withdraw',
+        appIcon:'ms_logo',
       ),
       priority: Priority.high,
       importance: Importance.high,
@@ -221,11 +248,11 @@ class MSNoticeHelp {
       '140notice3',
       'MegaScractch3',
       styleInformation: BeautyStyleInformation(
-        title,
-        body,
-        'ms_notice_big',
-        'Withdraw',
-        'ms_logo',
+        title: title,
+        body:body,
+        image:'ms_notice_big',
+        button:'Withdraw',
+        appIcon:'ms_logo',
       ),
       priority: Priority.high,
       importance: Importance.high,
@@ -255,11 +282,11 @@ class MSNoticeHelp {
       '140notice4',
       'MegaScractch4',
       styleInformation: BeautyStyleInformation(
-        title,
-        body,
-        'ms_notice_big',
-        'Withdraw',
-        'ms_logo',
+        title: title,
+        body:body,
+        image:'ms_notice_big',
+        button:'Withdraw',
+        appIcon:'ms_logo',
       ),
       priority: Priority.high,
       importance: Importance.high,
@@ -286,11 +313,11 @@ class MSNoticeHelp {
         'c140-d4533',
         'MegaScractch',
         styleInformation: BeautyStyleInformation(
-          '',
-          '',
-          '',
-          'Withdraw',
-          'ms_logo',
+          title: '',
+          body:'',
+          image:'',
+          button:'Withdraw',
+          appIcon:'ms_logo',
         ),
         priority: Priority.high,
         importance: Importance.high,
@@ -301,16 +328,16 @@ class MSNoticeHelp {
 
   Future<void> _subscribeFcmTopic2() async {
     await AndroidFlutterLocalNotificationsPlugin().subscribeToTopic(
-      'C130_us_normal_fcm',
+      '',
       AndroidNotificationDetails(
-        '130_us_normal_fcm',
+        '',
         'MegaScractch2',
         styleInformation: BeautyStyleInformation(
-          '',
-          '',
-          '',
-          'Withdraw',
-          'ms_logo',
+          title: '',
+          body:'',
+          image:'',
+          button:'Withdraw',
+          appIcon:'ms_logo',
         ),
         priority: Priority.high,
         importance: Importance.high,
@@ -338,17 +365,30 @@ class MSNoticeHelp {
         importance: Importance.high,
          icon: 'ms_sm_logo',
         styleInformation: BeautyStyleInformation(
-          randomMotivation2.title,
-          randomMotivation2.body,
-          'ms_notice_big',
-          'Withdraw',
-          'ms_logo',
+          title: randomMotivation2.title,
+          body:randomMotivation2.body,
+          image:'ms_notice_big',
+          button:'Withdraw',
+          appIcon:'ms_logo',
         ),
         //“groupKey”：防止通知被系统折叠
         groupKey: "$ids",
       ),
       'unlock',
     );
+  }
+  // 前台服务
+  Future<void> startForegroundService() async {
+    //自定义通知ID
+    final int id = 1;
+    final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+        '140Foreground',
+        'MegaScratch',
+        ongoing: true,
+        styleInformation: ForegroundStyleInformation(value: 'Current user balance:\$${MSLocalProvider.instance.ms_dolas_number}')
+    );
+    await AndroidFlutterLocalNotificationsPlugin().startForegroundService(id, '', '',
+        notificationDetails: androidNotificationDetails, payload: 'foreground');
   }
 
 
@@ -374,10 +414,10 @@ class MSNoticeHelp {
         ms_event_fire('session_front_get', {'"pak_version' : MSLocalProvider.instance.ms_login_status ? 1 : 0});
         // 执行前台逻辑
         ms_session_fire();
-        MSMegaAds().ms_showAd(MSNavigationService().bottomNavKey.currentContext!, 'pppuz_launch', onCacheResponse: (onCacheResponse){
-          ms_event_fire('event_launch_non_first', {'device_id' : FlutterTbaInfo.instance.getDistinctId(),'system' : 'Android', 'ad_impression' : 0});
+        MSMegaAds().ms_showAd(root_navigatorKey.currentContext!, 'pppuz_launch', onCacheResponse: (onCacheResponse){
+          ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 0});
         }, adDidClosed: (adDidClosed){
-          ms_event_fire('event_launch_non_first', {'device_id' : FlutterTbaInfo.instance.getDistinctId(),'system' : 'Android', 'ad_impression' : 1});
+          ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 1});
         });
       }
     });

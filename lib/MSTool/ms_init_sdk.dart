@@ -97,7 +97,7 @@ class MSSDKHelpers {
         prefs.setBool('sj_old_guide', false);
       }
     }
-
+    MSLocalProvider.instance.init();
   }
 
   void ms_getSBUserCloakConfig() async {
@@ -111,7 +111,8 @@ class MSSDKHelpers {
       });
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       if (prefs.getBool('sp_install_status') == null){
-        ms_event_fire('event_launch_first', {'device_id' : FlutterTbaInfo.instance.getDistinctId(),'system' : 'Android'});
+        '1111111'.log();
+        ms_event_fire('event_launch_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android'});
         ms_install_fire();
         prefs.setBool('sp_install_status', true);
       }
@@ -127,7 +128,9 @@ class MSSDKHelpers {
   }
 
   _initAdjust() async {
-    const String appToken1 = 'y16s0qkymcqo'; // relsease
+    // text  4qedga65udq8
+    // relese  y16s0qkymcqo
+    const String appToken1 = '4qedga65udq8'; // relsease
     var disId = await FlutterTbaInfo.instance.getDistinctId();
     'disId=$disId'.log();
     Adjust.addGlobalCallbackParameter('customer_user_id', disId);
@@ -196,17 +199,17 @@ class MSSDKHelpers {
         }
       }
       // risk_control
-      final risk_control = remoteConfig.getValue('risk_control').asString();
-      if (risk_control != ''){
-        try {
-          Map<String, dynamic> jsonMap = json.decode(risk_control);
-          var fkEntity = MSFkModel.fromJson(jsonMap);
-          MSFKManger().fkModel = fkEntity;
-          "app firebase remoteconfig risk_control data ${jsonMap}".log();
-        } catch (error) {
-          print("app firebase remoteconfig risk_control error ${error}");
-        }
-      }
+      // final risk_control = remoteConfig.getValue('risk_control').asString();
+      // if (risk_control != ''){
+      //   try {
+      //     Map<String, dynamic> jsonMap = json.decode(risk_control);
+      //     var fkEntity = MSFkModel.fromJson(jsonMap);
+      //     MSFKManger().fkModel = fkEntity;
+      //     "app firebase remoteconfig risk_control data ${jsonMap}".log();
+      //   } catch (error) {
+      //     print("app firebase remoteconfig risk_control error ${error}");
+      //   }
+      // }
 
       // 插屏概率
       final ad =
@@ -218,6 +221,7 @@ class MSSDKHelpers {
           Map<String, dynamic> jsonMap = json.decode(ad);
           var ad_int_model = MSResponseModel.fromJson(jsonMap);
           MSMegaAds().ad_int_model = ad_int_model;
+          'ad_int_model=${ad_int_model.intad_point.length}'.log();
           "app firebase remoteconfig ad data ${jsonMap}".log();
         } catch (error) {
           print("app firebase remoteconfig ad error ${error}");

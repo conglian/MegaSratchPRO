@@ -56,11 +56,13 @@ class MSSratchJoyLaunchState extends State<MSSratchJoyLaunch>  with SingleTicker
         prefs.setString('ms_day_date', formattedDate);
         prefs.setBool('ms_old_guide', false);
         prefs.setBool('ms_today_sign_show', false);
+        prefs.setBool('ms_today_sign_status', false);
         prefs.setInt('ms_today_card_index', 0);
+        prefs.setInt('ms_tx_card_index', 0);
         prefs.setInt('ms_tx_num_index', Random().nextInt(500) + 500);
       }
     }
-
+    MSLocalProvider.instance.init();
   }
 
   @override
@@ -83,7 +85,7 @@ class MSSratchJoyLaunchState extends State<MSSratchJoyLaunch>  with SingleTicker
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => MSLocalProvider.instance.ms_new_guide1 == false ? MSSratchWeCome() : MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
+                    builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
                   ),
                 );
               },),
@@ -121,7 +123,7 @@ class _SJGradientProgressBarState extends State<SJGradientProgressBar>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 12),
       vsync: this,
     );
 

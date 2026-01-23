@@ -27,7 +27,7 @@ class MSLocalImageScratchCard extends StatefulWidget {
     Key? key,
     required this.child,
     required this.coverImagePath,
-    this.autoStartY = 30.0,
+    this.autoStartY = 128.0,
     this.strokeWidth = 40.0,
     this.scratchThreshold = 0.4,
     this.revealDuration = const Duration(milliseconds: 3000),
@@ -211,7 +211,7 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
     if (_totalPathPoints <= 0) return;
     final totalMilliseconds = widget.autoScratchDuration.inMilliseconds;
     final interval = totalMilliseconds / _totalPathPoints;
-    _pointInterval = const Duration(milliseconds: 2);  // 自动刮卡速度：越小越快
+    _pointInterval = const Duration(milliseconds: 1);  // 自动刮卡速度：越小越快
   }
 
   void _addAutoScratchPoint(Offset point) {

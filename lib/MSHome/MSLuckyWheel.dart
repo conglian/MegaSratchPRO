@@ -173,6 +173,7 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
     is_tap = true;
 
     if (MSLocalProvider.instance.ms_wheel_number <= 0) {
+      is_tap = false;
       ms_event_fire('wheel_unlock_c', {});
       context.tipShow(MSNeedsADialog());
 

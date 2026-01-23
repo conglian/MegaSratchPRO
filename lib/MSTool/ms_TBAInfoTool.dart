@@ -62,11 +62,11 @@ class MSRequestHelpers {
   static String cloak_Url =
       "https://lena.luckyscratchgame.com/divisive/stacy";
 
-  static String tba_event_Url =
-      "https://test-filter.luckyscratchgame.com/cannel/cutback";
-
   // static String tba_event_Url =
-  //     "https://filter.luckyscratchgame.com/ridicule/ripen/heyday";
+  //     "https://test-filter.luckyscratchgame.com/cannel/cutback";
+
+  static String tba_event_Url =
+      "https://filter.luckyscratchgame.com/ridicule/ripen/heyday";
 
   final Map<String, String> normalHeader = {
     'Content-Type': 'application/json',

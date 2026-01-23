@@ -109,7 +109,9 @@ class MSNumberAHelper {
     if (mode.point >= randomProbability) {
         multiplier = 1;
     }
-
+    if (forceWin){
+      multiplier = 1;
+    }
     List<int> fan = getDiceValueByBalance(mode.prizes);
 
     // 3️⃣ 每个显示数字对应的中奖值
@@ -181,6 +183,9 @@ class MSNumberAHelper {
     } else if (randomProbability >= mode.diamonds0) {
       multiplier = 0;
     }
+    if (forceWin){
+      multiplier = 3;
+    }
     'multiplier=$multiplier'.log();
     // 2️⃣ 是否中奖
     bool isWin = forceWin || multiplier > 0;
@@ -221,7 +226,7 @@ class MSNumberAHelper {
       }
 
       // 奖励总和乘以 multiplier
-      totalReward *= multiplier;
+      totalReward *= (multiplier - 2);
     }
 
     'isWin=$isWin'.log();
@@ -253,6 +258,9 @@ class MSNumberAHelper {
     int multiplier = 0;
     'randomProbability=$randomProbability pointFace = ${mode.pointFace}'.log();
     if (mode.pointFace >= randomProbability) {
+      multiplier = 1;
+    }
+    if (forceWin){
       multiplier = 1;
     }
 
@@ -341,6 +349,9 @@ class MSNumberAHelper {
     if (mode.point >= randomProbability) {
       multiplier = 1;
     }
+    if (forceWin){
+      multiplier = 1;
+    }
 
     // 2️⃣ 是否中奖
     bool isWin = forceWin || multiplier > 0;
@@ -426,6 +437,9 @@ class MSNumberAHelper {
     if (mode.point >= randomProbability){
       multiplier = 1;
     }
+    if (forceWin){
+      multiplier = 1;
+    }
 
     // 2️⃣ 是否中奖
     bool isWin = forceWin || multiplier > 0;
@@ -498,6 +512,9 @@ class MSNumberAHelper {
       multiplier = 0;
     }
     'multiplier=$multiplier'.log();
+    if (forceWin){
+      multiplier = 1;
+    }
 
     // 2️⃣ 是否中奖
     bool isWin = forceWin || multiplier > 0;
@@ -574,6 +591,9 @@ class MSNumberAHelper {
     double randomProbability = _rand.nextDouble();
     int multiplier = 0;
     if (mode.point >= randomProbability){
+      multiplier = 1;
+    }
+    if (forceWin){
       multiplier = 1;
     }
 

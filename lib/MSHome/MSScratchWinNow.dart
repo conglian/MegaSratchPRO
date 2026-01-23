@@ -11,7 +11,6 @@ import 'MSTbabar.dart'; // 目标页面示例
 
 class MSSratchWinNow extends StatefulWidget {
   MSSratchWinNow({super.key});
-
   @override
   State<MSSratchWinNow> createState() => MSSratchWinNowState();
 }
@@ -23,7 +22,7 @@ class MSSratchWinNowState extends State<MSSratchWinNow> with SingleTickerProvide
   @override
   void initState() {
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     ms_event_fire('new_user_guide', {});
   }
 
@@ -35,10 +34,11 @@ class MSSratchWinNowState extends State<MSSratchWinNow> with SingleTickerProvide
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Positioned.fill(child: MSImg(name: 'ms_now_bgs', width: 0.width(context), height: 0.height(context))),
+          Positioned.fill(child: Opacity(opacity: 0.4,child: MSImg(name: 'ms_now_bgs', width: 0.width(context), height: 0.height(context)))),
           Positioned.fill(
             child: Column(
                 children: [
@@ -57,6 +57,7 @@ class MSSratchWinNowState extends State<MSSratchWinNow> with SingleTickerProvide
               repeat: false,
               onLoaded: (composition) async {
                 Future.delayed(Duration(milliseconds: 1200), () async {
+                  if (!mounted) return;
                   setState(() {
                     _show_guide = false;
                   });

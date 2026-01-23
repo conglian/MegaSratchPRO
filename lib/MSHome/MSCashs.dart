@@ -42,6 +42,9 @@ class _MSCashPageState extends State<MSCashPage> {
   }
   // 提现审核中断
   void showzhongduanDialog() {
+    if (MSLocalProvider.instance.ms_today_tx_toast_show == true) {
+      return;
+    }
     if (MSLocalProvider.instance.ms_txing_status) {
       if (MSLocalProvider.instance.ms_tx_zhongduan_status){
         context.tipShow(MSTXNextDayFourToastDialog());
@@ -110,9 +113,9 @@ class _MSCashPageState extends State<MSCashPage> {
                       if (_getNameTopStats() == true)
                         SizedBox(width: 12),
                       if (_getNameTopStats() == true)
-                        MSText(text: '${(4 / (MSLocalProvider.instance.ms_tx_task_day_index + 1)) * 10}%', size: 20, color: '#000000'.color(), weight: FontWeight.w700),
+                        MSText(text: '${(MSLocalProvider.instance.ms_tx_task_day_index + 1) * 10}%', size: 20, color: '#000000'.color(), weight: FontWeight.w700),
                       if (_getNameTopStats() == true)
-                        SizedBox(width: 42.w),
+                        SizedBox(width: 32.w),
                     ],
                   ),
                   SizedBox(height: 0.h,),
@@ -237,7 +240,9 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
         [346.w,MSLocalProvider.instance.txEntity.tx_info[MSLocalProvider.instance.ms_account_seled_index].tx_list[1].status == 1 ? 152.5.h : 91.h],
         [346.w,MSLocalProvider.instance.txEntity.tx_info[MSLocalProvider.instance.ms_account_seled_index].tx_list[2].status == 1 ? 152.5.h : 91.h],
       ];
-      setState(() {});
+      if (mounted){
+        setState(() {});
+      }
     });
   }
 
@@ -374,6 +379,7 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
                       context.tipShow(MSTXSubmitDialog(tx_account_index: MSLocalProvider.instance.ms_account_seled_index, tx_number_index: index));
                     } else {
                       MSDialogTool.toast(context, 'Insufficient balance');
+                      MSNavigationService().changeTab(0);
                     }
                   },
                   child: Center(
@@ -446,11 +452,17 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
                 ),
                 child: InkWell(
                   onTap: () async {
-                    if (MSLocalProvider.instance.ms_tx_card_index < 10){
-                      ms_event_fire('cash_cash_out_c', {'money' : tx_num_list[index]});
-                      MSNavigationService().changeTab(0);
-                    } else if (MSLocalProvider.instance.ms_tx_task_day_index != 4){
+                    if (MSLocalProvider.instance.ms_tx_wait_status == true){
                       ms_event_fire('cash_speed_up_c', {'money' : tx_num_list[index]});
+                      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_wait_statusName, false);
+                      context.tipShow(MSTXFourToastDialog());
+                    } else if (MSLocalProvider.instance.ms_tx_task_day_index >= 4){
+                      ms_event_fire('queue_speed_up_c', {'money' : tx_num_list[index]});
+                      MSMegaAds().ms_showAd(context, 'pppuz_withdraw_queue_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                        tapRankAdSucess();
+                      });
+                    } else if (MSLocalProvider.instance.ms_tx_task_day_index < 4){
+                      ms_event_fire('cash_cash_out_c', {'money' : tx_num_list[index]});
                       MSNavigationService().changeTab(0);
                     } else {
                       ms_event_fire('queue_speed_up_c', {'money' : tx_num_list[index]});
@@ -481,14 +493,23 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
   }
 
   Widget _getTextBtn(int index){
-    if (MSLocalProvider.instance.ms_tx_card_index < 10){
-      return Center(
-        child: MSText(text: 'Cash Out', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
-      );
-    } else if (MSLocalProvider.instance.ms_tx_task_day_index != 4){
+    if (MSLocalProvider.instance.ms_tx_wait_status == true){
       ms_event_fire('cash_cash_out_c', {'money' : tx_num_list[index]});
       return Center(
         child: MSText(text: 'Speed up！', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
+      );
+    } else if (MSLocalProvider.instance.ms_tx_task_day_index >= 4){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          MSImg(name: 'ms_ad_icon',width: 17.5, height: 17.5,),
+          SizedBox(width: 6),
+          MSText(text: 'Speed up！', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700)
+        ],
+      );
+    } else if (MSLocalProvider.instance.ms_tx_task_day_index < 4){
+      return Center(
+        child: MSText(text: 'Cash Out', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
       );
     } else {
       return Row(
@@ -503,10 +524,12 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
   }
 
   Widget _showTXTaskWidget(){
-    if (MSLocalProvider.instance.ms_tx_card_index < 10){
-      return _showTXCardtaskWidget();
-    } else if (MSLocalProvider.instance.ms_tx_task_day_index != 4){
+    if (MSLocalProvider.instance.ms_tx_wait_status == true){
       return _showTXTimetaskWidget();
+    } else if (MSLocalProvider.instance.ms_tx_task_day_index >= 4){
+      return _showTXRanktaskWidget();
+    } else if (MSLocalProvider.instance.ms_tx_task_day_index < 4){
+      return _showTXCardtaskWidget();
     } else {
       return _showTXRanktaskWidget();
     }
@@ -524,8 +547,8 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
             mainAxisAlignment: .spaceAround,
             children: [
               MSImg(name: 'ms_tx_card_icon', width: 28, height: 30),
-              MSText(text: 'Scratch 10 Cards', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
-              MSText(text: '${MSLocalProvider.instance.ms_tx_card_index}/10', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+              MSText(text: 'Scratch 50 Cards', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+              MSText(text: '${MSLocalProvider.instance.ms_tx_card_index}/50', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
             ],
           ),
           Row(
@@ -554,7 +577,7 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
               SizedBox(width: 12.w),
               MSImg(name: 'ms_time_icon', width: 75, height: 75),
               SizedBox(width: 5),
-              MSText(text: 'Reviewing Security\nWait ${4- MSLocalProvider.instance.ms_tx_task_day_index} Days', size: 15, color: '#000000'.color(), weight: FontWeight.w700, maxLines: 2),
+              MSText(text: 'Reviewing Security\nWait 3 Days', size: 15, color: '#000000'.color(), weight: FontWeight.w700, maxLines: 2),
             ],
           ),
         ],

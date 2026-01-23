@@ -72,6 +72,7 @@ import com.dexterous.flutterlocalnotifications.models.styles.BeautyStyleInformat
 import com.dexterous.flutterlocalnotifications.models.styles.BigPictureStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.BigTextStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.DefaultStyleInformation;
+import com.dexterous.flutterlocalnotifications.models.styles.ForegroundStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.InboxStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.MessagingStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.StyleInformation;
@@ -110,8 +111,6 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
-
-import com.dexterous.flutterlocalnotifications.utils.TaskContinueUtils;
 
 interface PermissionRequestListener {
   void complete(boolean granted);
@@ -286,7 +285,7 @@ public class FlutterLocalNotificationsPlugin
         .setContentIntent(pendingIntent)
         .setPriority(notificationDetails.priority)
         .setOngoing(BooleanUtils.getValue(notificationDetails.ongoing))
-        .setSilent(BooleanUtils.getValue(notificationDetails.silent))
+//        .setSilent(BooleanUtils.getValue(notificationDetails.silent))
         .setOnlyAlertOnce(BooleanUtils.getValue(notificationDetails.onlyAlertOnce));
 
     if (notificationDetails.actions != null) {
@@ -423,18 +422,14 @@ public class FlutterLocalNotificationsPlugin
     setProgress(notificationDetails, builder);
     setCategory(notificationDetails, builder);
     setTimeoutAfter(notificationDetails, builder);
-    setStyle(context, notificationDetails, builder, new TaskContinueUtils() {
-      @Override
-      public void next() {
-        Notification notification = builder.build();
-        if (notificationDetails.additionalFlags != null
-            && notificationDetails.additionalFlags.length > 0) {
-          for (int additionalFlag : notificationDetails.additionalFlags) {
-            notification.flags |= additionalFlag;
-          }
+    setStyle(context, notificationDetails, builder, () -> {
+      Notification notification = builder.build();
+      if (notificationDetails.additionalFlags != null) {
+        for (int additionalFlag : notificationDetails.additionalFlags) {
+          notification.flags |= additionalFlag;
         }
-        listener.complete(notification);
       }
+      listener.complete(notification);
     });
   }
 
@@ -491,7 +486,8 @@ public class FlutterLocalNotificationsPlugin
           .registerSubtype(BigPictureStyleInformation.class)
           .registerSubtype(InboxStyleInformation.class)
           .registerSubtype(MessagingStyleInformation.class)
-          .registerSubtype(BeautyStyleInformation.class);
+          .registerSubtype(BeautyStyleInformation.class)
+          .registerSubtype(ForegroundStyleInformation.class);
       GsonBuilder builder = new GsonBuilder()
           .registerTypeAdapter(ScheduleMode.class, new ScheduleMode.Deserializer())
           .registerTypeAdapterFactory(styleInformationAdapter);
@@ -990,41 +986,51 @@ public class FlutterLocalNotificationsPlugin
   private static void setStyle(
       Context context,
       NotificationDetails notificationDetails,
-      NotificationCompat.Builder builder, TaskContinueUtils next) {
+      NotificationCompat.Builder builder, Runnable next) {
     switch (notificationDetails.style) {
       case BigPicture:
         setBigPictureStyle(context, notificationDetails, builder);
-        next.next();
+        next.run();
         break;
       case BigText:
         setBigTextStyle(notificationDetails, builder);
-        next.next();
+        next.run();
         break;
       case Inbox:
         setInboxStyle(notificationDetails, builder);
-        next.next();
+        next.run();
         break;
       case Messaging:
         setMessagingStyle(context, notificationDetails, builder);
-        next.next();
+        next.run();
         break;
       case Media:
-        setMediaStyle(builder);
-        next.next();
+        setMediaStyle(context, builder);
+        next.run();
         break;
       case Beauty:
-        new Thread(new Runnable() {
-          @Override
-          public void run() {
-            setBeautyStyle(context, notificationDetails, builder);
-            next.next();
-          }
+        new Thread(() -> {
+          setBeautyStyle(context, notificationDetails, builder);
+          next.run();
         }).start();
         break;
+      case Foreground:
+        setForegroundStyle(context, notificationDetails, builder);
+        next.run();
+        break;
       default:
-        next.next();
+        next.run();
         break;
     }
+  }
+
+  private static void setForegroundStyle(Context context, NotificationDetails notificationDetails,
+          NotificationCompat.Builder builder) {
+    builder.setStyle(new NotificationCompat.DecoratedCustomViewStyle());
+    ForegroundStyleInformation foregroundStyleInformation = (ForegroundStyleInformation) notificationDetails.styleInformation;
+    RemoteViews content = new RemoteViews(context.getPackageName(), R.layout.fln_foreground_notify_content);
+    content.setTextViewText(R.id.fln_beauty_notify_title, foregroundStyleInformation.value);
+    builder.setCustomContentView(content);
   }
 
   private static void setBeautyStyle(Context context,
@@ -1034,25 +1040,25 @@ public class FlutterLocalNotificationsPlugin
     BeautyStyleInformation beautifulStyleInformation = (BeautyStyleInformation) notificationDetails.styleInformation;
     RemoteViews small = new RemoteViews(context.getPackageName(), R.layout.fln_beauty_notify_content);
     small.setTextViewText(R.id.fln_beauty_notify_title, beautifulStyleInformation.title);
-//    small.setTextViewText(R.id.fln_beauty_notify_btn, beautifulStyleInformation.button);
+    small.setTextViewText(R.id.fln_beauty_notify_btn, beautifulStyleInformation.button);
     int iconResId = getDrawableResourceId(context, beautifulStyleInformation.appIcon);
     small.setImageViewResource(R.id.fln_beauty_notify_app_icon, iconResId);
     RemoteViews big = new RemoteViews(context.getPackageName(), R.layout.fln_beauty_notify_big_content);
-//    big.setTextViewText(R.id.fln_beauty_notify_title, beautifulStyleInformation.title);
+    big.setTextViewText(R.id.fln_beauty_notify_title, beautifulStyleInformation.title);
     big.setTextViewText(R.id.fln_beauty_notify_body, beautifulStyleInformation.body);
     big.setTextViewText(R.id.fln_beauty_notify_btn, beautifulStyleInformation.button);
-//    big.setImageViewResource(R.id.fln_beauty_notify_app_icon, iconResId);
+    big.setImageViewResource(R.id.fln_beauty_notify_app_icon, iconResId);
     if (!StringUtils.isNullOrEmpty(beautifulStyleInformation.image)) {
       if (beautifulStyleInformation.image.startsWith("http")) {
         Bitmap bitmap = FlutterFCMPlugin.loadNotificationBitmap(context, beautifulStyleInformation.image);
         if (bitmap != null) {
-//          small.setImageViewBitmap(R.id.fln_beauty_notify_image, bitmap);
+          small.setImageViewBitmap(R.id.fln_beauty_notify_image, bitmap);
           big.setImageViewBitmap(R.id.fln_beauty_notify_image, bitmap);
         }
       } else {
         try {
           int resId = getDrawableResourceId(context, beautifulStyleInformation.image);
-//          small.setImageViewResource(R.id.fln_beauty_notify_image, resId);
+          small.setImageViewResource(R.id.fln_beauty_notify_image, resId);
           big.setImageViewResource(R.id.fln_beauty_notify_image, resId);
         } catch (Throwable e) {
           //
@@ -1136,8 +1142,11 @@ public class FlutterLocalNotificationsPlugin
     builder.setStyle(inboxStyle);
   }
 
-  private static void setMediaStyle(NotificationCompat.Builder builder) {
+  private static void setMediaStyle(Context context, NotificationCompat.Builder builder) {
     androidx.media.app.NotificationCompat.MediaStyle mediaStyle = new androidx.media.app.NotificationCompat.MediaStyle();
+//    final MediaSessionCompat compat = new MediaSessionCompat(context, "FLNMediaSession");
+//    compat.setActive(true);
+//    mediaStyle.setMediaSession(compat.getSessionToken());
     builder.setStyle(mediaStyle);
   }
 
@@ -2338,9 +2347,13 @@ public class FlutterLocalNotificationsPlugin
           if (notificationDetails.id != 0) {
             ForegroundServiceStartParameter parameter = new ForegroundServiceStartParameter(
                 notificationDetails, startType, foregroundServiceTypes);
-            Intent intent = new Intent(applicationContext, ForegroundService.class);
-            intent.putExtra(ForegroundServiceStartParameter.EXTRA, parameter);
-            ContextCompat.startForegroundService(applicationContext, intent);
+            if (ForegroundService.alive) {
+              showNotification(applicationContext, parameter.notificationData);
+            } else {
+              Intent intent = new Intent(applicationContext, ForegroundService.class);
+              intent.putExtra(ForegroundServiceStartParameter.EXTRA, parameter);
+              ContextCompat.startForegroundService(applicationContext, intent);
+            }
             result.success(null);
           } else {
             result.error(

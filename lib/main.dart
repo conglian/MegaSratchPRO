@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:megascratch/MSTool/ms_mp3_player.dart';
 import 'package:megascratchFK/megascratchFK.dart';
 import 'package:spine_flutter/spine_flutter.dart';
 import 'MSHome/MSSratchJoyLaunch.dart';
+import 'MSHome/MSTbabar.dart';
 import 'MSTool/ms_LocalProvider.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
@@ -16,6 +19,9 @@ import 'MSTool/ms_fkmanger.dart';
 import 'MSTool/ms_init_sdk.dart';
 
 final trigger = MSThresholdTrigger();
+
+// 1. 创建一个 GlobalKey 来控制 Navigator
+final GlobalKey<NavigatorState> root_navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -90,6 +96,8 @@ class _MyAppState extends State<MyApp> {
       splitScreenMode: true, // 支持平板分屏
       builder: (context, child) {
         return MaterialApp(
+          navigatorKey: root_navigatorKey,
+          navigatorObservers: [MyNavigatorObserver()],
           theme: ThemeData(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
@@ -112,4 +120,35 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+}
+
+class MyNavigatorObserver extends NavigatorObserver {
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    super.didPop(route, previousRoute);
+    // 页面返回时调用
+    print("Page popped: ${route.settings.name}");
+    MSSUpdateListNotificationService.sendToDomandNumberNotification(0);
+  }
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    super.didPush(route, previousRoute);
+    // 页面进入时调用
+    print("Page pushed: ${route.settings.name}");
+  }
+}
+
+class MSSUpdateListNotificationService {
+  static final StreamController<int> _streamController = StreamController<int>.broadcast();
+
+  static Stream<int> get stream => _streamController.stream;
+
+  static void sendToDomandNumberNotification(int value) {
+    _streamController.sink.add(value);
+  }
+
+  static void close() {
+    _streamController.close();
+  }
 }

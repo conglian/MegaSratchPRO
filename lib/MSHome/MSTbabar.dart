@@ -14,18 +14,12 @@ class MSNavigationService {
   factory MSNavigationService() => _instance;
   MSNavigationService._internal();
 
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final GlobalKey<_MSBottomNavigationExampleState> bottomNavKey = GlobalKey<_MSBottomNavigationExampleState>();
 
   void changeTab(int index) {
     bottomNavKey.currentState?.changeTab(index);
   }
 
-  // 示例：从任意位置导航到首页并切换Tab
-  void navigateToHomeAndChangeTab(int index) {
-    navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (route) => false);
-    Future.delayed(Duration.zero, () => changeTab(index));
-  }
 }
 
 
@@ -124,7 +118,7 @@ class CustomNavBarWidget extends StatelessWidget {
               opacity: isSelected ? 1.0 : 0.0,
               duration: Duration(milliseconds: 300),
               child: Image.asset(
-                'ms_card_seletecd'.image(), // 选中的背景图
+                  selectedIndex == 2 ? 'ms_card_seletecd'.image() : 'ms_card_seletecd2'.image(), // 选中的背景图
                 fit: BoxFit.cover,
               ),
             ),
@@ -153,7 +147,7 @@ class CustomNavBarWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('ms_card_tabbar_bgs'.image()), // 底部导航栏背景图
+          image: AssetImage(selectedIndex == 2 ? 'ms_card_tabbar_bgs'.image() : 'ms_tabbar_bg2'.image()), // 底部导航栏背景图
           fit: BoxFit.cover,
         ),
       ),

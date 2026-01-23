@@ -24,12 +24,8 @@ class MSSratchJoyLaunchState extends State<MSSratchWeCome> with SingleTickerProv
 
     // 延时 1 秒后跳转到其他页面
     Future.delayed(Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MSSratchWinNow(),
-        ),
-      );
+      if (!mounted) return;
+      context.tipShow(MSSratchWinNow());
     });
   }
 

@@ -22,6 +22,7 @@ class Gs140okspinePlugin :
     private lateinit var context: Context
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        context = flutterPluginBinding.applicationContext // 这里初始化 context
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "gs140okspine")
         channel.setMethodCallHandler(this)
     }

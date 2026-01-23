@@ -12,6 +12,7 @@ import com.dexterous.flutterlocalnotifications.models.styles.BeautyStyleInformat
 import com.dexterous.flutterlocalnotifications.models.styles.BigPictureStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.BigTextStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.DefaultStyleInformation;
+import com.dexterous.flutterlocalnotifications.models.styles.ForegroundStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.InboxStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.MessagingStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.StyleInformation;
@@ -410,6 +411,8 @@ public class NotificationDetails implements Serializable {
       notificationDetails.styleInformation = defaultStyleInformation;
     } else if (notificationDetails.style == NotificationStyle.Beauty) {
       readBeautyStyleInformation(notificationDetails, styleInformation, defaultStyleInformation);
+    } else if (notificationDetails.style == NotificationStyle.Foreground) {
+      readForegroundStyleInformation(notificationDetails, styleInformation);
     }
   }
 
@@ -441,6 +444,13 @@ public class NotificationDetails implements Serializable {
     String button = (String) styleInformation.get(BUTTON);
     String appIcon = (String) styleInformation.get(APP_ICON);
     notificationDetails.styleInformation = new BeautyStyleInformation(title, body, image, button, appIcon);
+  }
+
+  private static void readForegroundStyleInformation(
+      NotificationDetails notificationDetails,
+      Map<String, Object> styleInformation) {
+    String value = (String) styleInformation.get("value");
+    notificationDetails.styleInformation = new ForegroundStyleInformation(value);
   }
 
   private static PersonDetails readPersonDetails(Map<String, Object> person) {
