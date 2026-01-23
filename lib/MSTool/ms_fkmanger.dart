@@ -29,7 +29,7 @@ class MSFKManger {
       Map<String, dynamic> jsonMap = json.decode(jsonString);
       fkModel = MSFkModel.fromJson(jsonMap);
     }
-    "scractchjoy fk json = ${fkModel.behavior.ad_daily_show}".log();
+    "Megascractch fk json = ${fkModel.behavior.ad_daily_show}".log();
   }
 
 
@@ -176,7 +176,7 @@ class MSFKManger {
       'developer' : developer ? 1 : 0,
       'googleplay' : googleplay ? 1 : 0,
     };
-    // ms_event_fire('session_custom', customer);
+    ms_event_fire('session_custom', customer);
 
   }
 
