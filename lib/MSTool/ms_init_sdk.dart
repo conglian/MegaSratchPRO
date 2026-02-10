@@ -74,7 +74,7 @@ class MSSDKHelpers {
         'ad_platform' : 'max',
         'ad_init_time' : DateTime.now().difference(ms_max_start).inMilliseconds
       });
-      MSAdAHelper().initRewardAdDatasource();
+      // MSAdAHelper().initRewardAdDatasource();
       MSMegaAds().init();
     }
   }
@@ -130,7 +130,7 @@ class MSSDKHelpers {
   _initAdjust() async {
     // text  4qedga65udq8
     // relese  y16s0qkymcqo
-    const String appToken1 = '4qedga65udq8'; // relsease
+    const String appToken1 = 'y16s0qkymcqo';
     var disId = await FlutterTbaInfo.instance.getDistinctId();
     'disId=$disId'.log();
     Adjust.addGlobalCallbackParameter('customer_user_id', disId);
@@ -246,7 +246,7 @@ class MSSDKHelpers {
     } catch (e, s) {
       print("RemoteConfig fetch error: $e");
       ms_remoteConfigTryCount += 1;
-      if (ms_remoteConfigTryCount <= 60) {
+      if (ms_remoteConfigTryCount <= 180) {
         Future.delayed(Duration(seconds: 1), () {
           _msinitloadFireBase();
         });

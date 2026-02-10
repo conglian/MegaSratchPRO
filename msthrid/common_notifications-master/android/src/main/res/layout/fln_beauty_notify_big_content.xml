@@ -3,14 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="196dp"
-    android:background="#FFFFFF"> <!-- 设置整体背景为白色 -->
+    android:background="#FFFFFF">
 
+    <!-- 背景图：底部留 50dp -->
     <ImageView
         android:id="@+id/fln_beauty_notify_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="66dp"
         android:scaleType="centerCrop"
-        android:layout_marginBottom="58dp"
         tools:ignore="ContentDescription" />
 
     <LinearLayout
@@ -56,15 +57,14 @@
         <TextView
             android:id="@+id/fln_beauty_notify_btn"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginBottom="0dp"
             android:background="@drawable/fln_beauty_notify_btn_bg"
             android:ellipsize="end"
             android:gravity="center"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
             android:singleLine="true"
             android:textColor="#FFFFFF"
-            android:textSize="15sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             tools:text="This is button" />
     </LinearLayout>

@@ -29,8 +29,8 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:orientation="vertical">
@@ -43,24 +43,25 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                android:maxLines="3"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 tools:text="This is title" />
 
-            <TextView
-                android:id="@+id/fln_beauty_notify_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/fln_beauty_notify_btn_bg"
-                android:gravity="center"
-                android:paddingStart="16dp"
-                android:paddingTop="1dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="0dp"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                tools:text="This is button" />
+<!--            <TextView-->
+<!--                android:id="@+id/fln_beauty_notify_btn"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="@drawable/fln_beauty_notify_btn_bg"-->
+<!--                android:gravity="center"-->
+<!--                android:paddingStart="16dp"-->
+<!--                android:paddingTop="4dp"-->
+<!--                android:paddingEnd="16dp"-->
+<!--                android:paddingBottom="4dp"-->
+<!--                android:textColor="#FFFFFF"-->
+<!--                android:textSize="12sp"-->
+<!--                android:textStyle="bold"-->
+<!--                tools:text="This is button" />-->
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

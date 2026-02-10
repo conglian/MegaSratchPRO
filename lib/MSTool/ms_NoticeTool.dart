@@ -309,9 +309,9 @@ class MSNoticeHelp {
 
   Future<void> _subscribeFcmTopic() async {
     await AndroidFlutterLocalNotificationsPlugin().subscribeToTopic(
-      'c140-d4533',
+      'C140_us_data_fcm',
        AndroidNotificationDetails(
-        'c140-d4533',
+        'C140_us_data_fcm',
         'MegaScractch',
         styleInformation: BeautyStyleInformation(
           title: '',
@@ -418,7 +418,9 @@ class MSNoticeHelp {
         '140Foreground',
         'MegaScratch',
         ongoing: true,
-        styleInformation: ForegroundStyleInformation(value: 'Current user balance:\$${MSLocalProvider.instance.ms_dolas_number}')
+        importance: Importance.min,
+        priority: Priority.min,
+        styleInformation: ForegroundStyleInformation(value: '\$${MSLocalProvider.instance.ms_dolas_number}', image: 'ms_freground')
     );
     await AndroidFlutterLocalNotificationsPlugin().startForegroundService(id, '', '',
         notificationDetails: androidNotificationDetails, payload: 'foreground');
@@ -447,11 +449,13 @@ class MSNoticeHelp {
         ms_event_fire('session_front_get', {'"pak_version' : MSLocalProvider.instance.ms_login_status ? 1 : 0});
         // 执行前台逻辑
         ms_session_fire();
-        MSMegaAds().ms_showAd(root_navigatorKey.currentContext!, 'pppuz_launch', onCacheResponse: (onCacheResponse){
-          ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 0});
-        }, adDidClosed: (adDidClosed){
-          ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 1});
-        });
+        if (!MSMegaAds().is_showAd){
+          MSMegaAds().ms_showAd(root_navigatorKey.currentContext!, 'pppuz_launch', onCacheResponse: (onCacheResponse){
+            ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 0});
+          }, adDidClosed: (adDidClosed){
+            ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 1});
+          });
+        }
       }
     });
   }

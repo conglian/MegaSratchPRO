@@ -12,7 +12,9 @@ import 'package:megascratch/main.dart';
 import 'package:provider/provider.dart';
 import '../MSDialog/MSDialog.dart';
 import '../MSTool/ms_GradientNumber.dart';
+import '../MSTool/ms_GradientText.dart';
 import '../MSTool/ms_NoticeTool.dart';
+import '../MSTool/ms_NumberHelper.dart';
 import '../MSTool/ms_TBAInfoTool.dart';
 import '../MSTool/ms_WebKitView.dart';
 import '../MSTool/ms_extension_help.dart';
@@ -31,6 +33,13 @@ class MSHomeContentPage extends StatefulWidget {
 
 class _MSHomeContentPageState extends State<MSHomeContentPage> {
 
+  // 总倒计时时间，单位是秒
+  int _remainingTime = MSLocalProvider.instance.ms_dao_time_index; // 5 分钟倒计时（300秒）
+
+  late Timer _timer;
+
+  int award_pool_number = MSNumberAHelper().getAwardPoolNumber();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -40,6 +49,7 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
       showsignDialog();
       shownewguide();
       showTXPopDialog();
+      _startCountdown();
     });
 
     MSSUpdateHomeListNotificationService.stream.listen((value) async {
@@ -49,6 +59,27 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
     MSNoticeHelp().initNotice();
     MSNoticeHelp().startForegroundService();
   }
+
+  // 启动倒计时
+  void _startCountdown() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (MSLocalProvider.instance.ms_dao_time_index > 0) {
+        if (_remainingTime == 0){
+          _remainingTime = MSLocalProvider.instance.ms_dao_time_index;
+        }
+        setState(() {
+          _remainingTime--;
+          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, _remainingTime);
+        });
+      } else {
+        setState(() {
+          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 0);
+        });
+        // _timer.cancel(); // 时间到，取消定时器
+      }
+    });
+  }
+
   // 显示签到
   Future<void> showsignDialog() async {
     if (MSLocalProvider.instance.ms_today_sign_status == false && MSLocalProvider.instance.ms_today_sign_show == false && MSLocalProvider.instance.ms_new_guide1 == true){
@@ -194,11 +225,69 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
                     ],
                   ),
                 ),
-              ))
+              )),
+              Positioned(left: 12.w,top: 155.h,child: Consumer<MSLocalProvider>(
+                  builder: (context, provider, child) {
+                    if (provider.ms_pool_show){
+                      ms_event_fire('new_bonus_pool_v', {});
+                    }
+                    return Visibility(
+                      visible: provider.ms_pool_show,
+                      child: InkWell(
+                        onTap: () async {
+                          ms_event_fire('new_bonus_pool_c', {});
+                          ms_event_fire('bonus_pool_c_n', {});
+                          context.tipShow(MSAwardPoolDialog(award_num: award_pool_number, time_index: _remainingTime, index: -1));
+                        },
+                        child:SizedBox(
+                          width: 72,
+                          height: 72,
+                          child: Stack(
+                            children: [
+                              MSBouncyImage(imagePath: 'ms_jiangjin_btn'.image(), width: 72, height: 72, enableAnimation: true),
+                              Positioned(left: 3.5,top: 50,child: Visibility(
+                                visible: MSLocalProvider.instance.ms_dao_time_index != 0,
+                                child: Container(
+                                  width: 65,
+                                  height: 18,
+                                  decoration: BoxDecoration(
+                                      color: '#EAEFFF'.color(),
+                                      borderRadius: BorderRadius.circular(9)
+                                  ),
+                                  child: Center(
+                                    child: MSText(text: _formatTime(_remainingTime), size: 12, color: '#393939'.color(), weight: FontWeight.w700),
+                                  ),
+                                ),
+                              )),
+                              Positioned(left: 0,top: 34,child: MSGradientStrokeText(text: '\$10000', gradientColors: ['#FBF544'.color(),'#F4B22A'.color()], width: 72, height: 21, fontSize: 16, strokeWidth: 1, strokeColor: '#804D00'.color())),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+              ), ),
             ],
           )
       ),
     );
+  }
+
+  // 将秒数转化为格式化时间（00:00:00）
+  String _formatTime(int seconds) {
+    int hours = seconds ~/ 3600;
+    int minutes = (seconds % 3600) ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '${_twoDigits(hours)}:${_twoDigits(minutes)}:${_twoDigits(remainingSeconds)}';
+  }
+
+  // 保证时间两位数
+  String _twoDigits(int n) {
+    if (n >= 10) {
+      return "$n";
+    } else {
+      return "0$n";
+    }
   }
 
 }
@@ -331,7 +420,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
                                     child: Center(child: MSImg(
                                       name: 'ms_scratch_list_${index}_n',
                                       width: 363.w,
-                                      height: 166.h,)),
+                                      height: 188,)),
                                   );
                                 });
                           } else if (index == 3 && MSLocalProvider.instance.ms_Level_number < 4 && MSLocalProvider.instance.ms_scratch_status_3 == false){
@@ -343,7 +432,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
                                      child: Center(child: MSImg(
                                        name: 'ms_scratch_list_${index}_n',
                                        width: 363.w,
-                                       height: 166.h,)),
+                                       height: 188,)),
                                    );
                                  });
                            } else if (index == 4 && MSLocalProvider.instance.ms_Level_number < 5 && MSLocalProvider.instance.ms_scratch_status_4 == false){
@@ -355,7 +444,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
                                      child: Center(child: MSImg(
                                        name: 'ms_scratch_list_${index}_n',
                                        width: 363.w,
-                                       height: 166.h,)),
+                                       height: 188,)),
                                    );
                                  });
                            } else if (index == 5 && MSLocalProvider.instance.ms_Level_number < 6 && MSLocalProvider.instance.ms_scratch_status_5 == false){
@@ -367,7 +456,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
                                      child: Center(child: MSImg(
                                        name: 'ms_scratch_list_${index}_n',
                                        width: 363.w,
-                                       height: 166.h,)),
+                                       height: 188,)),
                                    );
                                  });
                            } else if (index == 6 && MSLocalProvider.instance.ms_Level_number < 7 && MSLocalProvider.instance.ms_scratch_status_6 == false){
@@ -379,7 +468,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
                                      child: Center(child: MSImg(
                                        name: 'ms_scratch_list_${index}_n',
                                        width: 363.w,
-                                       height: 166.h,)),
+                                       height: 188,)),
                                    );
                                  });
                           }
@@ -391,7 +480,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
                                   child: Center(child: MSImg(
                                     name: 'ms_scratch_list_${index}',
                                     width: 363.w,
-                                    height: 166.h,)),
+                                    height: 188,)),
                                 );
                               });
                         })
@@ -450,7 +539,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
                   ],
                 )),
                 Positioned(
-                  right: 40.w,
+                  right: 37.w,
                   bottom: getindexToBottomH(index),
                   child: Consumer<MSLocalProvider>(
                            builder:(context, provider, child) {
@@ -481,27 +570,12 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
   }
 
   double getNameToBottomH(int index){
-    double doubles = 50.h;
-    if (index == 2){
-      doubles = 55.h;
-    }
-    if (index == 4){
-      doubles = 48.h;
-    }
+    double doubles = 58;
     return doubles;
   }
 
   double getindexToBottomH(int index){
-    double doubles = 54.h;
-    if (index == 2){
-      doubles = 58.h;
-    }
-    if (index == 3){
-      doubles = 50.h;
-    }
-    if (index == 4){
-      doubles = 50.h;
-    }
+    double doubles = 62;
     return doubles;
   }
 
@@ -702,7 +776,7 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    ms_event_fire('7day_status', {'task_status' : MSLocalProvider.instance.ms_today_sign_status == true ? 1 : 0});
+    ms_event_fire('day7_status', {'task_status' : MSLocalProvider.instance.ms_today_sign_status == true ? 1 : 0});
     return Container(
       width: 0.width(context),
       height: 118,
@@ -823,7 +897,7 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
                         }
                     )
                   ),
-                  SizedBox(width: 7.27.w,),
+                  SizedBox(width: 2.w,),
                   InkWell(
                     onTap: (){
                       context.tipShow(MSPopSettingDialog());
@@ -831,7 +905,7 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
                     },
                     child: MSImg(name: 'ms_set_icon', width: 43, height: 42,),
                   ),
-                  SizedBox(width: 7.34.w,)
+                  SizedBox(width: 4.w,),
                 ],
               ),
               SizedBox(height: 8.8.h,)

@@ -108,6 +108,8 @@ class MSMegaAds {
   List<MSJoyAdModel> _ads = [];
   // 测试打开，上线关闭
   final bool skipAd = false;
+  // 是否显示广告中
+  late bool is_showAd = false;
 
   Future<void> init({MSAdModel? inputAd}) async {
     _initadintjson();
@@ -293,9 +295,10 @@ class MSMegaAds {
         final ready =
             await AppLovinMAX.isRewardedAdReady(ad.ad_identifer) ?? false;
         if (!ready) return false;
-
+        is_showAd = true;
         AppLovinMAX.showRewardedAd(ad.ad_identifer);
       } else {
+        is_showAd = true;
         AppLovinMAX.showInterstitial(ad.ad_identifer);
       }
     } else {
@@ -304,9 +307,10 @@ class MSMegaAds {
           placementID: ad.ad_identifer,
         );
         if (!ready) return false;
-
+        is_showAd = true;
         ATRewardedManager.showRewardedVideo(placementID: ad.ad_identifer);
       } else {
+        is_showAd = true;
         ATInterstitialManager.showInterstitialAd(placementID: ad.ad_identifer);
       }
     }
@@ -877,6 +881,7 @@ extension AdServiceExtension on MSMegaAds {
     if (MSLocalProvider.instance.ms_bg_music){
       MSAudioUtils().playBGM();
     }
+    is_showAd = false;
     // 保存上次关闭广告时间仅限激励
     _savedTime = DateTime.now();
     int index = _ads.indexWhere((test) => test.ad_identifer == adId);

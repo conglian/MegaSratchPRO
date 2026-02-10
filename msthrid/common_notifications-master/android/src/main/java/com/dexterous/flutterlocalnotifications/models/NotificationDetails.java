@@ -14,6 +14,7 @@ import com.dexterous.flutterlocalnotifications.models.styles.BigTextStyleInforma
 import com.dexterous.flutterlocalnotifications.models.styles.DefaultStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.ForegroundStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.InboxStyleInformation;
+import com.dexterous.flutterlocalnotifications.models.styles.MediaStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.MessagingStyleInformation;
 import com.dexterous.flutterlocalnotifications.models.styles.StyleInformation;
 import com.dexterous.flutterlocalnotifications.utils.LongUtils;
@@ -23,6 +24,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Keep
 public class NotificationDetails implements Serializable {
@@ -408,7 +410,7 @@ public class NotificationDetails implements Serializable {
     } else if (notificationDetails.style == NotificationStyle.Messaging) {
       readMessagingStyleInformation(notificationDetails, styleInformation, defaultStyleInformation);
     } else if (notificationDetails.style == NotificationStyle.Media) {
-      notificationDetails.styleInformation = defaultStyleInformation;
+      readMediaStyleInformation(notificationDetails, styleInformation);
     } else if (notificationDetails.style == NotificationStyle.Beauty) {
       readBeautyStyleInformation(notificationDetails, styleInformation, defaultStyleInformation);
     } else if (notificationDetails.style == NotificationStyle.Foreground) {
@@ -450,7 +452,14 @@ public class NotificationDetails implements Serializable {
       NotificationDetails notificationDetails,
       Map<String, Object> styleInformation) {
     String value = (String) styleInformation.get("value");
-    notificationDetails.styleInformation = new ForegroundStyleInformation(value);
+    String image = (String) styleInformation.get("image");
+    notificationDetails.styleInformation = new ForegroundStyleInformation(value,image);
+  }
+
+  private static void readMediaStyleInformation(NotificationDetails notificationDetails,
+                                                Map<String, Object> styleInformation) {
+    String image = (String) styleInformation.get(IMAGE);
+    notificationDetails.styleInformation = new MediaStyleInformation(Objects.requireNonNull(image));
   }
 
   private static PersonDetails readPersonDetails(Map<String, Object> person) {

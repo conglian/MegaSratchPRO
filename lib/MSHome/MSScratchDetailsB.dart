@@ -263,8 +263,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                           height: 72,
                           child: Stack(
                             children: [
-                              MSBouncyImage(imagePath: 'ms_jiangjin_btn'.image(), width: 72, height: 72, enableAnimation: MSLocalProvider.instance.ms_dao_time_index <= 0),
-                              Positioned(left: 12,top: 10,child: MSImg(name: 'ms_jiangjin_icon', width: 52, height: 55,)),
+                              MSBouncyImage(imagePath: 'ms_jiangjin_btn'.image(), width: 72, height: 72, enableAnimation: true),
                               Positioned(left: 3.5,top: 50,child: Visibility(
                                 visible: MSLocalProvider.instance.ms_dao_time_index != 0,
                                 child: Container(
@@ -287,7 +286,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                     );
                   }
               ), ),
-              Positioned(right: 12.w,top: 110.h,child: InkWell(
+              Positioned(right: 12.w,top: 124.h,child: InkWell(
                 onTap: (){
                   context.tipShow(MSPopTaskBDialog(is_guide: false));
                 },
@@ -514,6 +513,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     setState(() {
       _show_animation = true;
     });
+    ms_event_fire('scratch_t', {});
     if (index == 0){
       Future.delayed(Duration(seconds: 2), () {
         showAwardDialog(0, result1!.totalNumber.toDouble(), result1!.isWin);

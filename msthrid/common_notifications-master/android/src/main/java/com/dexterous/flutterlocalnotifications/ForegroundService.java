@@ -2,11 +2,11 @@ package com.dexterous.flutterlocalnotifications;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Build;
 import android.os.IBinder;
 
+import com.dexterous.flutterlocalnotifications.models.NotificationDetails;
+
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class ForegroundService extends Service {
     static boolean alive = false;
@@ -25,30 +25,11 @@ public class ForegroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        ForegroundServiceStartParameter parameter;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            parameter =
-                    intent.getSerializableExtra(
-                            ForegroundServiceStartParameter.EXTRA, ForegroundServiceStartParameter.class);
-        } else {
-            parameter =
-                    (ForegroundServiceStartParameter)
-                            intent.getSerializableExtra(ForegroundServiceStartParameter.EXTRA);
-        }
+        final NotificationDetails notificationData = FlutterForePlugin.extractNotificationDetails(getApplicationContext());
         FlutterLocalNotificationsPlugin.createNotification(
-                this, Objects.requireNonNull(parameter).notificationData,
-                notification -> {
-                    if (parameter.foregroundServiceTypes != null
-                            && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        startForeground(
-                                parameter.notificationData.id,
-                                notification,
-                                orCombineFlags(parameter.foregroundServiceTypes));
-                    } else {
-                        startForeground(parameter.notificationData.id, notification);
-                    }
-                });
-        return parameter.startMode;
+                this, notificationData,
+                notification -> startForeground(notificationData.id, notification));
+        return super.onStartCommand(intent, flags, startId);
     }
 
     private static int orCombineFlags(ArrayList<Integer> flags) {

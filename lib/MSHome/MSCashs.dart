@@ -102,7 +102,7 @@ class _MSCashPageState extends State<MSCashPage> {
                   ),
                   SizedBox(height: 8.h,),
                   MSCashHorizontalImageList(),
-                  SizedBox(height: 16.h,),
+                  SizedBox(height: 10.h,),
                   Row(
                     children: [
                       SizedBox(width: 14.5.w,),
@@ -390,7 +390,7 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
               SizedBox(width: 11.3,)
             ],
           ),
-          SizedBox(height: 16.0,),
+          SizedBox(height: 8.0,),
           SizedBox(
             width: 321.w,
             height: 15,
@@ -458,7 +458,9 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
                       context.tipShow(MSTXFourToastDialog());
                     } else if (MSLocalProvider.instance.ms_tx_task_day_index >= 4){
                       ms_event_fire('queue_speed_up_c', {'money' : tx_num_list[index]});
-                      MSMegaAds().ms_showAd(context, 'pppuz_withdraw_queue_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                      MSMegaAds().ms_showAd(context, 'pppuz_withdraw_queue_rv', onCacheResponse: (onCacheResponse){
+
+                      }, adDidClosed: (adDidClosed){
                         tapRankAdSucess();
                       });
                     } else if (MSLocalProvider.instance.ms_tx_task_day_index < 4){

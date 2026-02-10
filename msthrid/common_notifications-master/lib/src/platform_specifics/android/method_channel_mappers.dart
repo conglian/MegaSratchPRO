@@ -125,7 +125,15 @@ extension BeautyStyleInformationMapper on BeautyStyleInformation {
 extension ForegroundStyleInfomationMapper on ForegroundStyleInformation {
   Map<String, Object?> toMap() => _convertDefaultStyleInformationToMap(this)
     ..addAll(<String, Object?>{
-      'value': value
+      'value': value,
+      'image': image,
+    });
+}
+
+extension MediaStyleInformationMapper on MediaStyleInformation {
+  Map<String, Object?> toMap() => _convertDefaultStyleInformationToMap(this)
+    ..addAll(<String, Object?>{
+      'image': image
     });
 }
 
