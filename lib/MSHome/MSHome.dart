@@ -267,6 +267,7 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
                     );
                   }
               ), ),
+              Positioned(child: MSBubbleButton()),
             ],
           )
       ),

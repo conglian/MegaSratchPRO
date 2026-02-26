@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
 import 'package:megascratch/MSTool/ms_TBAInfoTool.dart';
 import 'package:megascratch/MSTool/ms_stroke_text.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,7 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
     // 当前帧构建完成后
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 在这里执行需要更新UI的操作
+      tapwheelSender();
     });
   }
 
@@ -159,6 +161,32 @@ class _MSLuckWheelState extends State<MSLuckWheel> {
                   ),
                  ) 
                 ),
+                Consumer<MSLocalProvider>(
+                    builder: (context, provider, child) {
+                      return
+                        Positioned(
+                          bottom: 220.h,
+                          right: 100.w,
+                          width: 80,
+                          height: 80,
+                          child: Visibility(
+                            visible: provider.ms_wheel_number > 0,
+                            child: InkWell(
+                              onTap: (){
+                                tapwheelSender();
+                              },
+                              child: Lottie.asset(
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.fill,
+                                "ms_shou_anmation.zip".files(),
+                                repeat: true,
+                              ),
+                            ),
+                          ),
+                        );
+                    }
+                )
               ],
             )
       ),

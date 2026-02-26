@@ -75,6 +75,7 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
     _animation = Tween(begin: 1.0, end: 0.0).animate(_animationController)..addListener(() => setState(() {}));
 
     MSScratchUpdateNotificationService.stream.listen((value) async {
+      MSScratchTapNotificationService.sendToDomandNumberNotification(0);
       if (mounted && value == 0) {
         _resetScratchCard();
       } else if (value == 1) {
@@ -293,6 +294,7 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
     return GestureDetector(
       onPanStart: _isAutoScratching ? null : (details) async {
         if (_fullyRevealed) return;
+        MSScratchTapNotificationService.sendToDomandNumberNotification(0);
         setState(() {
           _points.add(details.localPosition);
           _repaintFlag++;
@@ -450,6 +452,20 @@ class _LocalScratchPainter extends CustomPainter {
 
 
 class MSScratchUpdateNotificationService {
+  static final StreamController<int> _streamController = StreamController<int>.broadcast();
+
+  static Stream<int> get stream => _streamController.stream;
+
+  static void sendToDomandNumberNotification(int value) {
+    _streamController.sink.add(value);
+  }
+
+  static void close() {
+    _streamController.close();
+  }
+}
+
+class MSScratchTapNotificationService {
   static final StreamController<int> _streamController = StreamController<int>.broadcast();
 
   static Stream<int> get stream => _streamController.stream;

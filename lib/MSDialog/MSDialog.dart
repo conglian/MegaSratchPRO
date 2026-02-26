@@ -5456,6 +5456,13 @@ class MSNeedsADialogState extends State<MSNeedsADialog>
                 image: MSDImg('ms_wheel_center_bg_0')
             ),
             child: InkWell(onTap: (){
+              ms_event_fire('wheel_pop_c', {});
+              MSMegaAds().ms_showAd(context, 'pppuz_wheellock_rv', onCacheResponse: (onCacheResponse){
+                Navigator.pop(context, 0);
+              }, adDidClosed: (adDidClosed) async {
+                Navigator.pop(context, 0);
+                await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_numberName, MSLocalProvider.instance.ms_wheel_number + 1);
+              });
             },child: MSScratchWheelPage(imagePath: 'ms_wheel_center_bg_b'.image(),)),
           )),
           Positioned(left: (0.width(context) - 104) * 0.5,top: 373.78.h,child: Container(
@@ -5463,11 +5470,22 @@ class MSNeedsADialogState extends State<MSNeedsADialog>
             decoration: BoxDecoration(
                 image: MSDImg('ms_wheel_btn')
             ),
-            child: Stack(
-                children: [
-                  Positioned(top: 50,left: 28,child: MSImg(name: 'ms_unlock_icons2', width: 46.71, height: 46.71)),
-                ],
-              ),
+            child: InkWell(
+              onTap: (){
+                ms_event_fire('wheel_pop_c', {});
+                MSMegaAds().ms_showAd(context, 'pppuz_wheellock_rv', onCacheResponse: (onCacheResponse){
+                  Navigator.pop(context, 0);
+                }, adDidClosed: (adDidClosed) async {
+                  Navigator.pop(context, 0);
+                  await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_numberName, MSLocalProvider.instance.ms_wheel_number + 1);
+                });
+              },
+              child: Stack(
+                  children: [
+                    Positioned(top: 50,left: 28,child: MSImg(name: 'ms_unlock_icons2', width: 46.71, height: 46.71)),
+                  ],
+                ),
+            ),
             ),
           ),
           Positioned(top: 628.h,left: (0.width(context) - 260) * 0.5, child: InkWell(

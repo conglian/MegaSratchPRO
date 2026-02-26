@@ -49,20 +49,28 @@ class MSSratchWinNowState extends State<MSSratchWinNow> with SingleTickerProvide
                 ],
             ),
           ),
-          Positioned(left: 0, top: 210.h, width: 0.width(context), height: 400, child: Visibility(visible: _show_guide,child: Lottie.asset(
-              width: 200.w,
-              height: 200.h,
+          Positioned(left: 0, top: 240.h, width: 0.width(context), height: 400, child: InkWell(onTap: (){
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
+              ),
+            );
+            context.tipShow(MSNewAwardDialog());
+          },child: Lottie.asset(
+              width: 0.width(context),
+              height: 120.h,
               fit: BoxFit.fill,
               "ms_scratch_guide.zip".files(),
-              repeat: false,
-              onLoaded: (composition) async {
-                Future.delayed(Duration(milliseconds: 1200), () async {
-                  if (!mounted) return;
-                  setState(() {
-                    _show_guide = false;
-                  });
-                });
-              }
+              repeat: true,
+              // onLoaded: (composition) async {
+              //   Future.delayed(Duration(milliseconds: 1200), () async {
+              //     if (!mounted) return;
+              //     setState(() {
+              //       _show_guide = false;
+              //     });
+              //   });
+              // }
           ))),
           Positioned.fill(
             child: GestureDetector(

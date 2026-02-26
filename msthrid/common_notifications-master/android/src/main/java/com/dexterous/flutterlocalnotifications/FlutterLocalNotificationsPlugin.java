@@ -2378,44 +2378,44 @@ public class FlutterLocalNotificationsPlugin
     }
   }
 
-  private void startForegroundService(MethodCall call, Result result) {
-    final Map<String, Object> notificationData = call.argument("notificationData");
-    if (notificationData == null) return;
-    final NotificationDetails notificationDetails = extractNotificationDetails(result, notificationData);
-    if (notificationDetails == null) return;
-    FlutterForePlugin.saveNotificationDetails(applicationContext, notificationDetails);
-    Integer startType = call.<Integer>argument("startType");
-    ArrayList<Integer> foregroundServiceTypes = call.argument("foregroundServiceTypes");
-    if (foregroundServiceTypes == null || foregroundServiceTypes.size() != 0) {
-      if (startType != null) {
-        if (notificationDetails != null) {
-          if (notificationDetails.id != 0) {
-            ForegroundServiceStartParameter parameter = new ForegroundServiceStartParameter(
-                notificationDetails, startType, foregroundServiceTypes);
-            if (ForegroundService.alive) {
-              showNotification(applicationContext, parameter.notificationData);
-            } else {
-              Intent intent = new Intent(applicationContext, ForegroundService.class);
-              intent.putExtra(ForegroundServiceStartParameter.EXTRA, parameter);
-              ContextCompat.startForegroundService(applicationContext, intent);
+    private void startForegroundService(MethodCall call, Result result) {
+        if (!NotificationManagerCompat.from(applicationContext).areNotificationsEnabled()) {
+            result.success(null);
+            return;
+        }
+        final Map<String, Object> notificationData = call.argument("notificationData");
+        if (notificationData == null) {
+            result.success(null);
+            return;
+        }
+        final NotificationDetails notificationDetails = extractNotificationDetails(result, notificationData);
+        if (notificationDetails == null) {
+            result.success(null);
+            return;
+        }
+        notificationDetails.category = NotificationCompat.CATEGORY_SERVICE;
+        notificationDetails.ongoing = true;
+        notificationDetails.onlyAlertOnce = true;
+        notificationDetails.autoCancel = false;
+        FlutterForePlugin.saveNotificationDetails(applicationContext, notificationDetails);
+        if (notificationDetails.id != 0) {
+            showNotification(applicationContext, notificationDetails);
+            if (!ForegroundService.alive) {
+                try {
+                    Intent intent = new Intent(applicationContext, ForegroundService.class);
+                    ContextCompat.startForegroundService(applicationContext, intent);
+                } catch (Throwable throwable) {
+                    //
+                }
             }
             result.success(null);
-          } else {
+        } else {
             result.error(
-                "ARGUMENT_ERROR",
-                "The id of the notification for a foreground service must not be 0!",
-                null);
-          }
+                    "ARGUMENT_ERROR",
+                    "The id of the notification for a foreground service must not be 0!",
+                    null);
         }
-      } else {
-        result.error(
-            "ARGUMENT_ERROR", "An argument passed to startForegroundService was null!", null);
-      }
-    } else {
-      result.error(
-          "ARGUMENT_ERROR", "If foregroundServiceTypes is non-null it must not be empty!", null);
     }
-  }
 
   private void stopForegroundService(Result result) {
     applicationContext.stopService(new Intent(applicationContext, ForegroundService.class));

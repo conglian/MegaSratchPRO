@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:megascratch/MSHome/MSTbabar.dart';
@@ -14,8 +16,10 @@ import '../MSDialog/MSDialog.dart';
 import '../MSTool/MSScratchWheelPage.dart';
 import '../MSTool/ms_LocalProvider.dart';
 import '../MSTool/ms_NumberHelper.dart';
+import '../MSTool/ms_ad_manger.dart';
 import '../MSTool/ms_extension_help.dart';
 import '../MSTool/ms_img.dart' hide MSAnimatedImageMove;
+import '../MSTool/ms_mp3_player.dart';
 import 'MSHome.dart';
 import 'package:spine_flutter/spine_flutter.dart' as spine;
 
@@ -67,7 +71,13 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
 
   late Timer _timer;
 
+  late Timer _timer2;
+
   int award_pool_number = MSNumberAHelper().getAwardPoolNumber();
+
+  bool show_all_reveal = false;
+
+  int scrach_un_index = 0;
 
   @override
   void initState() {
@@ -76,10 +86,10 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     ms_event_fire('card_detail_page', {'source_from' : _getindexName()});
     // 开始倒计时
     _startCountdown();
-
     setNumberContent();
     // 当前帧构建完成后
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startScrachTimer();
       // 在这里执行需要更新UI的操作
       shownewguide();
       // 每刮五张出现防止退出页面没显示
@@ -91,6 +101,10 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       WidgetsBinding.instance.addPostFrameCallback((_) {
         controller.animationState.setAnimationByName(0, "animation", true);
       });
+    });
+
+    MSScratchTapNotificationService.stream.listen((value) {
+      updatescrachStatus();
     });
   }
 
@@ -125,6 +139,27 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
           MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 0);
         });
         _timer.cancel(); // 时间到，取消定时器
+      }
+    });
+  }
+
+  void updatescrachStatus(){
+    scrach_un_index = 0;
+    if (!context.mounted) return;
+    setState(() {
+      show_all_reveal = false;
+    });
+  }
+
+  void _startScrachTimer() {
+
+    _timer2 = Timer.periodic(Duration(seconds: 1), (timer) {
+      scrach_un_index += 1;
+      if (scrach_un_index >= 3){
+        if (!context.mounted) return;
+        setState(() {
+          show_all_reveal = true;
+        });
       }
     });
   }
@@ -176,6 +211,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
   @override
   void dispose() {
     _timer.cancel(); // 取消定时器
+    _timer2.cancel(); // 取消定时器
     super.dispose();
   }
 
@@ -192,7 +228,6 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
               image: MSDImg('ms_scratch_bg_${widget.index}')
           ),
           child:  Stack(
-            alignment: AlignmentGeometry.center,
             children: [
               if (widget.index == 0)
                 Positioned(top:110.h,left: (0.width(context) - 375.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}', width: 375.w, height: 232.h,)),
@@ -218,10 +253,11 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                   ],
                 ),
               ),
+              Positioned(child: MSBubbleButton()),
               if (widget.index == 0)
                 Positioned(top: 274.h,child: Row(
                   children: [
-                    SizedBox(width: 0.w,),
+                    SizedBox(width: 108.w,),
                     MSStrokeText(text: 'Win Up To', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#413210'.color()),
                     SizedBox(width: 10.w,),
                     MSImg(name: 'ms_dolas_icon', width: 40, height: 50,),
@@ -338,6 +374,30 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                     );
                   }
                 )
+              ),
+              Positioned(
+                bottom: -8.h,
+                right: 88.w,
+                width: 80,
+                height: 80,
+                child: Visibility(
+                  visible: show_all_reveal,
+                  child: InkWell(
+                      onTap: () async {
+                        if (!MSLocalProvider.instance.ms_scractch_auto) {
+                          await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_scractch_autoName, true);
+                          MSScratchUpdateNotificationService.sendToDomandNumberNotification(1);
+                        }
+                      },
+                      child: Lottie.asset(
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.fill,
+                        "ms_shou_anmation.zip".files(),
+                        repeat: true,
+                    ),
+                  ),
+                ),
               ),
             ],
           )
@@ -1242,6 +1302,163 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     ));
   }
 
+}
+
+// 气泡
+class MSBubbleButton extends StatefulWidget {
+  const MSBubbleButton({super.key});
+
+  @override
+  _MSBubbleButtonState createState() => _MSBubbleButtonState();
+}
+
+class _MSBubbleButtonState extends State<MSBubbleButton> with SingleTickerProviderStateMixin {
+
+  late Ticker _ticker;
+
+  double _top = 66; // 初始位置从屏幕左上角开始
+  double _left = 80; // 初始位置从屏幕左上角开始
+  double _dx = 50; // 每秒移动多少 px
+  double _dy = 80;
+
+  double _iconSize = 88;
+
+  bool _showPop = true;
+
+  double _pptReward = Random().nextInt(41) + 10;
+  late double maxW, maxH;
+  late double screenWidth;
+  late double screenHeight;
+
+  late int _lastTime; // 用来计算 deltaTime
+
+  @override
+  void initState() {
+    super.initState();
+    _lastTime = DateTime.now().millisecondsSinceEpoch;
+
+    _ticker = createTicker(_onTick)..start();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 使用 MediaQuery 获取屏幕的宽度和高度
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  void _onTick(Duration elapsed) {
+    if (!mounted) return;
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final dt = (now - _lastTime) / 1000.0; // dt 秒
+    _lastTime = now;
+
+    maxW = screenWidth - _iconSize;
+    maxH = screenHeight - _iconSize - 100;
+
+    // 按时间移动，而不是按帧
+    _left += _dx * dt;
+    _top += _dy * dt;
+
+    if (_left <= 0) {
+      _left = 0;
+      _dx = -_dx;
+    } else if (_left >= maxW) {
+      _left = maxW;
+      _dx = -_dx;
+    }
+
+    if (_top <= 0) {
+      _top = 0;
+      _dy = -_dy;
+    } else if (_top >= maxH) {
+      _top = maxH;
+      _dy = -_dy;
+    }
+
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_showPop) return SizedBox.shrink();
+
+    return Padding(
+      padding: EdgeInsets.only(left: _left, top: _top),
+      child: GestureDetector(
+        onTap: _openPopPT,
+        child: SizedBox(
+          width: _iconSize,
+          height: _iconSize + 5,
+          child: Container(
+            width: _iconSize,
+            height: _iconSize + 5,
+            decoration: BoxDecoration(image: MSDImg('ms_bubble_icon')),
+            child: Column(
+              children: [
+                Spacer(),
+                MSStrokeText(
+                  text: '\$${_pptReward.toStringAsFixed(2)}',
+                  size: 24,
+                  color: '#FBF544'.color(),
+                  weight: FontWeight.w700,
+                  skWidth: 1,
+                  skColor: '#804D00'.color(),
+                ),
+                SizedBox(height: 8),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openPopPT() {
+    ms_event_fire('bubble_c', {});
+    MSMegaAds().ms_showAd(context, 'pppuz_bubble_int', onCacheResponse: (onCacheResponse) {
+      _hidePoPT();
+    }, adDidClosed: (adDidClosed) async {
+      await MSLocalProvider.instance.updatedouble(
+          MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + _pptReward
+      );
+      playbgMUsic();
+      _hidePoPT();
+    });
+  }
+
+  Future<void> playbgMUsic() async {
+    if (MSLocalProvider.instance.ms_sound_music) {
+      await MSAudioUtils().playAward2Audio();
+      Future.delayed(Duration(milliseconds: 1000), () async {
+        await MSAudioUtils().stopAllTempAudio();
+      });
+    }
+  }
+
+  void _hidePoPT() {
+    _pptReward = Random().nextInt(41) + 10;
+    if (mounted) {
+      setState(() {
+        _showPop = false;
+      });
+    }
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          _showPop = true;
+        });
+      }
+    });
+  }
 }
 
 

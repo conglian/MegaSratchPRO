@@ -102,7 +102,7 @@ class _MSCashPageState extends State<MSCashPage> {
                   ),
                   SizedBox(height: 8.h,),
                   MSCashHorizontalImageList(),
-                  SizedBox(height: 10.h,),
+                  SizedBox(height: 18.h,),
                   Row(
                     children: [
                       SizedBox(width: 14.5.w,),
