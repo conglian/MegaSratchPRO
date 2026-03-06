@@ -163,9 +163,17 @@ class MSLocalProvider extends ChangeNotifier {
   int ms_tx_num_index = 520;
   int ms_show_wheel_index_row = 0;
   int ms_unaward_index = 0;
+  int ms_key_index = 0;
+  int ms_key_pro_index = 0;
+  int ms_key_all_index = 0;
+  int ms_key_list_index = 0;
+  int ms_pool_card_index = 0;
+  int ms_rank_index = 0;
+  int ms_pool_tx_index = 0;
 
   String get ms_currentNumberIndexName => 'ms_currentNumberIndex';
   String get ms_dice_numberName => 'ms_dice_number';
+  String get ms_pool_card_indexName => 'ms_pool_card_index';
   String get ms_domand_numberName => 'ms_domand_number';
   String get ms_scrach_end_number_0Name => 'ms_scrach_end_number_0';
   String get ms_scrach_end_number_1Name => 'ms_scrach_end_number_1';
@@ -176,6 +184,10 @@ class MSLocalProvider extends ChangeNotifier {
   String get ms_scrach_end_number_6Name => 'ms_scrach_end_number_6';
   String get ms_sound_musicName => 'ms_sound_music';
   String get ms_bg_musicName => 'ms_bg_music';
+  String get ms_key_indexName => 'ms_key_index';
+  String get ms_key_pro_indexName => 'ms_key_pro_index';
+  String get ms_key_all_indexName => 'ms_key_all_index';
+  String get ms_key_list_indexName => 'ms_key_list_index';
   String get ms_Scratch_timeKey_0Name => 'ms_Scratch_timeKey_0';
   String get ms_Scratch_timeKey_1Name => 'ms_Scratch_timeKey_1';
   String get ms_Scratch_timeKey_2Name => 'ms_Scratch_timeKey_2';
@@ -288,6 +300,8 @@ class MSLocalProvider extends ChangeNotifier {
   String get ms_show_animation_7Name => 'ms_show_animation_7';
   String get ms_tx_show_today_statusName => 'ms_tx_show_today_status';
   String get ms_tx_showtask_today_statusName => 'ms_tx_showtask_today_status';
+  String get ms_rank_indexName => 'ms_rank_index';
+  String get ms_pool_tx_indexName => 'ms_pool_tx_index';
 
   // 3. 初始化：从本地存储加载数据（组件初始化时调用）
   Future<void> init() async {
@@ -295,7 +309,6 @@ class MSLocalProvider extends ChangeNotifier {
     // 从本地读取值（key自定义，需与存储时一致）
     ms_dao_time_index = prefs.getInt('ms_dao_time_index') ?? 300;
     ms_card_award_index = prefs.getInt('ms_card_award_index') ?? 0;
-    ms_wheel_number = prefs.getInt('ms_wheel_number') ?? 0;
     ms_show_wheel_index_row = prefs.getInt('ms_show_wheel_index_row') ?? 0;
     ms_today_card_index = prefs.getInt('ms_today_card_index') ?? 0;
     ms_wheel_index = prefs.getInt('ms_wheel_index') ?? 0;
@@ -310,8 +323,11 @@ class MSLocalProvider extends ChangeNotifier {
     ms_domand_number = prefs.getInt('ms_domand_number') ?? 0;
     ms_dice_number = prefs.getInt('ms_dice_number') ?? 0;
     ms_card_number = prefs.getInt('ms_card_number') ?? 0;
+    ms_rank_index = prefs.getInt('ms_rank_index') ?? 0;
+    ms_pool_tx_index = prefs.getInt('ms_pool_tx_index') ?? 0;
     ms_current_user_ranking = prefs.getInt('ms_current_user_ranking') ?? 18250;
     ms_box_index = prefs.getInt('ms_box_index') ?? 0;
+    ms_pool_card_index = prefs.getInt('ms_pool_card_index') ?? 0;
     ms_unaward_index =  prefs.getInt('ms_unaward_index') ?? 0;
     ms_tx_box_index = prefs.getInt('ms_tx_box_index') ?? 0;
     ms_wheel_number = prefs.getInt('ms_wheel_number') ?? 0;
@@ -324,6 +340,10 @@ class MSLocalProvider extends ChangeNotifier {
     ms_tx_task_index = prefs.getInt('ms_tx_task_index') ?? 0;
     ms_tx_ing_account = prefs.getInt('ms_tx_ing_account') ?? 0;
     ms_tx_ing_number = prefs.getInt('ms_tx_ing_number') ?? 0;
+    ms_key_index = prefs.getInt('ms_key_index') ?? 0;
+    ms_key_pro_index = prefs.getInt('ms_key_pro_index') ?? 0;
+    ms_key_all_index = prefs.getInt('ms_key_all_index') ?? 0;
+    ms_key_list_index = prefs.getInt('ms_key_list_index') ?? 0;
     ms_scratch_not_award_number = prefs.getInt('ms_scratch_not_award_number') ?? 0;
     ms_account_seled_index = prefs.getInt('ms_account_seled_index') ?? 0;
     ms_scrach_unlock_index_0 = prefs.getInt('ms_scrach_unlock_index_0') ?? 0;
@@ -477,13 +497,14 @@ class MSLocalProvider extends ChangeNotifier {
         }
       }
     }
-    if (key == ms_wheel_indexName){
-      if (value >= 6){
-        value = 1;
-        ms_wheel_number += 1;
-        await prefs.setInt(ms_wheel_numberName, ms_wheel_number);
-      }
-    }
+    // if (key == ms_key_indexName){
+    //   if (value >= 5){
+    //     value = 0;
+    //     ms_wheel_number += 1;
+    //     await prefs.setInt(ms_key_indexName, 0);
+    //     await prefs.setInt(ms_wheel_numberName, ms_wheel_number);
+    //   }
+    // }
     if (key == ms_wheel_numberName){
       if (value <= 0){
         value = 0;

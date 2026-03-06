@@ -240,7 +240,7 @@ extension TipShow on BuildContext {
         context: this,
         barrierDismissible: false,
         barrierColor: bc ?? Colors.black.withOpacity(0.8),
-        transitionDuration: const Duration(milliseconds: 150),
+        transitionDuration: const Duration(milliseconds: 300),
         transitionBuilder: (ctx, animation, sAnimation, child) {
           final curvedAnimation = CurvedAnimation(
             parent: animation,
@@ -283,7 +283,7 @@ extension TipShow2 on BuildContext {
       context: this,
       barrierDismissible: false,
       barrierColor: Colors.transparent,
-      transitionDuration: const Duration(milliseconds: 250),
+      transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (_, __, ___) {
         return WillPopScope(
           onWillPop: () async => false, // 🚫 禁止返回键 & 左滑返回

@@ -83,7 +83,7 @@ class MSNumberAHelper {
   }
 
   /// 🎲 生成 lucku_moment 模式结果
-  MSPlayJoyResult generatelucku_Numbers({ bool forceWin = false }) {
+  MSPlayJoyResult generatelucku_Numbers({ bool forceWin = false , bool keyHit = false}) {
     final _rand = Random();
     MSLuckyNumber mode = numberBEntry.luckyNumber;
 
@@ -100,7 +100,6 @@ class MSNumberAHelper {
         displayNumbers.add(n);
       }
     }
-
     // 生成一个 0 到 1 之间的随机数，用于判断是否中奖
     double randomProbability = _rand.nextDouble(); // 获取一个 [0.0, 1.0) 之间的随机数
     int multiplier = 0;
@@ -139,12 +138,24 @@ class MSNumberAHelper {
     }
 
     // 6️⃣ 骰子命中逻辑（可以按需求启用）
-    bool diceHit = false;
-    // bool diceHit = _rand.nextDouble() < mode.diceProbability;
-    // if (diceHit) {
-    //   int diceIdx = _rand.nextInt(displayNumbers.length);
-    //   displayNumbers[diceIdx] = -2; // 替换为骰子命中的值
-    // }
+    bool diceHit = keyHit;
+    if (diceHit) {
+      // 找到未中奖的位置
+      List<int> nonWinningIndices = [];
+
+      // 查找所有没有中奖的索引
+      for (int i = 0; i < displayNumbers.length; i++) {
+        if (!winNumbers.contains(displayNumbers[i])) {
+          nonWinningIndices.add(i);
+        }
+      }
+
+      // 如果有未中奖的位置，替换其中一个
+      if (nonWinningIndices.isNotEmpty) {
+        int diceIdx = nonWinningIndices[_rand.nextInt(nonWinningIndices.length)];
+        displayNumbers[diceIdx] = -2; // 替换为骰子命中的值
+      }
+    }
 
     // ✅ 7️⃣ 封装结果返回
     return MSPlayJoyResult(
@@ -158,7 +169,7 @@ class MSNumberAHelper {
     );
   }
 
-  MSPlayJoyResult generatelucku_diamonds({ bool forceWin = false }) {
+  MSPlayJoyResult generatelucku_diamonds({ bool forceWin = false , bool keyHit = false}) {
     final _rand = Random();
 
     MSCardDiamonds mode = numberBEntry.cardDiamonds;
@@ -232,7 +243,24 @@ class MSNumberAHelper {
     'isWin=$isWin'.log();
 
     // 6️⃣ 骰子逻辑（未启用）
-    bool diceHit = false;
+    bool diceHit = keyHit;
+    if (diceHit) {
+      // 找到未中奖的位置
+      List<int> nonWinningIndices = [];
+
+      // 查找所有没有中奖的索引（即没有被替换为 0 的位置）
+      for (int i = 0; i < displayNumbers.length; i++) {
+        if (displayNumbers[i] != 0) {  // 如果该位置不是中奖的 0
+          nonWinningIndices.add(i);    // 将其添加到未中奖的位置列表中
+        }
+      }
+
+      // 如果有未中奖的位置，替换其中一个
+      if (nonWinningIndices.isNotEmpty) {
+        int diceIdx = nonWinningIndices[_rand.nextInt(nonWinningIndices.length)];
+        displayNumbers[diceIdx] = -2; // 替换为骰子命中的值
+      }
+    }
 
     // 7️⃣ 返回结果
     return MSPlayJoyResult(
@@ -247,7 +275,7 @@ class MSNumberAHelper {
   }
 
 
-  MSPlayJoyResult generatelucku_partpay({ bool forceWin = false }) {
+  MSPlayJoyResult generatelucku_partpay({ bool forceWin = false , bool keyHit = false}) {
 
     final _rand = Random();
 
@@ -325,7 +353,24 @@ class MSNumberAHelper {
     }
 
     // 5️⃣ 骰子逻辑（未启用）
-    bool diceHit = false;
+    bool diceHit = keyHit;  // 判断是否启用骰子逻辑
+    if (diceHit) {
+      // 找到未中奖的位置
+      List<int> nonWinningIndices = [];
+
+      // 查找所有没有中奖的索引（即没有被替换为 0 的位置）
+      for (int i = 0; i < displayNumbers.length; i++) {
+        if (displayNumbers[i] != 0) {  // 如果该位置不是中奖的 0
+          nonWinningIndices.add(i);    // 将其添加到未中奖的位置列表中
+        }
+      }
+
+      // 如果有未中奖的位置，替换其中一个
+      if (nonWinningIndices.isNotEmpty) {
+        int diceIdx = nonWinningIndices[_rand.nextInt(nonWinningIndices.length)];
+        displayNumbers[diceIdx] = -2; // 替换为骰子命中的值
+      }
+    }
 
     // 6️⃣ 返回结果
     return MSPlayJoyResult(
@@ -339,7 +384,7 @@ class MSNumberAHelper {
     );
   }
 
-  MSPlayJoyResult generatelucku_emojifun({ bool forceWin = false }) {
+  MSPlayJoyResult generatelucku_emojifun({ bool forceWin = false , bool keyHit = false}) {
     final _rand = Random();
     MSCardEmoji mode = numberBEntry.cardEmoji;
 
@@ -413,7 +458,24 @@ class MSNumberAHelper {
     }
 
     // 5️⃣ 骰子逻辑（未启用）
-    bool diceHit = false;
+    bool diceHit = keyHit;  // 判断是否启用骰子逻辑
+    if (diceHit) {
+      // 找到未中奖的位置
+      List<int> nonWinningIndices = [];
+
+      // 查找所有没有中奖的索引（即没有被替换为 0 的位置）
+      for (int i = 0; i < displayNumbers.length; i++) {
+        if (displayNumbers[i] != 0) {  // 如果该位置不是中奖的 0
+          nonWinningIndices.add(i);    // 将其添加到未中奖的位置列表中
+        }
+      }
+
+      // 如果有未中奖的位置，替换其中一个
+      if (nonWinningIndices.isNotEmpty) {
+        int diceIdx = nonWinningIndices[_rand.nextInt(nonWinningIndices.length)];
+        displayNumbers[diceIdx] = -2; // 替换为骰子命中的值
+      }
+    }
 
     // 6️⃣ 返回结果
     return MSPlayJoyResult(
@@ -427,7 +489,7 @@ class MSNumberAHelper {
     );
   }
 
-  MSPlayJoyResult generatelucku_goldpotdig({ bool forceWin = false }) {
+  MSPlayJoyResult generatelucku_goldpotdig({ bool forceWin = false , bool keyHit = false}) {
     final _rand = Random();
     MSCardGoldPot mode = numberBEntry.cardGoldPot;
 
@@ -478,7 +540,24 @@ class MSNumberAHelper {
     }
 
     // 5️⃣ 骰子逻辑（未启用）
-    bool diceHit = false;
+    bool diceHit = keyHit;  // 判断是否启用骰子逻辑
+    if (diceHit) {
+      // 找到未中奖的位置
+      List<int> nonWinningIndices = [];
+
+      // 查找所有没有中奖的索引（即没有被替换为 2 的位置）
+      for (int i = 0; i < displayNumbers.length; i++) {
+        if (displayNumbers[i] != 2) {  // 如果该位置不是中奖的 2
+          nonWinningIndices.add(i);    // 将其添加到未中奖的位置列表中
+        }
+      }
+
+      // 如果有未中奖的位置，替换其中一个
+      if (nonWinningIndices.isNotEmpty) {
+        int diceIdx = nonWinningIndices[_rand.nextInt(nonWinningIndices.length)];
+        displayNumbers[diceIdx] = -2; // 替换为骰子命中的值（可以根据需要修改为其他值）
+      }
+    }
 
     // 6️⃣ 返回结果
     return MSPlayJoyResult(
@@ -493,7 +572,7 @@ class MSNumberAHelper {
   }
 
 
-  MSPlayJoyResult generatelucku_77n({ bool forceWin = false }) {
+  MSPlayJoyResult generatelucku_77n({ bool forceWin = false , bool keyHit = false}) {
     final _rand = Random();
     MSCard77earn mode = numberBEntry.card77earn;
 
@@ -569,7 +648,24 @@ class MSNumberAHelper {
     }
 
     // 6️⃣ 骰子逻辑（未启用）
-    bool diceHit = false;
+    bool diceHit = keyHit;  // 判断是否启用骰子逻辑
+    if (diceHit) {
+      // 找到未中奖的位置
+      List<int> nonWinningIndices = [];
+
+      // 查找所有没有中奖的索引（即没有被替换为 0/1/2 的位置）
+      for (int i = 0; i < displayNumbers.length; i++) {
+        if (displayNumbers[i] != 0 && displayNumbers[i] != 1 && displayNumbers[i] != 2) {
+          nonWinningIndices.add(i);    // 将其添加到未中奖的位置列表中
+        }
+      }
+
+      // 如果有未中奖的位置，替换其中一个
+      if (nonWinningIndices.isNotEmpty) {
+        int diceIdx = nonWinningIndices[_rand.nextInt(nonWinningIndices.length)];
+        displayNumbers[diceIdx] = -2; // 替换为骰子命中的值（可以根据需求修改为其他值）
+      }
+    }
 
     // 7️⃣ 返回结果
     return MSPlayJoyResult(
@@ -583,7 +679,7 @@ class MSNumberAHelper {
     );
   }
 
-  MSPlayJoyResult generatelucku_coincraze({ bool forceWin = false }) {
+  MSPlayJoyResult generatelucku_coincraze({ bool forceWin = false ,bool keyHit = false}) {
     final _rand = Random();
     MSLuckyCash mode = numberBEntry.luckyCash;
 
@@ -637,7 +733,24 @@ class MSNumberAHelper {
     }
 
     // 6️⃣ 骰子逻辑（未启用）
-    bool diceHit = false;
+    bool diceHit = keyHit;  // 判断是否启用骰子逻辑
+    if (diceHit) {
+      // 找到未中奖的位置
+      List<int> nonWinningIndices = [];
+
+      // 查找所有没有中奖的索引（即没有被替换为奖励值的位置）
+      for (int i = 0; i < displayNumbers.length; i++) {
+        if (displayNumbers[i] == 0) {  // 如果该位置还没有中奖
+          nonWinningIndices.add(i);    // 将其添加到未中奖的位置列表中
+        }
+      }
+
+      // 如果有未中奖的位置，替换其中一个
+      if (nonWinningIndices.isNotEmpty) {
+        int diceIdx = nonWinningIndices[_rand.nextInt(nonWinningIndices.length)];
+        displayNumbers[diceIdx] = -2; // 替换为骰子命中的值（可以根据需求修改为其他值）
+      }
+    }
 
     // 7️⃣ 返回结果
     return MSPlayJoyResult(

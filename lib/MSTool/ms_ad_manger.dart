@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:adjust_sdk/adjust.dart';
 import 'package:adjust_sdk/adjust_ad_revenue.dart';
-import 'package:anythink_sdk/at_interstitial.dart';
-import 'package:anythink_sdk/at_interstitial_response.dart';
-import 'package:anythink_sdk/at_listener.dart';
-import 'package:anythink_sdk/at_rewarded.dart';
-import 'package:anythink_sdk/at_rewarded_response.dart';
 import 'package:applovin_max/applovin_max.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:thinkup_sdk/at_interstitial.dart';
+import 'package:thinkup_sdk/at_interstitial_response.dart';
+import 'package:thinkup_sdk/at_listener.dart';
+import 'package:thinkup_sdk/at_rewarded.dart';
+import 'package:thinkup_sdk/at_rewarded_response.dart';
 import '../MSDialog/MSDialog.dart';
 import '../MSModel/MSAdModel.dart';
 import '../MSModel/MSIntRatioModel.dart';
@@ -193,7 +193,7 @@ class MSMegaAds {
     onAdClosed ??= adDidClosed;
     quizAdPlaceID ??= placeID;
     String adType = placeID.contains("rv") ? "rv" : "int";
-    bool defaultMode = _MSJoyAdModel!.pppuz_switch;
+    bool defaultMode = _MSJoyAdModel?.pppuz_switch ?? false;
     "$runtimeType ad service request to show [$quizAdPlaceID], ad type is $adType, use mode #$defaultMode"
         .log();
     ms_event_fire('pppuz_ad_chance', {"ad_pos_id": placeID});
@@ -366,12 +366,12 @@ class MSMegaAds {
     "$runtimeType onCacheResponse is not ready!!! error $quizAdPlaceID".log();
   }
 
-  void adImpression({required MSJoyAdModel ad, required String placeID}) async {
+  void adImpression({required MSJoyAdModel ad, required String placeID, required String ad_network}) async {
     adRevenues(ad.ecpm);
     {
       ms_ad_fire({
         "longue": ad.ecpm * 1000000,
-        "evoke": ad.networkName,
+        "evoke": ad_network,
         "skein": ad.sdk,
         "bona": ad.ad_identifer,
         "namesake": placeID,
@@ -573,7 +573,7 @@ extension AdServiceExtension on MSMegaAds {
           _adDidLoadFailed(adUnitId, error.message);
         },
         onAdDisplayedCallback: (ad) {
-          _adDidDisplayed(adID: ad.adUnitId);
+          _adDidDisplayed(adID: ad.adUnitId, ad_networkName: ad.networkName);
         },
         onAdHiddenCallback: (ad) {
           _adDidHidden(adId: ad.adUnitId);
@@ -607,7 +607,7 @@ extension AdServiceExtension on MSMegaAds {
           break;
         // interstitial show succeed
         case InterstitialStatus.interstitialDidShowSucceed:
-          _adDidDisplayed(adID: value.placementID);
+          _adDidDisplayed(adID: value.placementID, ad_networkName: value.extraMap['network_type']);
           break;
         // interstitial show fail
         case InterstitialStatus.interstitialFailedToShow:
@@ -626,19 +626,19 @@ extension AdServiceExtension on MSMegaAds {
 
         case InterstitialStatus.interstitialUnknown:
           break;
-        // case InterstitialStatus.interstitialAdDidMultipleLoaded:
-        // case InterstitialStatus.interstitialAdDidAdSourceBiddingAttempt:
-        //   break;
-        // case InterstitialStatus.interstitialAdDidAdSourceBiddingFilled:
-        //   break;
-        // case InterstitialStatus.interstitialAdDidAdSourceBiddingFail:
-        //   break;
-        // case InterstitialStatus.interstitialAdDidAdSourceAttempt:
-        //   break;
-        // case InterstitialStatus.interstitialAdDidAdSourceLoadFilled:
-        //   break;
-        // case InterstitialStatus.interstitialAdDidAdSourceLoadFail:
-        //   break;
+        case InterstitialStatus.interstitialAdDidMultipleLoaded:
+        case InterstitialStatus.interstitialAdDidAdSourceBiddingAttempt:
+          break;
+        case InterstitialStatus.interstitialAdDidAdSourceBiddingFilled:
+          break;
+        case InterstitialStatus.interstitialAdDidAdSourceBiddingFail:
+          break;
+        case InterstitialStatus.interstitialAdDidAdSourceAttempt:
+          break;
+        case InterstitialStatus.interstitialAdDidAdSourceLoadFilled:
+          break;
+        case InterstitialStatus.interstitialAdDidAdSourceLoadFail:
+          break;
       }
     });
   }
@@ -653,7 +653,7 @@ extension AdServiceExtension on MSMegaAds {
           _adDidLoadFailed(adUnitId, error.message);
         },
         onAdDisplayedCallback: (ad) {
-          _adDidDisplayed(adID: ad.adUnitId);
+          _adDidDisplayed(adID: ad.adUnitId, ad_networkName: ad.networkName);
         },
         onAdHiddenCallback: (ad) {
           _adDidHidden(adId: ad.adUnitId);
@@ -679,7 +679,7 @@ extension AdServiceExtension on MSMegaAds {
           break;
         // ad video start play
         case RewardedStatus.rewardedVideoDidStartPlaying:
-          _adDidDisplayed(adID: value.placementID);
+          _adDidDisplayed(adID: value.placementID, ad_networkName: value.extraMap['network_type']);
           break;
         // ad video start end
         case RewardedStatus.rewardedVideoDidEndPlaying:
@@ -716,20 +716,20 @@ extension AdServiceExtension on MSMegaAds {
         case RewardedStatus.rewardedVideoDidAgainClick:
         case RewardedStatus.rewardedVideoUnknown:
           break;
-        // case RewardedStatus.rewardedVideoDidMultipleLoaded:
-        //   break;
-        // case RewardedStatus.rewardedVideoDidAdSourceBiddingAttempt:
-        //   break;
-        // case RewardedStatus.rewardedVideoDidAdSourceBiddingFilled:
-        //   break;
-        // case RewardedStatus.rewardedVideoDidAdSourceBiddingFail:
-        //   break;
-        // case RewardedStatus.rewardedVideoDidAdSourceAttempt:
-        //   break;
-        // case RewardedStatus.rewardedVideoDidAdSourceLoadFilled:
-        //   break;
-        // case RewardedStatus.rewardedVideoDidAdSourceLoadFail:
-        //   break;
+        case RewardedStatus.rewardedVideoDidMultipleLoaded:
+          break;
+        case RewardedStatus.rewardedVideoDidAdSourceBiddingAttempt:
+          break;
+        case RewardedStatus.rewardedVideoDidAdSourceBiddingFilled:
+          break;
+        case RewardedStatus.rewardedVideoDidAdSourceBiddingFail:
+          break;
+        case RewardedStatus.rewardedVideoDidAdSourceAttempt:
+          break;
+        case RewardedStatus.rewardedVideoDidAdSourceLoadFilled:
+          break;
+        case RewardedStatus.rewardedVideoDidAdSourceLoadFail:
+          break;
       }
     });
   }
@@ -836,7 +836,7 @@ extension AdServiceExtension on MSMegaAds {
     _requestAd(defaultIndex: [index]);
   }
 
-  Future<void> _adDidDisplayed({required String adID}) async {
+  Future<void> _adDidDisplayed({required String adID, required String ad_networkName}) async {
     if (MSLocalProvider.instance.ms_bg_music){
       MSAudioUtils().pauseBGM();
     }
@@ -874,7 +874,7 @@ extension AdServiceExtension on MSMegaAds {
         .log();
 
     adShowed();
-    adImpression(ad: _ads[index], placeID: quizAdPlaceID ?? "");
+    adImpression(ad: _ads[index], placeID: quizAdPlaceID ?? "", ad_network: ad_networkName);
   }
 
   Future<void> _adDidHidden({required String adId}) async {

@@ -67,6 +67,7 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
   bool _coverVisible = false;
 
   bool _isLoading = true; // ✅ 新增：控制首次加载状态
+  bool _hasFinished = false;
 
   @override
   void initState() {
@@ -157,6 +158,7 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
 
   void _resetScratchCard() {
     setState(() {
+      _hasFinished = false; // ✅ 重置锁
       _points = [];
       _fullyRevealed = false;
       _repaintFlag++;
@@ -254,6 +256,7 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
   }
 
   void _calculateScratchPercentage(Size size) {
+    if (_hasFinished) return; // ✅ 关键修复
     if (_points.isEmpty || _totalCardArea == 0) return;
     double scratchArea = 0;
     for (int i = 1; i < _points.length; i++) {
@@ -269,6 +272,9 @@ class _SJLocalImageScratchCardState extends State<MSLocalImageScratchCard> with 
   }
 
   Future<void> _finishAutoScratch([double? finalPercent]) async {
+
+    if (_hasFinished) return; // ✅ 关键修复
+    _hasFinished = true;
     setState(() {
       _isAutoScratching = false;
       _fullyRevealed = true;

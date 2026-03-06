@@ -75,7 +75,6 @@ class _MyAppState extends State<MyApp> {
     MSAudioUtils().initTempQueue();
     MSNumberAHelper().init();
     MSSDKHelpers().initSDK();
-    MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_txing_statusName, true);
     MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_domand_numberName, 200000);
     if (MSLocalProvider.instance.ms_bg_music){
       MSAudioUtils().playBGM();

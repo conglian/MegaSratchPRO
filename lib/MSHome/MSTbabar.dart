@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:megascratch/MSHome/MSLuckyWheel.dart';
+import 'package:megascratch/MSTool/ms_LocalProvider.dart';
 import 'package:megascratch/MSTool/ms_extension_help.dart';
+import 'package:megascratch/MSTool/ms_img.dart';
 import 'package:megascratch/MSTool/ms_stroke_text.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 import '../MSTool/ms_TBAInfoTool.dart';
 import 'MSCashs.dart';
 import 'MSHome.dart';
@@ -53,7 +57,10 @@ class _MSBottomNavigationExampleState extends State<MSBottomNavigationExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: CustomNavBarWidget(
         [
           PersistentBottomNavBarItem(
@@ -104,7 +111,7 @@ class CustomNavBarWidget extends StatelessWidget {
   final List<PersistentBottomNavBarItem> items;
   final ValueChanged<int> onItemSelected;
 
-  Widget _buildItem(final PersistentBottomNavBarItem item, final bool isSelected) {
+  Widget _buildItem(final PersistentBottomNavBarItem item, final bool isSelected, int index) {
     return Container(
       alignment: Alignment.center,
       height: 88, // 高度设置为88
@@ -137,6 +144,23 @@ class CustomNavBarWidget extends StatelessWidget {
             bottom: 10, // 标签距离底部的间距
             child: MSStrokeText(text: item.title!, size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#360859'.color()),
           ),
+          Positioned(right: 32.w,top: 8.h,width: 38, height: 14,child: Consumer<MSLocalProvider>(
+              builder: (context, provider, child) {
+                return Visibility(visible: index == 1, child: Container(width: 38, height: 14, decoration: BoxDecoration(
+                    image: MSDImg('ms_wheel_num_bg')
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                        MSImg(name: 'ms_key_smail', width: 12, height: 14,),
+                        SizedBox(width: 2,),
+                        MSStrokeText(text: '${provider.ms_key_all_index}', size: 11, color: '#FFFFFF'.color(), weight: FontWeight.w800, skWidth: 1, skColor: '#000000'.color()),
+                     ],
+                      )
+                    )
+                  );
+              }
+          ),),
         ],
       ),
     );
@@ -161,7 +185,7 @@ class CustomNavBarWidget extends StatelessWidget {
             return Flexible(
               child: GestureDetector(
                 onTap: () => onItemSelected(index),
-                child: _buildItem(item, selectedIndex == index),
+                child: _buildItem(item, selectedIndex == index, index),
               ),
             );
           }).toList(),

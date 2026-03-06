@@ -253,18 +253,11 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
   }
 
   Future<void> scrollindex() async {
-    if (MSLocalProvider.instance.ms_tx_card_index >= 10 && MSLocalProvider.instance.ms_tx_task_day_index >= 4 && MSLocalProvider.instance.ms_txing_status == true) {
-      if (MSLocalProvider.instance.ms_current_ranking == 100){
-        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 3);
-        setState(() {});
-        _scrollToIndex(0);
-      } else {
-        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 100);
-        setState(() {});
-        _scrollToIndex(97);
-      }
+    if (MSLocalProvider.instance.ms_txing_status == true && MSLocalProvider.instance.ms_rank_index > 10) {
+      setState(() {});
+      _scrollToIndex(MSLocalProvider.instance.ms_rank_index);
       if (!mounted) return;
-      MSDialogTool.toastRanking(context, MSLocalProvider.instance.ms_current_user_ranking);
+      MSDialogTool.toastRanking(context, MSLocalProvider.instance.ms_rank_index);
     }
   }
 
@@ -452,26 +445,36 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
                 ),
                 child: InkWell(
                   onTap: () async {
-                    if (MSLocalProvider.instance.ms_tx_wait_status == true){
-                      ms_event_fire('cash_speed_up_c', {'money' : tx_num_list[index]});
-                      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_wait_statusName, false);
-                      context.tipShow(MSTXFourToastDialog());
-                    } else if (MSLocalProvider.instance.ms_tx_task_day_index >= 4){
-                      ms_event_fire('queue_speed_up_c', {'money' : tx_num_list[index]});
-                      MSMegaAds().ms_showAd(context, 'pppuz_withdraw_queue_rv', onCacheResponse: (onCacheResponse){
-
-                      }, adDidClosed: (adDidClosed){
-                        tapRankAdSucess();
-                      });
-                    } else if (MSLocalProvider.instance.ms_tx_task_day_index < 4){
-                      ms_event_fire('cash_cash_out_c', {'money' : tx_num_list[index]});
-                      MSNavigationService().changeTab(0);
+                    if  (MSLocalProvider.instance.ms_rank_index > 10){
+                      context.tipShow(MSPopRankingDialog(index: index));
+                    } else if (MSLocalProvider.instance.ms_tx_wait_status == true && MSLocalProvider.instance.ms_rank_index <= 10) {
+                      int code = await context.tipShow(MSTXThreeToastDialog());
+                       if (code == 1){
+                          setState(() {});
+                       }
                     } else {
-                      ms_event_fire('queue_speed_up_c', {'money' : tx_num_list[index]});
-                      MSMegaAds().ms_showAd(context, 'pppuz_withdraw_queue_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
-                        tapRankAdSucess();
-                      });
+                      context.tipShow(MSTXThreeToastDialog());
                     }
+                    // if (MSLocalProvider.instance.ms_tx_wait_status == true){
+                    //   ms_event_fire('cash_speed_up_c', {'money' : tx_num_list[index]});
+                    //   await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_wait_statusName, false);
+                    //   context.tipShow(MSTXFourToastDialog());
+                    // } else if (MSLocalProvider.instance.ms_tx_task_day_index >= 4){
+                    //   ms_event_fire('queue_speed_up_c', {'money' : tx_num_list[index]});
+                    //   MSMegaAds().ms_showAd(context, 'pppuz_withdraw_queue_rv', onCacheResponse: (onCacheResponse){
+                    //
+                    //   }, adDidClosed: (adDidClosed){
+                    //     tapRankAdSucess();
+                    //   });
+                    // } else if (MSLocalProvider.instance.ms_tx_task_day_index < 4){
+                    //   ms_event_fire('cash_cash_out_c', {'money' : tx_num_list[index]});
+                    //   MSNavigationService().changeTab(0);
+                    // } else {
+                    //   ms_event_fire('queue_speed_up_c', {'money' : tx_num_list[index]});
+                    //   MSMegaAds().ms_showAd(context, 'pppuz_withdraw_queue_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                    //     tapRankAdSucess();
+                    //   });
+                    // }
                   },
                   child: _getTextBtn(index),
                 ),
@@ -495,12 +498,13 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
   }
 
   Widget _getTextBtn(int index){
-    if (MSLocalProvider.instance.ms_tx_wait_status == true){
-      ms_event_fire('cash_cash_out_c', {'money' : tx_num_list[index]});
-      return Center(
-        child: MSText(text: 'Speed up！', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
-      );
-    } else if (MSLocalProvider.instance.ms_tx_task_day_index >= 4){
+    // if (MSLocalProvider.instance.ms_tx_wait_status == true){
+    //   ms_event_fire('cash_cash_out_c', {'money' : tx_num_list[index]});
+    //   return Center(
+    //     child: MSText(text: 'Speed up！', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
+    //   );
+    // } else
+      if (MSLocalProvider.instance.ms_rank_index > 10){
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -509,32 +513,50 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
           MSText(text: 'Speed up！', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700)
         ],
       );
-    } else if (MSLocalProvider.instance.ms_tx_task_day_index < 4){
+      } else if (MSLocalProvider.instance.ms_tx_wait_status == true && MSLocalProvider.instance.ms_rank_index <= 10) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            MSText(text: 'Speed up！', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700)
+          ],
+        );
+      } else {
       return Center(
         child: MSText(text: 'Cash Out', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
       );
-    } else {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          MSImg(name: 'ms_ad_icon',width: 17.5, height: 17.5,),
-          SizedBox(width: 6),
-          MSText(text: 'Speed up！', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700)
-        ],
-      );
     }
+    //   else {
+    //   return Row(
+    //     mainAxisAlignment: MainAxisAlignment.center,
+    //     children: [
+    //       MSImg(name: 'ms_ad_icon',width: 17.5, height: 17.5,),
+    //       SizedBox(width: 6),
+    //       MSText(text: 'Speed up！', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700)
+    //     ],
+    //   );
+    // }
   }
 
   Widget _showTXTaskWidget(){
-    if (MSLocalProvider.instance.ms_tx_wait_status == true){
-      return _showTXTimetaskWidget();
-    } else if (MSLocalProvider.instance.ms_tx_task_day_index >= 4){
-      return _showTXRanktaskWidget();
-    } else if (MSLocalProvider.instance.ms_tx_task_day_index < 4){
-      return _showTXCardtaskWidget();
-    } else {
-      return _showTXRanktaskWidget();
+    if (MSLocalProvider.instance.ms_txing_status == true) {
+      if (MSLocalProvider.instance.ms_rank_index > 10) {
+        return _showTXRanktaskWidget();
+      } else if (MSLocalProvider.instance.ms_tx_wait_status == true && MSLocalProvider.instance.ms_rank_index <= 10){
+        return _showTXTimetaskWidget();
+      } else {
+        return _showTXCardtaskWidget();
+      }
     }
+    return _showTXRanktaskWidget();
+    // if (MSLocalProvider.instance.ms_tx_wait_status == true){
+    //   return _showTXTimetaskWidget();
+    // } else if (MSLocalProvider.instance.ms_tx_task_day_index >= 4){
+    //   return _showTXRanktaskWidget();
+    // } else if (MSLocalProvider.instance.ms_tx_task_day_index < 4){
+    //   return _showTXCardtaskWidget();
+    // } else {
+    //   return _showTXRanktaskWidget();
+    // }
   }
 
   // 刮卡任务
@@ -546,19 +568,22 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
         mainAxisAlignment: .spaceAround,
         children: [
           Row(
-            mainAxisAlignment: .spaceAround,
             children: [
+              SizedBox(width: 14.w),
               MSImg(name: 'ms_tx_card_icon', width: 28, height: 30),
-              MSText(text: 'Scratch 50 Cards', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
-              MSText(text: '${MSLocalProvider.instance.ms_tx_card_index}/50', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+              SizedBox(width: 32.w),
+              MSText(text: 'Scratch 100 Cards', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+              Spacer(),
+              MSText(text: '${MSLocalProvider.instance.ms_tx_card_index}/100', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+              SizedBox(width: 14.w),
             ],
           ),
           Row(
             mainAxisAlignment: .spaceAround,
             children: [
               MSImg(name: 'ms_tx_rili_icon', width: 24, height: 26),
-              MSText(text: 'Play Daily for 2 Days', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
-              MSText(text: '1/2', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+              MSText(text: 'Play 20 the grand prize pool！', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+              MSText(text: '${MSLocalProvider.instance.ms_pool_tx_index}/20', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
             ],
           ),
         ],
@@ -579,7 +604,7 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
               SizedBox(width: 12.w),
               MSImg(name: 'ms_time_icon', width: 75, height: 75),
               SizedBox(width: 5),
-              MSText(text: 'Reviewing Security\nWait 3 Days', size: 15, color: '#000000'.color(), weight: FontWeight.w700, maxLines: 2),
+              MSText(text: 'Reviewing Security\nWait 7 Days', size: 15, color: '#000000'.color(), weight: FontWeight.w700, maxLines: 2),
             ],
           ),
         ],
@@ -604,7 +629,7 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
                 controller: _scrollController,
                 scrollDirection: Axis.vertical,
                 padding: const EdgeInsets.symmetric(vertical: 0),
-                itemCount: provider.ms_all_ranking,
+                itemCount: provider.ms_rank_index,
                 separatorBuilder: (context, index) => const SizedBox(width: 0),
                 itemBuilder: (context, index) {
                   return SizedBox(
@@ -614,11 +639,11 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         SizedBox(width: 24),
-                        MSText(text: _ms_generateToList()[index], size: 18, color:provider.ms_current_ranking == index+1 ? '#000000'.color() : '#000000'.color(opacity: 0.35), weight: FontWeight.w700),
+                        MSText(text: _ms_generateToList()[index], size: 18, color:provider.ms_rank_index == index+1 ? '#000000'.color() : '#000000'.color(opacity: 0.35), weight: FontWeight.w700),
                         Spacer(),
-                        MSImg(name: provider.ms_current_ranking == index+1 ? 'ms_user_s' : 'ms_user_n', width: 24.4, height: 24.4),
+                        MSImg(name: provider.ms_rank_index == index+1 ? 'ms_user_s' : 'ms_user_n', width: 24.4, height: 24.4),
                         SizedBox(width: 12),
-                        MSText(text: '${_returnCurrtentindex(index)}', size: 18, color: provider.ms_current_ranking == index+1 ? '#000000'.color() : '#000000'.color(opacity: 0.35), weight: FontWeight.w700),
+                        MSText(text: '${index + 1}', size: 18, color: provider.ms_rank_index == index+1 ? '#000000'.color() : '#000000'.color(opacity: 0.35), weight: FontWeight.w700),
                         SizedBox(width: 24),
                       ],
                     ),
@@ -633,18 +658,39 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
   }
 
   Future<void> tapRankAdSucess() async {
-    await getUserCurrent_index();
-    if (MSLocalProvider.instance.ms_current_ranking == 100){
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 3);
+    // if (MSLocalProvider.instance.ms_current_ranking == 100){
+    //   await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 3);
+    //   setState(() {});
+    //   _scrollToIndex(MSLocalProvider.instance.ms_current_ranking);
+    // } else {
+    //   await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 100);
+    //   setState(() {});
+    //   _scrollToIndex(MSLocalProvider.instance.ms_current_ranking);
+    // }
+    if (MSLocalProvider.instance.ms_rank_index > 80){
+      int row = Random().nextInt(3) + 3;
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_rank_indexName, MSLocalProvider.instance.ms_rank_index - row);
       setState(() {});
-      _scrollToIndex(0);
+      _scrollToIndex(MSLocalProvider.instance.ms_current_ranking);
+      if (!mounted) return;
+      MSDialogTool.toastRanking(context, MSLocalProvider.instance.ms_rank_index);
+      showtxNext();
     } else {
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_current_rankingName, 100);
+      int row = Random().nextInt(2) + 2;
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_rank_indexName, MSLocalProvider.instance.ms_rank_index - row);
       setState(() {});
-      _scrollToIndex(97);
+      _scrollToIndex(MSLocalProvider.instance.ms_current_ranking);
+      if (!mounted) return;
+      MSDialogTool.toastRanking(context, MSLocalProvider.instance.ms_rank_index);
+      showtxNext();
     }
-    if (!mounted) return;
-    MSDialogTool.toastRanking(context, MSLocalProvider.instance.ms_current_user_ranking);
+  }
+
+  void showtxNext(){
+    if (MSLocalProvider.instance.ms_rank_index <= 10) {
+      if (!mounted) return;
+      context.tipShow(MSTXTwoToastDialog());
+    }
   }
 
   Future<void> getUserCurrent_index() async {
@@ -660,11 +706,11 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
   }
 
   int _returnCurrtentindex(int index){
-    if (index + 1 == MSLocalProvider.instance.ms_current_ranking){
+    if (index + 1 == MSLocalProvider.instance.ms_rank_index){
       return MSLocalProvider.instance.ms_current_user_ranking;
-    } else if (index == MSLocalProvider.instance.ms_current_ranking) {
+    } else if (index == MSLocalProvider.instance.ms_rank_index) {
       return MSLocalProvider.instance.ms_current_user_ranking + 1;
-    } else if (index + 2 == MSLocalProvider.instance.ms_current_ranking) {
+    } else if (index + 2 == MSLocalProvider.instance.ms_rank_index) {
       return MSLocalProvider.instance.ms_current_user_ranking - 1;
     } else {
       return MSLocalProvider.instance.ms_current_user_ranking - index;
@@ -673,8 +719,8 @@ class MSCashVerticalListState extends State<MSCashVerticalList> {
 
   List<String> _ms_generateToList() {
     final random = Random(); // 创建一个随机数生成器
-    List<String> list = List.generate(MSLocalProvider.instance.ms_all_ranking, (index) {
-      if (index == MSLocalProvider.instance.ms_current_ranking - 1) { // 第90个位置（索引为89）
+    List<String> list = List.generate(MSLocalProvider.instance.ms_rank_index, (index) {
+      if (index == MSLocalProvider.instance.ms_rank_index - 1) { // 第90个位置（索引为89）
         return MSLocalProvider.instance.ms_account_id;
       } else {
         // 生成随机的三位数字

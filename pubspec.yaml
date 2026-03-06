@@ -59,9 +59,10 @@ dependencies:
   flutter_tba_info: ^0.0.9
   adjust_sdk: ^5.4.5
   connectivity_plus: ^4.0.1
+#  anythink_sdk: ^1.0.8
 
-  anythink_sdk:
-    path: msthrid/anythink_sdk
+  thinkup_sdk:
+    path: msthrid/thinkup_sdk-1.0.8
   flutter_local_notifications:
     path: msthrid/common_notifications-master
   megascratchFK:

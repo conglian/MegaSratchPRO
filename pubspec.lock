@@ -41,13 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.0"
-  anythink_sdk:
-    dependency: "direct main"
-    description:
-      path: "msthrid/anythink_sdk"
-      relative: true
-    source: path
-    version: "1.0.5"
   app_settings:
     dependency: "direct main"
     description:
@@ -1009,6 +1002,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.7"
+  thinkup_sdk:
+    dependency: "direct main"
+    description:
+      path: "msthrid/thinkup_sdk-1.0.8"
+      relative: true
+    source: path
+    version: "1.0.8"
   timezone:
     dependency: transitive
     description:

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
+import 'package:megascratch/MSHome/MSCashs.dart';
 import 'package:megascratch/MSHome/MSTbabar.dart';
 import 'package:megascratch/MSTool/ms_GradientText.dart';
 import 'package:megascratch/MSTool/ms_TBAInfoTool.dart';
@@ -25,6 +26,7 @@ import 'package:spine_flutter/spine_flutter.dart' as spine;
 
 import 'MSScratchDetails.dart';
 
+final GlobalKey targetimageKey = GlobalKey();
 
 class MSScrachDetails_b extends StatefulWidget {
   final int index;
@@ -33,7 +35,7 @@ class MSScrachDetails_b extends StatefulWidget {
   State<MSScrachDetails_b> createState() => _MSScrachDetails_bState();
 }
 
-class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTickerProviderStateMixin{
+class _MSScrachDetails_bState extends State<MSScrachDetails_b> with TickerProviderStateMixin{
 
   bool _show_animation = false;
 
@@ -65,6 +67,8 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
 
   MSPlayJoyResult? result7;
 
+  bool scractchEnd = false;
+
   late spine.SpineWidgetController _controller0;
   // 总倒计时时间，单位是秒
   int _remainingTime = MSLocalProvider.instance.ms_dao_time_index; // 5 分钟倒计时（300秒）
@@ -79,13 +83,20 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
 
   int scrach_un_index = 0;
 
+  List<int> show_key_indexs = [2,5,3,7,2];
+
+  // 创建 AnimationController
+  late AnimationController _controller;
+
+  late AnimationController _breathAnimationController;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     ms_event_fire('card_detail_page', {'source_from' : _getindexName()});
     // 开始倒计时
-    _startCountdown();
+    // _startCountdown();
     setNumberContent();
     // 当前帧构建完成后
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -93,9 +104,9 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       // 在这里执行需要更新UI的操作
       shownewguide();
       // 每刮五张出现防止退出页面没显示
-      if (MSLocalProvider.instance.ms_wheel_pop_showName == true) {
-        context.tipShow(MSLuckyWheelDialog());
-      }
+      // if (MSLocalProvider.instance.ms_wheel_pop_showName == true) {
+      //   context.tipShow(MSLuckyWheelDialog());
+      // }
     });
     _controller0 = spine.SpineWidgetController(onInitialized: (controller) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -106,6 +117,19 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     MSScratchTapNotificationService.stream.listen((value) {
       updatescrachStatus();
     });
+
+    // 初始化控制器，设置动画的持续时间
+    _controller = AnimationController(
+      duration: Duration(seconds: 10), // 设置旋转动画的周期为5秒
+      vsync: this,
+    )..repeat(); // 使其循环播放
+
+    // 呼吸动画的控制器，持续时间更短，呼吸加快
+    _breathAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500), // 更快的呼吸动画
+    )..repeat(reverse: true);
+
   }
 
   String _getindexName(){
@@ -145,10 +169,11 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
 
   void updatescrachStatus(){
     scrach_un_index = 0;
-    if (!context.mounted) return;
-    setState(() {
-      show_all_reveal = false;
-    });
+    if (mounted){
+      setState(() {
+        show_all_reveal = false;
+      });
+    }
   }
 
   void _startScrachTimer() {
@@ -210,7 +235,8 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
 
   @override
   void dispose() {
-    _timer.cancel(); // 取消定时器
+    _controller.dispose();
+    _breathAnimationController.dispose();
     _timer2.cancel(); // 取消定时器
     super.dispose();
   }
@@ -241,7 +267,6 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                 Positioned(top:84.h,left: (0.width(context) - 375.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}_b', width: 375.w, height: 154.h,)),
               if (widget.index == 6)
                 Positioned(top:100.h,left: (0.width(context) - 365.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}_b', width: 365.w, height: 218.h,)),
-              Positioned(top: _getContentTopH(widget.index),child: _setScratchContentWidget(widget.index)),
               // if (widget.index == 5)
               //   Positioned(top:60.h,left: (0.width(context) - 375.w) * 0.5,child: MSImg(name: 'ms_scratch_center_${widget.index}', width: 375.w, height: 313.h,)),
               Positioned(
@@ -253,6 +278,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                   ],
                 ),
               ),
+              Positioned(top: _getContentTopH(widget.index),left: _getContentLeftX(widget.index),child: _setScratchContentWidget(widget.index)),
               Positioned(child: MSBubbleButton()),
               if (widget.index == 0)
                 Positioned(top: 274.h,child: Row(
@@ -287,34 +313,38 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                       ms_event_fire('new_bonus_pool_v', {});
                     }
                     return Visibility(
-                      visible: provider.ms_pool_show,
+                      visible: true,
                       child: InkWell(
                         onTap: () async {
                           ms_event_fire('new_bonus_pool_c', {});
                           ms_event_fire('bonus_pool_c_n', {});
-                          context.tipShow(MSAwardPoolDialog(award_num: award_pool_number, time_index: _remainingTime, index: widget.index));
+                          context.tipShow(MSAwardPoolBDialog(award_num: award_pool_number, time_index: _remainingTime, index: -1, is_home: false));
                         },
                         child:SizedBox(
-                          width: 72,
-                          height: 72,
+                          width: 85,
+                          height: 85,
                           child: Stack(
-                            children: [
-                              MSBouncyImage(imagePath: 'ms_jiangjin_btn'.image(), width: 72, height: 72, enableAnimation: true),
-                              Positioned(left: 3.5,top: 50,child: Visibility(
-                                visible: MSLocalProvider.instance.ms_dao_time_index != 0,
-                                child: Container(
-                                  width: 65,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                      color: '#EAEFFF'.color(),
-                                      borderRadius: BorderRadius.circular(9)
-                                  ),
-                                  child: Center(
-                                    child: MSText(text: _formatTime(_remainingTime), size: 12, color: '#393939'.color(), weight: FontWeight.w700),
-                                  ),
+                            children:  [
+                              Positioned(
+                                left: 8,
+                                top: 8,
+                                child: AnimatedBuilder(
+                                  animation: _breathAnimationController,
+                                  builder: (context, child) {
+                                    // 通过scale动画控制大小变化来实现呼吸效果
+                                    return Transform.scale(
+                                      scale: 1 + 0.05 * _breathAnimationController.value,
+                                      child: MSImg(
+                                        name: 'ms_pool_btn_bg',
+                                        width: 75,
+                                        height: 76,
+                                      ),
+                                    );
+                                  },
                                 ),
-                              )),
-                              Positioned(left: 0,top: 34,child: MSGradientStrokeText(text: '\$10000', gradientColors: ['#FBF544'.color(),'#F4B22A'.color()], width: 72, height: 21, fontSize: 16, strokeWidth: 1, strokeColor: '#804D00'.color())),
+                              ),
+                              Positioned(left: 10,top: 50,child: MSGradientStrokeText(text: '\$100000', gradientColors: ['#FFFFFF'.color(),'#FFFFFF'.color()], width: 72, height: 21, fontSize: 16, strokeWidth: 1, strokeColor: '#000000'.color())),
+                              Positioned(right: 12, top: 18,child: MSText(text: '${MSLocalProvider.instance.ms_pool_card_index}/20', size: 8, color: '#FFFFFF'.color(), weight: FontWeight.w800))
                             ],
                           ),
                         ),
@@ -362,7 +392,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                         MSNavigationService().changeTab(1);
                       },
                       child: Visibility(
-                        visible: provider.ms_wheel_index >= 5,
+                        visible: provider.ms_wheel_number > 0,
                         child: Lottie.asset(
                           width: 80,
                           height: 80,
@@ -421,8 +451,16 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     return h;
   }
 
-  Future<void> showAwardDialog(int index, double award, bool isWin) async {
-    updateLocatice();
+  double _getContentLeftX(int index){
+    double h = 0.w;
+    if (index == 0) {
+      h = (0.width(context) - 366.w) * 0.5;
+    }
+    return h;
+  }
+
+  Future<void> showAwardDialog(int index, double award, bool isWin, bool isKey) async {
+    updateLocatice(isKey);
     if (isWin){
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_today_card_indexName, MSLocalProvider.instance.ms_today_card_index + 1);
       showWheelCardDialog(index, award);
@@ -441,56 +479,43 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     }
   }
 
-  Future<void> updateLocatice() async {
-
-    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_card_numberName, MSLocalProvider.instance.ms_card_number + 1);
-    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_card_indexName, MSLocalProvider.instance.ms_tx_card_index + 1);
+  Future<void> updateLocatice(bool isKey) async {
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_Level_inedxName, MSLocalProvider.instance.ms_Level_inedx + 1);
-    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_card_numberName, MSLocalProvider.instance.ms_card_number + 1);
     await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_indexName, MSLocalProvider.instance.ms_pool_index + 1);
-    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_pop_indexName, MSLocalProvider.instance.ms_wheel_pop_index + 1);
-    if (MSLocalProvider.instance.ms_pool_index >= 5){
-      if (MSLocalProvider.instance.ms_pool_show == false) {
-        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 300);
-        _remainingTime = 300;
-        _timer.cancel();
-        _startCountdown();
-      }
-      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_pool_showName, true);
+    if (MSLocalProvider.instance.ms_txing_status == true && MSLocalProvider.instance.ms_rank_index <= 10){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_tx_card_indexName, MSLocalProvider.instance.ms_tx_card_index + 1);
+      MSScratchCashUpdateotificationService.sendToDomandNumberNotification(0);
     }
-    if (MSLocalProvider.instance.ms_wheel_index >= 5){
+    if (isKey){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_key_indexName, MSLocalProvider.instance.ms_key_index + 1);
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_key_all_indexName, MSLocalProvider.instance.ms_key_all_index + 1);
+    }
+    if (MSLocalProvider.instance.ms_key_index >= 5){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_key_indexName, 0);
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_numberName, MSLocalProvider.instance.ms_wheel_number + 1);
-    }
-    List<int> indexs = [5, 3, 7, 2];
-    if (MSLocalProvider.instance.ms_wheel_pop_index >= indexs[MSLocalProvider.instance.ms_show_wheel_index_row]){
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_show_wheel_index_rowName, MSLocalProvider.instance.ms_show_wheel_index_row + 1);
-      if (MSLocalProvider.instance.ms_show_wheel_index_row >= 4){
-        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_show_wheel_index_rowName, 0);
-      }
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_pop_indexName, 0);
-      await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_wheel_pop_showName, true);
     }
   }
 
   Future<void> showAwardTool(int index, double award) async {
     // 显示中奖dialog
-    if (MSLocalProvider.instance.ms_card_award_index == 0){
+    if (award < 30){
       int code = await context.tipShow(MSYouWinDialog(award_num: award.toDouble(), index: widget.index, is_wheel: false));
       if (code >= 0){
         backToHome(index);
       }
-    } else if (MSLocalProvider.instance.ms_card_award_index == 1){
-      int code = await context.tipShow(MSJackPotDialog(award_num: award.toDouble(), index: widget.index));
-      if (code >= 0){
-        backToHome(index);
-      }
-    } else if (MSLocalProvider.instance.ms_card_award_index == 2){
+    } else if (award >= 30 && award < 50){
       int code = await context.tipShow(MSBigWinDialog(award_num: award.toDouble(), index: widget.index));
       if (code >= 0){
         backToHome(index);
       }
-    } else if (MSLocalProvider.instance.ms_card_award_index >= 3){
+    } else if (award >= 50 && award < 80){
       int code = await context.tipShow(MSSuperWinDialog(award_num: award.toDouble(), index: widget.index));
+      if (code >= 0){
+        backToHome(index);
+      }
+    } else if (award >= 80){
+      int code = await context.tipShow(MSJackPotDialog(award_num: award.toDouble(), index: widget.index));
       if (code >= 0){
         backToHome(index);
       }
@@ -511,6 +536,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
     } else {
       showAwardTool(index, award);
     }
+
   }
 
   // popBack
@@ -559,13 +585,27 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       }
     } else {
       // 每刮五张出现
-      if (MSLocalProvider.instance.ms_wheel_pop_show == true) {
-        context.tipShow(MSLuckyWheelDialog());
-      }
+      // if (MSLocalProvider.instance.ms_wheel_pop_show == true) {
+      //   context.tipShow(MSLuckyWheelDialog());
+      // }
       // 每日首次刮卡
       if (MSLocalProvider.instance.ms_today_card_index == 1){
         context.tipShow(MSCardPoolDialog());
       }
+    }
+  }
+  // 获取是否显示钥匙
+  Future<bool> showKeyStatus() async {
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_key_pro_indexName, MSLocalProvider.instance.ms_key_pro_index + 1);
+    if (show_key_indexs[MSLocalProvider.instance.ms_key_list_index >= 5 ? 0 : MSLocalProvider.instance.ms_key_list_index] <= MSLocalProvider.instance.ms_key_pro_index + 1){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_key_pro_indexName, 0);
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_key_list_indexName, MSLocalProvider.instance.ms_key_list_index + 1);
+      if (MSLocalProvider.instance.ms_key_list_index > 4 || MSLocalProvider.instance.ms_key_list_index >= 5){
+        await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_key_list_indexName, 0);
+      }
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -574,62 +614,57 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       _show_animation = true;
     });
     ms_event_fire('scratch_t', {});
-    if (index == 0){
-      Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(0, result1!.totalNumber.toDouble(), result1!.isWin);
-        setState(() {
-          result1 = MSNumberAHelper().generatelucku_Numbers(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2);
-          _show_animation = false;
-        });
+    await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_card_indexName, MSLocalProvider.instance.ms_pool_card_index + 1);
+    if (MSLocalProvider.instance.ms_pool_card_index >= 20){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_card_indexName, 20);
+    }
+    if (result1?.diceHit == true || result2?.diceHit == true || result3?.diceHit == true || result4?.diceHit == true || result5?.diceHit == true || result6?.diceHit == true || result7?.diceHit == true){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
+    }
+    if (index == 0) {
+      Future.delayed(Duration(seconds: 2), () async {
+        showAwardDialog(0, result1!.totalNumber.toDouble(), result1!.isWin, result1!.diceHit);
+        result1 = MSNumberAHelper().generatelucku_Numbers(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2, keyHit: await showKeyStatus());
+        _show_animation = false;
         // 刷新下一张
         MSScratchUpdateNotificationService.sendToDomandNumberNotification(0);
         // UI切换下一张
         swapKey0.currentState!.runSwap(_buildScratchCard1(index));
       });
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_0Name, MSLocalProvider.instance.ms_scrach_end_number_0 + 1);
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 1){
-      Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(1, result2!.totalNumber.toDouble(), result2!.isWin);
-        setState(() {
-          result2 = MSNumberAHelper().generatelucku_diamonds(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2);
+      Future.delayed(Duration(seconds: 2), () async {
+        showAwardDialog(1, result2!.totalNumber.toDouble(), result2!.isWin, result2!.diceHit);
+        result2 = MSNumberAHelper().generatelucku_diamonds(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2, keyHit: await showKeyStatus());
           _show_animation = false;
-        });
         // 刷新下一张
         MSScratchUpdateNotificationService.sendToDomandNumberNotification(0);
         // UI切换下一张
         swapKey1.currentState!.runSwap(_buildScratchCard2(index));
       });
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_1Name, MSLocalProvider.instance.ms_scrach_end_number_1 + 1);
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 2){
-      Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(2, result3!.totalNumber.toDouble(), result3!.isWin);
-        setState(() {
-          result3 = MSNumberAHelper().generatelucku_partpay(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2);
+      Future.delayed(Duration(seconds: 2), () async {
+        showAwardDialog(2, result3!.totalNumber.toDouble(), result3!.isWin, result3!.diceHit);
+        result3 = MSNumberAHelper().generatelucku_partpay(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2, keyHit: await showKeyStatus());
           _show_animation = false;
-        });
         // 刷新下一张
         MSScratchUpdateNotificationService.sendToDomandNumberNotification(0);
         // UI切换下一张
         swapKey2.currentState!.runSwap(_buildScratchCard3(index));
       });
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_2Name, MSLocalProvider.instance.ms_scrach_end_number_2 + 1);
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 3){
-      Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(3, result4!.totalNumber.toDouble(), result4!.isWin);
-        setState(() {
-          result4 = MSNumberAHelper().generatelucku_emojifun(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2);
+      Future.delayed(Duration(seconds: 2), () async {
+        showAwardDialog(3, result4!.totalNumber.toDouble(), result4!.isWin, result4!.diceHit);
+        result4 = MSNumberAHelper().generatelucku_emojifun(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2, keyHit: await showKeyStatus());
           _show_animation = false;
-        });
         // 刷新下一张
         MSScratchUpdateNotificationService.sendToDomandNumberNotification(0);
         // UI切换下一张
         swapKey3.currentState!.runSwap(_buildScratchCard4(index));
       });
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_3Name, MSLocalProvider.instance.ms_scrach_end_number_3 + 1);
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 4){
       setState(() {
         if (result5!.isWin){
@@ -670,13 +705,13 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
           });
         });
       }
-      Future.delayed(Duration(seconds: 3), () {
-        showAwardDialog(4, result5!.totalNumber.toDouble(), result5!.isWin);
+      Future.delayed(Duration(seconds: 3), () async {
+        showAwardDialog(4, result5!.totalNumber.toDouble(), result5!.isWin, result5!.diceHit);
+        result5 = MSNumberAHelper().generatelucku_goldpotdig(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2, keyHit: await showKeyStatus());
         _show_animation1 = false;
         _show_animation2 = false;
         _show_animation3 = false;
         setState(() {
-          result5 = MSNumberAHelper().generatelucku_goldpotdig(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2);
           _show_animation = false;
           _show_image1 = false;
           _show_image2 = false;
@@ -688,12 +723,11 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
         swapKey4.currentState!.runSwap(_buildScratchCard5(index));
       });
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_4Name, MSLocalProvider.instance.ms_scrach_end_number_4 + 1);
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 5){
-      Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(5, result6!.totalNumber.toDouble(), result6!.isWin);
+      Future.delayed(Duration(seconds: 2), () async {
+        showAwardDialog(5, result6!.totalNumber.toDouble(), result6!.isWin, result6!.diceHit);
+        result6 = MSNumberAHelper().generatelucku_77n(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2, keyHit: await showKeyStatus());
         setState(() {
-          result6 = MSNumberAHelper().generatelucku_77n(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2);
           _show_animation = false;
         });
         // 刷新下一张
@@ -702,21 +736,17 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
         swapKey5.currentState!.runSwap(_buildScratchCard6(index));
       });
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_5Name, MSLocalProvider.instance.ms_scrach_end_number_5 + 1);
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     } else if (index == 6){
-      Future.delayed(Duration(seconds: 2), () {
-        showAwardDialog(6, result7!.totalNumber.toDouble(), result7!.isWin);
-        setState(() {
-          result7 = MSNumberAHelper().generatelucku_coincraze(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2);
+      Future.delayed(Duration(seconds: 2), () async {
+        showAwardDialog(6, result7!.totalNumber.toDouble(), result7!.isWin, result7!.diceHit);
+        result7 = MSNumberAHelper().generatelucku_coincraze(forceWin: MSLocalProvider.instance.ms_unaward_index >= 2, keyHit: await showKeyStatus());
           _show_animation = false;
-        });
         // 刷新下一张
         MSScratchUpdateNotificationService.sendToDomandNumberNotification(0);
         // UI切换下一张
         swapKey6.currentState!.runSwap(_buildScratchCard7(index));
       });
       await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_scrach_end_number_6Name, MSLocalProvider.instance.ms_scrach_end_number_6 + 1);
-      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_wheel_indexName, MSLocalProvider.instance.ms_wheel_index + 1);
     }
   }
 
@@ -800,7 +830,9 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
 
   Widget _buildScratchCard1(int index){
     return MSLocalImageScratchCard(onScratchEnd: (){
-      _scratchEndtap(index);
+      if (scractchEnd == false){
+        _scratchEndtap(index);
+      }
     }, coverImagePath: 'ms_scratch_top_0_b'.image(), contentW: 366.w, contentH: 455.h, child: Container(
       width: 366.w,
       height: 455.h,
@@ -839,7 +871,10 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                     height: 61.h,
                     child: Stack(
                         children: [
-                          Positioned(child: Center(child: MSBouncyText(text: '${result1!.displayNumbers[index]}', fontSize: 36, color:result1!.winIndex.contains(index) ? '#FF7CD3'.color() :'#FFFFFF'.color(), enableAnimation: _show_animation && result1!.winIndex.contains(index)))),
+                          if (result1!.displayNumbers[index] == -2)
+                            MSAnimatedImageMove(imageUrl: 'ms_wheel_key_s', isAnimationEnabled: _show_animation, ws: 45, hs: 55, targetKey: targetimageKey),
+                          if (result1!.displayNumbers[index] != -2)
+                            Positioned(child: Center(child: MSBouncyText(text: '${result1!.displayNumbers[index]}', fontSize: 36, color:result1!.winIndex.contains(index) ? '#FF7CD3'.color() :'#FFFFFF'.color(), enableAnimation: _show_animation && result1!.winIndex.contains(index)))),
                           Positioned(top: 40.h,left: 14.w,child: Row(
                             children: [
                               MSBouncyText(text: '\$${result1!.winMatchNumbers[index].toStringAsFixed(2)}', fontSize: 15, color: '#FFFFFF'.color(), borderWidth: 1, borderColor: '#000000'.color(),enableAnimation: false)
@@ -909,11 +944,8 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
               ],
             ),
           ),
-          SizedBox(height: 36.h,),
-          SizedBox(
-            width: 312.w,
-            height: 222.h,
-            child: GridView.builder(
+          SizedBox(height: 20.h,),
+          GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -923,13 +955,15 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                 childAspectRatio: 78.w / 74.h, // 宽高比
               ),
               itemCount: 12,
-              padding: EdgeInsets.only(top: 0.h, left: 0.w), // 移除默认的padding// 最多显示10个
+              padding: EdgeInsets.only(top: 0.h, left: 16.w, right: 16.w), // 移除默认的padding// 最多显示10个
               itemBuilder: (context, index) {
                 return SizedBox(
                     width: 78.w,
                     height: 74.h,
                     child: Stack(
                         children: [
+                          if (result2!.displayNumbers[index] == -2)
+                            Positioned(top: 5.h,left: 26.w,child: MSAnimatedImageMove(imageUrl: 'ms_wheel_key_s', isAnimationEnabled: _show_animation, ws: 45, hs: 55, targetKey: targetimageKey)),
                           if (result2!.displayNumbers[index] == 1)
                             Positioned(top: 5.h,left: 12.w,child: MSBouncyImage(imagePath: 'ms_scratch_conten_1_${result2!.displayNumbers[index]}'.image(), width: 56.52, height: 56.52, enableAnimation: false)),
                           if (result2!.displayNumbers[index] == 2)
@@ -946,7 +980,6 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                 );
               },
             ),
-          ),
         ],
       ),
     ));
@@ -984,7 +1017,10 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                     height: 130.w,
                     child: Stack(
                         children: [
-                          Positioned(left: 28.w,top: 20.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_2_${result3!.displayNumbers[index]}'.image(), width: 65, height:result3!.displayNumbers[index] == 0 ? 60 : 70, enableAnimation: result3!.winIndex.contains(index),)),
+                          if (result3!.displayNumbers[index] == -2)
+                            Positioned(left: 28.w,top: 20.h,child: MSAnimatedImageMove(imageUrl: 'ms_wheel_key_s', isAnimationEnabled: _show_animation, ws: 45, hs: 55, targetKey: targetimageKey)),
+                          if (result3!.displayNumbers[index] != -2)
+                            Positioned(left: 28.w,top: 20.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_2_${result3!.displayNumbers[index]}'.image(), width: 65, height:result3!.displayNumbers[index] == 0 ? 60 : 70, enableAnimation: result3!.winIndex.contains(index),)),
                           Positioned(top: 82.h,left: 36.w,child: Row(
                             children: [
                               MSBouncyText(text: '\$${result3!.winMatchNumbers[index].toStringAsFixed(2)}', fontSize: 24, color: '#4E4848'.color(), borderWidth: 1, borderColor: '#4E4848'.color(),enableAnimation: false)
@@ -1078,7 +1114,10 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                           height: 90.w,
                           child: Stack(
                               children: [
-                                Positioned(child: Center(child: MSBouncyImage(imagePath: 'ms_scratch_conten_3_${result4!.displayNumbers[index]}'.image(), width: 52.34, height: 52.34, enableAnimation: result4!.winIndex.contains(index),))),
+                                if (result4!.displayNumbers[index] == -2)
+                                  Positioned(top: 14.h,left: 24.w,child: MSAnimatedImageMove(imageUrl: 'ms_wheel_key_s', isAnimationEnabled: _show_animation, ws: 45, hs: 55, targetKey: targetimageKey)),
+                                if (result4!.displayNumbers[index] != -2)
+                                  Positioned(child: Center(child: MSBouncyImage(imagePath: 'ms_scratch_conten_3_${result4!.displayNumbers[index]}'.image(), width: 52.34, height: 52.34, enableAnimation: result4!.winIndex.contains(index),))),
                               ]
                           )
                       );
@@ -1130,6 +1169,8 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
             itemBuilder: (context, index) {
               return Stack(
                   children: [
+                    if (result5!.displayNumbers[index] == -2)
+                      Positioned(top: 2, left: 14.w,child: MSAnimatedImageMove(imageUrl: 'ms_wheel_key_s', isAnimationEnabled: _show_animation, ws: 45, hs: 55, targetKey: targetimageKey)),
                     if (result5!.displayNumbers[index] == 2)
                       Positioned(left: 4.w, top: 0.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_4_g'.image(), width: 55.2.w, height: 70.5.w, enableAnimation: result5!.winIndex.contains(index) && _show_animation)),
                     if (result5!.displayNumbers[index] == 3)
@@ -1190,7 +1231,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
   Widget _buildScratchCard6(int index){
     return MSLocalImageScratchCard(onScratchEnd: (){
       _scratchEndtap(index);
-    }, coverImagePath: 'ms_scratch_top_5_b'.image(), contentW: 0.width(context), contentH: 595.h, child: Container(
+    }, coverImagePath: 'ms_scratch_top_5_b'.image(), contentW: 0.width(context), contentH: 595.h, autoStartY: 270.h,child: Container(
       width: 0.width(context),
       height: 595.h,
       decoration: BoxDecoration(
@@ -1201,10 +1242,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
           SizedBox(height: 268.h,),
           Padding(
             padding: EdgeInsets.only(left: 0.w),
-            child: SizedBox(
-              width: 325.w,
-              height: 188.w,
-              child: GridView.builder(
+            child: GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1214,22 +1252,22 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                   childAspectRatio: 65.w / 62.6.w, // 宽高比
                 ),
                 itemCount: 15,
-                padding: EdgeInsets.only(top: 16.h, left: 24.w), // 移除默认的padding// 最多显示10个
+                padding: EdgeInsets.only(top: 8.h, left: 40.w, right: 8.w), // 移除默认的padding// 最多显示10个
                 itemBuilder: (context, index) {
-                  return SizedBox(
-                      width: 65.w,
-                      height: 62.6.w,
-                      child: Stack(
+                  return Stack(
                           children: [
-                            if (result6!.displayNumbers[index] != 0 && result6!.displayNumbers[index] != 1 && result6!.displayNumbers[index] != 2)
+                            if (result6!.displayNumbers[index] == -2)
+                              Positioned(left: 8,top: 4,child: MSAnimatedImageMove(imageUrl: 'ms_wheel_key_s', isAnimationEnabled: _show_animation, ws: 45, hs: 55, targetKey: targetimageKey)),
+                            if (result6!.displayNumbers[index] != 0 && result6!.displayNumbers[index] != 1 && result6!.displayNumbers[index] != -2)
                               Positioned(left: 1.w,child: MSBouncyText(text: '${result6!.displayNumbers[index]}', fontSize: 36, color: '#5A5A5A'.color(), borderWidth: 1, borderColor: '#5A5A5A'.color(), enableAnimation: false,)),
-                            if (result6!.displayNumbers[index] == 0)
+                            if (result6!.displayNumbers[index] == 0 && result6!.displayNumbers[index] != -2)
                               Positioned(left: 8.w,top: 10.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_5_${result6!.displayNumbers[index]}'.image(), width: 28.64, height: 30.54, enableAnimation: _show_animation)),
-                            if (result6!.displayNumbers[index] == 1)
+                            if (result6!.displayNumbers[index] == 1 && result6!.displayNumbers[index] != -2)
                               Positioned(top: 10.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_5_${result6!.displayNumbers[index]}'.image(), width: 46.04, height: 29.81, enableAnimation: _show_animation)),
-                            if (result6!.displayNumbers[index] == 2)
+                            if (result6!.displayNumbers[index] == 2 && result6!.displayNumbers[index] != -2)
                               Positioned(top: 7.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_5_${result6!.displayNumbers[index]}'.image(), width: 66.34, height: 34.84, enableAnimation: _show_animation)),
-                            Positioned(bottom: 2.h,child:
+                            if (result6!.displayNumbers[index] != -2)
+                              Positioned(bottom: 2.h,child:
                             SizedBox(
                               width: 65.w,
                               height: 20.6.w,
@@ -1240,11 +1278,9 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                               ),
                             ))
                           ]
-                      )
                   );
                 },
               ),
-            ),
           ),
         ],
       ),
@@ -1263,10 +1299,7 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
       child: Column(
         children: [
           SizedBox(height: 106.h,),
-          SizedBox(
-            width: 321.w,
-            height: 270.w,
-            child: GridView.builder(
+          GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1276,18 +1309,20 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                 childAspectRatio: 80.25.w / 80.3.w, // 宽高比
               ),
               itemCount: 12,
-              padding: EdgeInsets.only(top: 40.h, left: 0.w), // 移除默认的padding// 最多显示10个
+              padding: EdgeInsets.only(top: 28.h, left: 16.w, right: 16.w), // 移除默认的padding// 最多显示10个
               itemBuilder: (context, index) {
                 return SizedBox(
                     width: 80.25.w,
                     height: 80.3.w,
                     child: Stack(
                         children: [
-                          if (result7!.displayNumbers[index] == 0)
+                          if (result7!.displayNumbers[index] == -2)
+                            Positioned(left: 14.w, top: 8.h,child: MSAnimatedImageMove(imageUrl: 'ms_wheel_key_s', isAnimationEnabled: _show_animation, ws: 45, hs: 55, targetKey: targetimageKey)),
+                          if (result7!.displayNumbers[index] == 0 && result7!.displayNumbers[index] != -2)
                             Positioned(left: 14.w,top: 10.h,child:MSBouncyImage(imagePath: 'ms_scratch_conten_6_${result7!.displayNumbers[index]}'.image(), width: 56, height: 47, enableAnimation: false)),
-                          if (result7!.displayNumbers[index] != 0)
+                          if (result7!.displayNumbers[index] != 0 && result7!.displayNumbers[index] != -2)
                             Positioned(left: 16.w, top: 8.h, child: MSImg(name: 'ms_dolas_award_0', width: 46, height: 49,)),
-                          if (result7!.displayNumbers[index] != 0)
+                          if (result7!.displayNumbers[index] != 0 && result7!.displayNumbers[index] != -2)
                             Positioned(left: 0.w, top: 38.h,child:
                             MSBouncyText(text: '\$${result7!.winMatchNumbers[index].toStringAsFixed(2)}', fontSize: 22, color:'#FBF544'.color(), borderWidth: 1, borderColor: '#322107'.color(),enableAnimation: _show_animation)
                             )
@@ -1296,7 +1331,6 @@ class _MSScrachDetails_bState extends State<MSScrachDetails_b> with SingleTicker
                 );
               },
             ),
-          ),
         ],
       ),
     ));
@@ -1460,6 +1494,143 @@ class _MSBubbleButtonState extends State<MSBubbleButton> with SingleTickerProvid
     });
   }
 }
+class MSAnimatedImageMove extends StatefulWidget {
+  final String imageUrl;
+  final bool isAnimationEnabled;
+  final double ws;
+  final double hs;
+  final GlobalKey targetKey; // 目标组件的 key
 
+  const MSAnimatedImageMove({
+    Key? key,
+    required this.imageUrl,
+    required this.isAnimationEnabled,
+    required this.ws,
+    required this.hs,
+    required this.targetKey,
+  }) : super(key: key);
+
+  @override
+  _MSAnimatedImageMoveState createState() => _MSAnimatedImageMoveState();
+}
+
+class _MSAnimatedImageMoveState extends State<MSAnimatedImageMove>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<Offset> _offsetAnimation;
+  bool _visible = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    // 缩放动画
+    _scaleAnimation = TweenSequence([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.3)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.3, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_controller);
+
+    _offsetAnimation = AlwaysStoppedAnimation(Offset.zero);
+
+    // 动画结束后让组件消失
+    _controller.addStatusListener((status) {
+      if (!mounted) return;  // ✅ widget 已经销毁了就不继续
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _visible = false;
+        });
+      }
+    });
+
+    if (widget.isAnimationEnabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _startAnimation();
+      });
+    }
+  }
+
+  void _startAnimation() {
+    final RenderBox? targetBox =
+    widget.targetKey.currentContext?.findRenderObject() as RenderBox?;
+    final RenderBox? parentBox =
+    context.findRenderObject() as RenderBox?;
+
+    print('targetBox: $targetBox');
+    print('parentBox: $parentBox');
+    if (targetBox != null && parentBox != null) {
+      final targetPosition = targetBox.localToGlobal(Offset.zero);
+      final parentPosition = parentBox.localToGlobal(Offset.zero);
+      final relativeOffset = targetPosition - parentPosition;
+
+      _offsetAnimation = Tween<Offset>(
+        begin: Offset.zero,
+        end: relativeOffset,
+      ).animate(
+        CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.5, 1.0, curve: Curves.easeInOut),
+        ),
+      );
+      _controller.forward();
+      'startAnimation'.log();
+      print('Controller status: ${_controller.status}');
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MSAnimatedImageMove oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isAnimationEnabled && !_controller.isAnimating) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() => _visible = true);
+        _controller.reset();
+        _startAnimation();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_visible) return const SizedBox.shrink();
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: _offsetAnimation.value,
+          child: Transform.scale(
+            scale: _scaleAnimation.value,
+            child: SizedBox(
+              width: widget.ws,
+              height: widget.hs,
+              child: MSImg(name: widget.imageUrl),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
 
 

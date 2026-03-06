@@ -126,9 +126,10 @@ class MSAudioUtils {
         return;
       }
     }
-
     // 都在播放，复用第一个
-    await _safePlay(playerQueue.first, assetPath, volume);
+    if (playerQueue.isNotEmpty) {
+      await _safePlay(playerQueue.first, assetPath, volume);
+    }
   }
 
   Future<void> _safePlay(AudioPlayer player, String assetPath, double volume) async {

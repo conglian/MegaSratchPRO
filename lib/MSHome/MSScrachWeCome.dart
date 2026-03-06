@@ -6,7 +6,8 @@ import 'package:megascratch/MSTool/ms_img.dart';
 import 'package:megascratch/main.dart'; // 替换为实际目标页面
 import '../MSTool/ms_extension_help.dart';
 import 'MSHome.dart';
-import 'MSScratchWinNow.dart'; // 目标页面示例
+import 'MSScratchWinNow.dart';
+import 'MSTbabar.dart'; // 目标页面示例
 
 class MSSratchWeCome extends StatefulWidget {
   MSSratchWeCome({super.key});
@@ -24,6 +25,7 @@ class MSSratchJoyLaunchState extends State<MSSratchWeCome> with SingleTickerProv
 
     // 延时 1 秒后跳转到其他页面
     Future.delayed(Duration(seconds: 1), () {
+      Navigator.pop(context, 0);
       if (!mounted) return;
       context.tipShow(MSSratchWinNow());
     });

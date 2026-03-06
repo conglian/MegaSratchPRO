@@ -50,12 +50,13 @@ class MSSratchWinNowState extends State<MSSratchWinNow> with SingleTickerProvide
             ),
           ),
           Positioned(left: 0, top: 240.h, width: 0.width(context), height: 400, child: InkWell(onTap: (){
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
-              ),
-            );
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
+            //   ),
+            // );
+            Navigator.pop(context, 0);
             context.tipShow(MSNewAwardDialog());
           },child: Lottie.asset(
               width: 0.width(context),
@@ -75,21 +76,23 @@ class MSSratchWinNowState extends State<MSSratchWinNow> with SingleTickerProvide
           Positioned.fill(
             child: GestureDetector(
               onPanStart: (t) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
-                  ),
-                );
+                // Navigator.pushReplacement(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
+                //   ),
+                // );
+                Navigator.pop(context, 0);
                 context.tipShow(MSNewAwardDialog());
               },
               onTap: (){
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
-                  ),
-                );
+                // Navigator.pushReplacement(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
+                //   ),
+                // );
+                Navigator.pop(context, 0);
                 context.tipShow(MSNewAwardDialog());
               },
             ),

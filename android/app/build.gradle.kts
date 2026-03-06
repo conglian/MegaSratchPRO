@@ -39,8 +39,8 @@ android {
         versionName = flutter.versionName
         minSdkVersion(27)
         targetSdkVersion(36)
-        versionCode = 5
-        versionName = "1.0.4"
+        versionCode = 6
+        versionName = "1.0.5"
     }
 
     signingConfigs {
@@ -82,7 +82,7 @@ dependencies {
 
     implementation ("com.adjust.sdk:adjust-android:4.38.0")
 
-    api("io.github.alex-only:max_adapter_tu:1.2.5")
+//    api("io.github.alex-only:max_adapter_tu:1.2.5")
 
     implementation ("com.google.android.gms:play-services-ads-identifier:18.1.0")
 
@@ -106,94 +106,192 @@ dependencies {
     implementation("com.applovin.mediation:bytedance-adapter:6.5.0.8.1")
     implementation("com.applovin.mediation:unityads-adapter:+")
 
-    //TU (Necessary)
-    api ("com.thinkup.sdk:core-tpn:6.4.85")
-    api ("com.thinkup.sdk:nativead-tpn:6.4.85")
-    api ("com.thinkup.sdk:banner-tpn:6.4.85")
-    api ("com.thinkup.sdk:interstitial-tpn:6.4.85")
-    api ("com.thinkup.sdk:rewardedvideo-tpn:6.4.85")
-    api ("com.thinkup.sdk:splash-tpn:6.4.85")
+//    //TU (Necessary)
+//    api ("com.thinkup.sdk:core-tpn:6.4.85")
+//    api ("com.thinkup.sdk:nativead-tpn:6.4.85")
+//    api ("com.thinkup.sdk:banner-tpn:6.4.85")
+//    api ("com.thinkup.sdk:interstitial-tpn:6.4.85")
+//    api ("com.thinkup.sdk:rewardedvideo-tpn:6.4.85")
+//    api ("com.thinkup.sdk:splash-tpn:6.4.85")
+//
+//    //Androidx (Necessary)
+//    api ("androidx.appcompat:appcompat:1.6.1")
+//    api ("androidx.browser:browser:1.4.0")
+//
+//    //Vungle
+//    api ("com.thinkup.sdk:adapter-tpn-vungle:6.4.85")
+//    api ("com.vungle:vungle-ads:7.4.3")
+//    api ("com.google.android.gms:play-services-basement:18.7.1")
+//    api ("com.google.android.gms:play-services-ads-identifier:18.1.0")
+//
+//    //UnityAds
+//    api ("com.thinkup.sdk:adapter-tpn-unityads:6.4.85")
+//    api ("com.unity3d.ads:unity-ads:4.14.0")
+//
+//    //Ironsource
+//    api ("com.thinkup.sdk:adapter-tpn-ironsource:6.4.85")
+//    api ("com.ironsource.sdk:mediationsdk:8.7.0")
+//    api ("com.google.android.gms:play-services-appset:16.0.2")
+////    api ("com.google.android.gms:play-services-ads-identifier:18.0.1")
+//    api ("com.google.android.gms:play-services-basement:18.7.1")
+//
+//    //Bigo
+//    api ("com.thinkup.sdk:adapter-tpn-bigo:6.4.85")
+//    api ("com.bigossp:bigo-ads:5.3.0")
+//
+//    //Pangle
+//    api ("com.thinkup.sdk:adapter-tpn-pangle:6.4.85")
+//    api ("com.pangle.global:ads-sdk:6.5.0.6")
+////    api ("com.google.android.gms:play-services-ads-identifier:18.0.1")
+//
+//    //Kwai
+//    api ("com.thinkup.sdk:adapter-tpn-kwai:6.4.85")
+//    api ("io.github.kwainetwork:adApi:1.2.15")
+//    api ("io.github.kwainetwork:adImpl:1.2.15")
+//    api ("androidx.media3:media3-exoplayer:1.0.0-alpha01")
+//    api ("androidx.appcompat:appcompat:1.6.1")
+//    api ("com.google.android.material:material:1.2.1")
+//    api ("androidx.annotation:annotation:1.2.0")
+//    api ("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.10")
+////    api ("com.google.android.gms:play-services-ads-identifier:18.0.1")
+//
+//    //Admob
+//    api ("com.thinkup.sdk:adapter-tpn-admob:6.4.85")
+//    api ("com.google.android.gms:play-services-ads:24.5.0")
+//
+//    //Inmobi
+//    api ("com.thinkup.sdk:adapter-tpn-inmobi:6.4.85")
+//    api ("com.inmobi.monetization:inmobi-ads-kotlin:10.8.2")
+//
+//    //AppLovin
+//    api ("com.thinkup.sdk:adapter-tpn-applovin:6.4.85")
+//    api ("com.applovin:applovin-sdk:+")
+//
+//    //Mintegral
+//    api ("com.thinkup.sdk:adapter-tpn-mintegral:6.4.85")
+//    api ("com.mbridge.msdk.oversea:mbridge_android_sdk:16.9.11")
+//    api ("androidx.recyclerview:recyclerview:1.1.0")
+//
+//    //Bidmachine
+//    api ("com.thinkup.sdk:adapter-tpn-bidmachine:6.4.85")
+//    api ("io.bidmachine:ads:3.1.1")
+//
+//    //Chartboost
+//    api ("com.thinkup.sdk:adapter-tpn-chartboost:6.4.85")
+//    api ("com.chartboost:chartboost-sdk:9.8.2")
+//    api ("com.chartboost:chartboost-mediation-sdk:4.9.2")
+//    api ("com.chartboost:chartboost-mediation-adapter-chartboost:4.9.8.1.0")
+//    api ("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+//    api ("com.squareup.okhttp3:logging-interceptor:4.10.0")
+//    api ("com.squareup.okhttp3:okhttp:4.10.0")
+//    api ("com.squareup.retrofit2:converter-scalars:2.9.0")
+//    api ("com.squareup.retrofit2:retrofit:2.9.0")
+//    api ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+//    api ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+//
+//    //Fyber
+//    api ("com.thinkup.sdk:adapter-tpn-fyber:6.4.85")
+//    api ("com.fyber:marketplace-sdk:8.3.5")
+////    api ("com.google.android.gms:play-services-ads-identifier:18.0.1")
+//
+////Tramini
+//    api ("com.thinkup.sdk:tramini-plugin-tpn:6.4.85")
+    // TU (Necessary)
+    api("com.thinkup.sdk:core-tpn:6.5.71")
 
-    //Androidx (Necessary)
-    api ("androidx.appcompat:appcompat:1.6.1")
-    api ("androidx.browser:browser:1.4.0")
+    // Androidx (Necessary)
+    api("androidx.appcompat:appcompat:1.6.1")
+    api("androidx.browser:browser:1.4.0")
 
-    //Vungle
-    api ("com.thinkup.sdk:adapter-tpn-vungle:6.4.85")
-    api ("com.vungle:vungle-ads:7.4.3")
-    api ("com.google.android.gms:play-services-basement:18.7.1")
-    api ("com.google.android.gms:play-services-ads-identifier:18.1.0")
+    // Moloco
+    api("com.thinkup.sdk:adapter-tpn-moloco:4.3.1.1.0")
+    api("com.moloco.sdk:moloco-sdk:4.3.1")
 
-    //UnityAds
-    api ("com.thinkup.sdk:adapter-tpn-unityads:6.4.85")
-    api ("com.unity3d.ads:unity-ads:4.14.0")
+    // Vungle
+    api("com.thinkup.sdk:adapter-tpn-vungle:7.6.1.1.0")
+    api("com.vungle:vungle-ads:7.6.1")
+    api("com.google.android.gms:play-services-basement:18.1.0")
+    api("com.google.android.gms:play-services-ads-identifier:18.0.1")
 
-    //Ironsource
-    api ("com.thinkup.sdk:adapter-tpn-ironsource:6.4.85")
-    api ("com.ironsource.sdk:mediationsdk:8.7.0")
-    api ("com.google.android.gms:play-services-appset:16.0.2")
-//    api ("com.google.android.gms:play-services-ads-identifier:18.0.1")
-    api ("com.google.android.gms:play-services-basement:18.7.1")
+    // UnityAds
+    api("com.thinkup.sdk:adapter-tpn-unityads:4.16.6.1.0")
+    api("com.unity3d.ads:unity-ads:4.16.6")
 
-    //Bigo
-    api ("com.thinkup.sdk:adapter-tpn-bigo:6.4.85")
-    api ("com.bigossp:bigo-ads:5.3.0")
+    // Ironsource
+    api("com.thinkup.sdk:adapter-tpn-ironsource:9.2.0.1.0")
+//    api("com.unity3d.ads-mediation:mediation-sdk:9.2.0")
+    api("com.google.android.gms:play-services-appset:16.0.2")
+    api("com.google.android.gms:play-services-ads-identifier:18.0.1")
+    api("com.google.android.gms:play-services-basement:18.1.0")
 
-    //Pangle
-    api ("com.thinkup.sdk:adapter-tpn-pangle:6.4.85")
-    api ("com.pangle.global:ads-sdk:6.5.0.6")
-//    api ("com.google.android.gms:play-services-ads-identifier:18.0.1")
+    // Bigo
+    api("com.thinkup.sdk:adapter-tpn-bigo:5.7.0.1.0")
+    api("com.bigossp:bigo-ads:5.7.0")
 
-    //Kwai
-    api ("com.thinkup.sdk:adapter-tpn-kwai:6.4.85")
-    api ("io.github.kwainetwork:adApi:1.2.15")
-    api ("io.github.kwainetwork:adImpl:1.2.15")
-    api ("androidx.media3:media3-exoplayer:1.0.0-alpha01")
-    api ("androidx.appcompat:appcompat:1.6.1")
-    api ("com.google.android.material:material:1.2.1")
-    api ("androidx.annotation:annotation:1.2.0")
-    api ("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.10")
-//    api ("com.google.android.gms:play-services-ads-identifier:18.0.1")
+    // Pangle
+    api("com.thinkup.sdk:adapter-tpn-pangle:7.8.5.9.1.0")
+//    api("com.pangle.global:pag-sdk:7.8.5.9")
+    api("com.google.android.gms:play-services-ads-identifier:18.2.0")
 
-    //Admob
-    api ("com.thinkup.sdk:adapter-tpn-admob:6.4.85")
-    api ("com.google.android.gms:play-services-ads:24.5.0")
+    // Kwai
+    api("com.thinkup.sdk:adapter-tpn-kwai:1.2.21.1.0")
+    api("io.github.kwainetwork:adApi:1.2.21")
+    api("io.github.kwainetwork:adImpl:1.2.21")
+    api("androidx.media3:media3-exoplayer:1.0.0-alpha01")
+    api("androidx.appcompat:appcompat:1.6.1")
+    api("com.google.android.material:material:1.2.1")
+    api("androidx.annotation:annotation:1.2.0")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.10")
+//    api("com.google.android.gms:play-services-ads-identifier:18.0.1")
 
-    //Inmobi
-    api ("com.thinkup.sdk:adapter-tpn-inmobi:6.4.85")
-    api ("com.inmobi.monetization:inmobi-ads-kotlin:10.8.2")
+    // Facebook
+    api("com.thinkup.sdk:adapter-tpn-facebook:6.21.0.1.0")
+    api("com.facebook.android:audience-network-sdk:6.21.0")
+    api("androidx.annotation:annotation:1.0.0")
 
-    //AppLovin
-    api ("com.thinkup.sdk:adapter-tpn-applovin:6.4.85")
-    api ("com.applovin:applovin-sdk:+")
+    // Admob
+    api("com.thinkup.sdk:adapter-tpn-admob:24.9.0.1.0")
+    api("com.google.android.gms:play-services-ads:24.9.0")
 
-    //Mintegral
-    api ("com.thinkup.sdk:adapter-tpn-mintegral:6.4.85")
-    api ("com.mbridge.msdk.oversea:mbridge_android_sdk:16.9.11")
-    api ("androidx.recyclerview:recyclerview:1.1.0")
+    // Inmobi
+    api("com.thinkup.sdk:adapter-tpn-inmobi:11.1.1.1.0")
+    api("com.inmobi.monetization:inmobi-ads-kotlin:11.1.1")
 
-    //Bidmachine
-    api ("com.thinkup.sdk:adapter-tpn-bidmachine:6.4.85")
-    api ("io.bidmachine:ads:3.1.1")
+    // TU Adx SDK(Necessary)
+    api("com.thinkup.sdk:adapter-tpn-sdm:6.5.55.1.0")
+    api("com.smartdigimkttech.sdk:smartdigimkttech-sdk:6.5.55")
 
-    //Chartboost
-    api ("com.thinkup.sdk:adapter-tpn-chartboost:6.4.85")
-    api ("com.chartboost:chartboost-sdk:9.8.2")
-    api ("com.chartboost:chartboost-mediation-sdk:4.9.2")
-    api ("com.chartboost:chartboost-mediation-adapter-chartboost:4.9.8.1.0")
-    api ("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-    api ("com.squareup.okhttp3:logging-interceptor:4.10.0")
-    api ("com.squareup.okhttp3:okhttp:4.10.0")
-    api ("com.squareup.retrofit2:converter-scalars:2.9.0")
-    api ("com.squareup.retrofit2:retrofit:2.9.0")
-    api ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
-    api ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    // AppLovin
+    api("com.thinkup.sdk:adapter-tpn-applovin:13.5.1.1.0")
+    api("com.applovin:applovin-sdk:13.5.1")
 
-    //Fyber
-    api ("com.thinkup.sdk:adapter-tpn-fyber:6.4.85")
-    api ("com.fyber:marketplace-sdk:8.3.5")
-//    api ("com.google.android.gms:play-services-ads-identifier:18.0.1")
+    // Mintegral
+    api("com.thinkup.sdk:adapter-tpn-mintegral:17.0.61.1.0")
+    api("com.mbridge.msdk.oversea:mbridge_android_sdk:17.0.61")
+    api("androidx.recyclerview:recyclerview:1.1.0")
 
-//Tramini
-    api ("com.thinkup.sdk:tramini-plugin-tpn:6.4.85")
+    // Chartboost
+    api("com.thinkup.sdk:adapter-tpn-chartboost:9.11.0.1.1")
+    api("com.chartboost:chartboost-sdk:9.11.0")
+    api("com.chartboost:chartboost-mediation-sdk:5.3.0")
+    api("com.chartboost:chartboost-core-sdk:1.1.0")
+    api("com.chartboost:chartboost-mediation-adapter-chartboost:5.9.11.0.0")
+    api("androidx.media3:media3-exoplayer:1.4.1")
+    api("androidx.media3:media3-ui:1.4.1")
+    api("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    api("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    api("com.squareup.okhttp3:okhttp:4.12.0")
+    api("com.squareup.retrofit2:converter-scalars:2.9.0")
+    api("com.squareup.retrofit2:retrofit:2.9.0")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+
+    // Fyber
+    api("com.thinkup.sdk:adapter-tpn-fyber:8.4.2.1.0")
+    api("com.fyber:marketplace-sdk:8.4.2")
+    api("com.google.android.gms:play-services-basement:18.9.0")
+//    api("com.google.android.gms:play-services-ads-identifier:18.0.1")
+
+    // Tramini
+    api("com.thinkup.sdk:tramini-plugin-tpn:6.5.71")
 }

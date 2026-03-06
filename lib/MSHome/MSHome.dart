@@ -31,7 +31,7 @@ class MSHomeContentPage extends StatefulWidget {
   _MSHomeContentPageState createState() => _MSHomeContentPageState();
 }
 
-class _MSHomeContentPageState extends State<MSHomeContentPage> {
+class _MSHomeContentPageState extends State<MSHomeContentPage> with TickerProviderStateMixin {
 
   // 总倒计时时间，单位是秒
   int _remainingTime = MSLocalProvider.instance.ms_dao_time_index; // 5 分钟倒计时（300秒）
@@ -39,6 +39,11 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
   late Timer _timer;
 
   int award_pool_number = MSNumberAHelper().getAwardPoolNumber();
+
+  // 创建 AnimationController
+  late AnimationController _controller;
+
+  late AnimationController _breathAnimationController;
 
   @override
   void initState() {
@@ -48,8 +53,9 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       showsignDialog();
       shownewguide();
-      showTXPopDialog();
-      _startCountdown();
+      showrangkingPop();
+      // showTXPopDialog();
+      // _startCountdown();
     });
 
     MSSUpdateHomeListNotificationService.stream.listen((value) async {
@@ -58,6 +64,39 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
     MSFKManger().initFK();
     MSNoticeHelp().initNotice();
     MSNoticeHelp().startForegroundService();
+    getRankIndex();
+    // 初始化控制器，设置动画的持续时间
+    _controller = AnimationController(
+      duration: Duration(seconds: 10), // 设置旋转动画的周期为5秒
+      vsync: this,
+    )..repeat(); // 使其循环播放
+
+    // 呼吸动画的控制器，持续时间更短，呼吸加快
+    _breathAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500), // 更快的呼吸动画
+    )..repeat(reverse: true);
+  }
+
+  Future<void> getRankIndex() async {
+    if (MSLocalProvider.instance.ms_rank_index == 0){
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_rank_indexName, Random().nextInt(21) + 80);
+    }
+  }
+
+  // 排队中
+  void showrangkingPop(){
+    if (MSLocalProvider.instance.ms_txing_status == true && MSLocalProvider.instance.ms_rank_index > 10) {
+      context.tipShow(MSPopRankingDialog(index: 0));
+    }
+  }
+
+  @override
+  void dispose() {
+    // 销毁控制器
+    _breathAnimationController.dispose();
+    _controller.dispose();
+    super.dispose();
   }
 
   // 启动倒计时
@@ -67,14 +106,18 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
         if (_remainingTime == 0){
           _remainingTime = MSLocalProvider.instance.ms_dao_time_index;
         }
-        setState(() {
-          _remainingTime--;
-          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, _remainingTime);
-        });
+        if (mounted){
+          setState(() {
+            _remainingTime--;
+            MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, _remainingTime);
+          });
+        }
       } else {
-        setState(() {
-          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 0);
-        });
+        if (mounted){
+          setState(() {
+            MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 0);
+          });
+        }
         // _timer.cancel(); // 时间到，取消定时器
       }
     });
@@ -210,7 +253,7 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
                     MaterialPageRoute(builder: (builder) {
                       return MSwebkitview(
                         url: "https://s.gamifyspace.com/tml?pid=20086&appk=UR91J64cW2uF0fpw6P5IpNycOGFKUe5j&did=${gaids}",
-                        title: 'luckyscratchgame',
+                        title: 'Luckyscratchgame',
                       );
                     }),
                   );
@@ -226,47 +269,49 @@ class _MSHomeContentPageState extends State<MSHomeContentPage> {
                   ),
                 ),
               )),
-              Positioned(left: 12.w,top: 155.h,child: Consumer<MSLocalProvider>(
+              Positioned(left: 12.w,top: 405.h,child: Consumer<MSLocalProvider>(
                   builder: (context, provider, child) {
-                    if (provider.ms_pool_show){
-                      ms_event_fire('new_bonus_pool_v', {});
-                    }
                     return Visibility(
-                      visible: provider.ms_pool_show,
+                      visible: true,
                       child: InkWell(
                         onTap: () async {
                           ms_event_fire('new_bonus_pool_c', {});
                           ms_event_fire('bonus_pool_c_n', {});
-                          context.tipShow(MSAwardPoolDialog(award_num: award_pool_number, time_index: _remainingTime, index: -1));
+                          context.tipShow(MSAwardPoolBDialog(award_num: award_pool_number, time_index: _remainingTime, index: -1, is_home: true));
                         },
                         child:SizedBox(
-                          width: 72,
-                          height: 72,
+                          width: 85,
+                          height: 85,
                           child: Stack(
                             children: [
-                              MSBouncyImage(imagePath: 'ms_jiangjin_btn'.image(), width: 72, height: 72, enableAnimation: true),
-                              Positioned(left: 3.5,top: 50,child: Visibility(
-                                visible: MSLocalProvider.instance.ms_dao_time_index != 0,
-                                child: Container(
-                                  width: 65,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                      color: '#EAEFFF'.color(),
-                                      borderRadius: BorderRadius.circular(9)
-                                  ),
-                                  child: Center(
-                                    child: MSText(text: _formatTime(_remainingTime), size: 12, color: '#393939'.color(), weight: FontWeight.w700),
-                                  ),
+                              Positioned(
+                                left: 8,
+                                top: 8,
+                                child: AnimatedBuilder(
+                                  animation: _breathAnimationController,
+                                  builder: (context, child) {
+                                    // 通过scale动画控制大小变化来实现呼吸效果
+                                    return Transform.scale(
+                                      scale: 1 + 0.05 * _breathAnimationController.value,
+                                      child: MSImg(
+                                        name: 'ms_pool_btn_bg',
+                                        width: 75,
+                                        height: 76,
+                                      ),
+                                    );
+                                  },
                                 ),
-                              )),
-                              Positioned(left: 0,top: 34,child: MSGradientStrokeText(text: '\$10000', gradientColors: ['#FBF544'.color(),'#F4B22A'.color()], width: 72, height: 21, fontSize: 16, strokeWidth: 1, strokeColor: '#804D00'.color())),
+                              ),
+                              Positioned(left: 10,top: 50,child: MSGradientStrokeText(text: '\$100000', gradientColors: ['#FFFFFF'.color(),'#FFFFFF'.color()], width: 72, height: 21, fontSize: 16, strokeWidth: 1, strokeColor: '#000000'.color())),
+                              Positioned(right: 12, top: 18,child: MSText(text: '${MSLocalProvider.instance.ms_pool_card_index}/20', size: 8, color: '#FFFFFF'.color(), weight: FontWeight.w800))
                             ],
                           ),
                         ),
                       ),
                     );
                   }
-              ), ),
+              ),
+              ),
               Positioned(child: MSBubbleButton()),
             ],
           )
@@ -300,7 +345,8 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
   late List<AnimationController> _scaleControllers;
   late List<Animation<double>> _scaleAnimations;
   List<bool> _isZoomed = [];
-  List<int> listnum = [2000, 3000, 5000,5000,5000,8000,10000];
+  List<int> listnum = [1000, 2000, 5000,5000, 8000,8000,10000];
+  bool is_tap= false;
   @override
   void initState() {
     // TODO: implement initState
@@ -402,7 +448,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
         itemBuilder: (context, index) {
           return Container(
             width: screenWidth, // 设置列表项宽度为屏幕宽度
-            height: 220, // 设置列表项高度为 200
+            height: 200, // 设置列表项高度为 200
             margin: EdgeInsets.symmetric(vertical: 0), // 设置上下间距为 12
             child: Stack(
               children: [
@@ -486,7 +532,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
                               });
                         })
                 ),
-                Positioned(bottom: 8,left: (0.width(context) - 196) * 0.5,child: InkWell(
+                Positioned(top: 128,left: 25,child: InkWell(
                   onTap: (){
                     pushTodetails(index, context);
                   },
@@ -529,37 +575,33 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
                    )
                 )
                 ),
-                Positioned(bottom: getNameToBottomH(index),child: Row(
+                Positioned(top: 80,child: Row(
                   children: [
-                    SizedBox(width: 118.w,),
-                    MSStrokeText(text: 'Win Up To', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#413210'.color()),
-                    SizedBox(width: 10.w,),
-                    MSImg(name: 'ms_dolas_icon_s', width: 22, height: 22,),
-                    SizedBox(width: 10.w,),
-                    MSStrokeText(text: '${listnum[index]}', size: 16, color: '#FBF544'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#322107'.color()),
+                    SizedBox(width: 17.w,),
+                    MSGradientStrokeText(text: '\$${listnum[index]}', gradientColors: ['#FBF544'.color(),'#F4B22A'.color()], width: 144.5, height: 39, fontSize: 36, strokeWidth: 2, strokeColor: '#322107'.color()),
                   ],
                 )),
                 Positioned(
-                  right: 37.w,
-                  bottom: getindexToBottomH(index),
+                  left: 22.w,
+                  top: 36,
                   child: Consumer<MSLocalProvider>(
                            builder:(context, provider, child) {
                              if (index == 0){
-                               return MSStrokeText(text: '${provider.ms_scrach_end_number_0}/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
+                               return MSStrokeText(text: '${provider.ms_scrach_end_number_0}/10', size: 20, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#49100F'.color());
                              } else if (index == 1){
-                               return MSStrokeText(text: '${provider.ms_scrach_end_number_1}/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
+                               return MSStrokeText(text: '${provider.ms_scrach_end_number_1}/10', size: 20, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#49100F'.color());
                              } else if (index == 2){
-                               return MSStrokeText(text: '${provider.ms_scrach_end_number_2}/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
+                               return MSStrokeText(text: '${provider.ms_scrach_end_number_2}/10', size: 20, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#49100F'.color());
                              } else if (index == 3){
-                               return MSStrokeText(text: '${provider.ms_scrach_end_number_3}/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
+                               return MSStrokeText(text: '${provider.ms_scrach_end_number_3}/10', size: 20, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#49100F'.color());
                              } else if (index == 4){
-                               return MSStrokeText(text: '${provider.ms_scrach_end_number_4}/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
+                               return MSStrokeText(text: '${provider.ms_scrach_end_number_4}/10', size: 20, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#49100F'.color());
                              } else if (index == 5){
-                               return MSStrokeText(text: '${provider.ms_scrach_end_number_5}/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
+                               return MSStrokeText(text: '${provider.ms_scrach_end_number_5}/10', size: 20, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#49100F'.color());
                              } else if (index == 6){
-                               return MSStrokeText(text: '${provider.ms_scrach_end_number_6}/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
+                               return MSStrokeText(text: '${provider.ms_scrach_end_number_6}/10', size: 20, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#49100F'.color());
                              }
-                             return MSStrokeText(text: '0/10', size: 14, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0.5, skColor: '#49100F'.color());
+                             return MSStrokeText(text: '0/10', size: 20, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 1, skColor: '#49100F'.color());
                            })
                    ),
               ],
@@ -568,16 +610,6 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
         },
       ),
     );
-  }
-
-  double getNameToBottomH(int index){
-    double doubles = 58;
-    return doubles;
-  }
-
-  double getindexToBottomH(int index){
-    double doubles = 62;
-    return doubles;
   }
 
   String _getGoBtnName(int index){
@@ -642,11 +674,14 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
   }
   // 详情页
   void pushTodetails(int index, BuildContext cxt){
+    if (is_tap == true) return;
     ms_event_fire('card_list_c', {});
+    is_tap = true;
     if (index == 2 && (MSLocalProvider.instance.ms_Level_number < 3 || MSLocalProvider.instance.ms_scratch_status_2 == false)) {
       if (MSLocalProvider.instance.ms_scratch_status_2 == true) {
         animationshow(cxt, index);
       } else {
+        is_tap = false;
         cxt.tipShow(MSUnlockDialog(indexs: index));
       }
       return;
@@ -654,6 +689,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
       if (MSLocalProvider.instance.ms_scratch_status_3 == true) {
         animationshow(cxt, index);
       } else {
+        is_tap = false;
         cxt.tipShow(MSUnlockDialog(indexs: index));
       }
       return;
@@ -662,6 +698,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
         animationshow(cxt, index);
       } else {
         cxt.tipShow(MSUnlockDialog(indexs: index));
+        is_tap = false;
       }
       return;
     } else if (index == 5 && (MSLocalProvider.instance.ms_Level_number < 6 || MSLocalProvider.instance.ms_scratch_status_5 == false)){
@@ -669,6 +706,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
         animationshow(cxt, index);
       } else {
         cxt.tipShow(MSUnlockDialog(indexs: index));
+        is_tap = false;
       }
       return;
     } else if (index == 6 && (MSLocalProvider.instance.ms_Level_number < 7 || MSLocalProvider.instance.ms_scratch_status_6 == false)){
@@ -676,28 +714,36 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
         animationshow(cxt, index);
       } else {
         cxt.tipShow(MSUnlockDialog(indexs: index));
+        is_tap = false;
       }
       return;
     } else if (index == 0 && MSLocalProvider.instance.ms_scrach_end_number_0 >= 10) {
       cxt.tipShow(MSAll10Dialog(type: index));
+      is_tap = false;
       return;
     } else if (index == 1 && MSLocalProvider.instance.ms_scrach_end_number_1 >= 10) {
       cxt.tipShow(MSAll10Dialog(type: index));
+      is_tap = false;
       return;
     } else if (index == 2 && MSLocalProvider.instance.ms_scrach_end_number_2 >= 10) {
       cxt.tipShow(MSAll10Dialog(type: index));
+      is_tap = false;
       return;
     } else if (index == 3 && MSLocalProvider.instance.ms_scrach_end_number_3 >= 10) {
       cxt.tipShow(MSAll10Dialog(type: index));
+      is_tap = false;
       return;
     } else if (index == 4 && MSLocalProvider.instance.ms_scrach_end_number_4 >= 10) {
       cxt.tipShow(MSAll10Dialog(type: index));
+      is_tap = false;
       return;
     } else if (index == 5 && MSLocalProvider.instance.ms_scrach_end_number_5 >= 10) {
       cxt.tipShow(MSAll10Dialog(type: index));
+      is_tap = false;
       return;
     } else if (index == 6 && MSLocalProvider.instance.ms_scrach_end_number_6 >= 10) {
       cxt.tipShow(MSAll10Dialog(type: index));
+      is_tap = false;
       return;
     } else {
       animationshow(cxt, index);
@@ -713,7 +759,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
         _scaleControllers[index].forward(); // 放大
         // 延迟后执行缩小动画
         Future.delayed(Duration(milliseconds: 100), () {
-          _scaleControllers[index].reverse(); // 缩小
+          _scaleControllers[index].reverse();
         });
       } else {
         // 如果动画没有完成，直接反向执行
@@ -731,6 +777,7 @@ class _VerticalListViewState extends State<VerticalListView> with TickerProvider
 
   }
   void pushdetails(BuildContext cxt,int index){
+    is_tap = false;// 缩小
     Navigator.of(cxt).push(
       MaterialPageRoute(
         builder: (builder) {
@@ -776,8 +823,14 @@ class MSNavBarWidget extends StatefulWidget {
 class _MSNavBarWidgetState extends State<MSNavBarWidget> {
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    // TODO: implement initState
+    super.initState();
     ms_event_fire('day7_status', {'task_status' : MSLocalProvider.instance.ms_today_sign_status == true ? 1 : 0});
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: 0.width(context),
       height: 118,
@@ -902,7 +955,7 @@ class _MSNavBarWidgetState extends State<MSNavBarWidget> {
                   InkWell(
                     onTap: (){
                       context.tipShow(MSPopSettingDialog());
-                      // context.tipShow(MSNewNoticeDialog());
+                      // context.tipShow(MSPopRankingDialog(index: 0));
                     },
                     child: MSImg(name: 'ms_set_icon', width: 43, height: 42,),
                   ),
@@ -967,6 +1020,7 @@ class _MSBottomBarWidgetState extends State<MSBottomBarWidget> {
                     child: Container(
                       width: 55,
                       height: 50,
+                      key: targetimageKey,
                       decoration: BoxDecoration(
                           image: MSDImg('ms_wheel_b_btn')
                       ),
@@ -986,7 +1040,7 @@ class _MSBottomBarWidgetState extends State<MSBottomBarWidget> {
                                 child: Consumer<MSLocalProvider>(
                                     builder: (context, provider, child) {
                                       return MSStrokeText(
-                                          text: '${provider.ms_wheel_index}/5',
+                                          text: '${provider.ms_key_all_index}',
                                           size: 11,
                                           color: '#FFFFFF'.color(),
                                           weight: FontWeight.w700,

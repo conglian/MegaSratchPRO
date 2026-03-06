@@ -309,15 +309,20 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
             top: 538.h,
             child: InkWell(
               onTap: () async {
-                MSMegaAds().ms_showAd(context, MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_rv' : widget.is_wheel ? 'pppuz_wheeldollor_rv' : 'pppuz_srcaward_rv', onCacheResponse: (onCacheResponse){
-                  Navigator.pop(context, 0);
-                }, adDidClosed: (adDidClosed){
-                  MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
+                if (MSLocalProvider.instance.ms_dolas_number >= 500){
+                  MSMegaAds().ms_showAd(context, MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_rv' : widget.is_wheel ? 'pppuz_wheeldollor_rv' : 'pppuz_reward_rv', onCacheResponse: (onCacheResponse){
+                    Navigator.pop(context, 0);
+                  }, adDidClosed: (adDidClosed){
+                    MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num * 2.0));
+                    Navigator.pop(context, 1);
+                  });
+                } else {
+                  MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
                   Navigator.pop(context, 1);
-                });
-                if (!MSLocalProvider.instance.ms_first_box_tips){
-                  await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_box_tipsName, true);
-                  ms_event_fire('first_reward_c', {});
+                  if (!MSLocalProvider.instance.ms_first_box_tips){
+                    await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_box_tipsName, true);
+                    ms_event_fire('first_reward_c', {});
+                  }
                 }
                 ms_event_fire('coin_pop_c', {'source_from' : _getindexName()});
               },
@@ -330,10 +335,10 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    MSImg(name: 'ms_ad_icon', width: 25, height: 25),
-                    SizedBox(width: 8),
+                    Visibility(visible: MSLocalProvider.instance.ms_dolas_number >= 500,child: MSImg(name: 'ms_ad_icon', width: 25, height: 25)),
+                    Visibility(visible: MSLocalProvider.instance.ms_dolas_number >= 500,child: SizedBox(width: 8)),
                     MSStrokeText(
-                      text: 'Claim \$${(widget.award_num * 2.0).toStringAsFixed(2)}',
+                      text: 'Claim \$${(MSLocalProvider.instance.ms_dolas_number >= 500 ? widget.award_num * 2.0 : widget.award_num).toStringAsFixed(2)}',
                       size: 24,
                       color: '#FFFFFF'.color(),
                       weight: FontWeight.w700,
@@ -347,40 +352,43 @@ class MSYouWinDialogState extends State<MSYouWinDialog> with TickerProviderState
           ),
           Positioned(
             top: 538.h + 64,
-            child: InkWell(
-              onTap: () async {
-                if (await MSMegaAds().getIntShow()) {
-                  if (!context.mounted) return;
-                  MSMegaAds().ms_showAd(context,MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_int' :  widget.is_wheel ? 'pppuz_wheeldollor_int' : 'pppuz_srcclose_int', onCacheResponse: (onCacheResponse){
+            child: Visibility(
+              visible: MSLocalProvider.instance.ms_dolas_number >= 500,
+              child: InkWell(
+                onTap: () async {
+                  if (await MSMegaAds().getIntShow()) {
+                    if (!context.mounted) return;
+                    MSMegaAds().ms_showAd(context,MSLocalProvider.instance.ms_today_card_index == 1 ? 'pppuz_firstsrc_int' :  widget.is_wheel ? 'pppuz_wheeldollor_int' : 'pppuz_reward_int', onCacheResponse: (onCacheResponse){
+                      Navigator.pop(context, 1);
+                    }, adDidClosed: (adDidClosed){
+                      MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                      Navigator.pop(context, 1);
+                    });
+                  } else {
+                    await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
+                    if (!context.mounted) return;
                     Navigator.pop(context, 1);
-                  }, adDidClosed: (adDidClosed){
-                    MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
-                    Navigator.pop(context, 1);
-                  });
-                } else {
-                  await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + (widget.award_num));
-                  if (!context.mounted) return;
-                  Navigator.pop(context, 1);
-                }
-                if (!MSLocalProvider.instance.ms_first_box_tips){
-                  await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_box_tipsName, true);
-                  ms_event_fire('first_reward_c', {});
-                }
-                ms_event_fire('coin_pop_close', {'source_from' : _getindexName()});
-              },
-              child: Visibility(
-                visible: _showBottom,
-                child: SizedBox(
-                  width: 237,
-                  height: 64,
-                  child: Center(
-                    child: MSStrokeText(
-                      text: '\$${widget.award_num}',
-                      size: 20,
-                      color: '#FFFFFF'.color(),
-                      weight: FontWeight.w700,
-                      skWidth: 1,
-                      skColor: '#000000'.color(),
+                  }
+                  if (!MSLocalProvider.instance.ms_first_box_tips){
+                    await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_box_tipsName, true);
+                    ms_event_fire('first_reward_c', {});
+                  }
+                  ms_event_fire('coin_pop_close', {'source_from' : _getindexName()});
+                },
+                child: Visibility(
+                  visible: _showBottom,
+                  child: SizedBox(
+                    width: 237,
+                    height: 64,
+                    child: Center(
+                      child: MSStrokeText(
+                        text: '\$${widget.award_num}',
+                        size: 20,
+                        color: '#FFFFFF'.color(),
+                        weight: FontWeight.w700,
+                        skWidth: 1,
+                        skColor: '#000000'.color(),
+                      ),
                     ),
                   ),
                 ),
@@ -1253,7 +1261,7 @@ class MSSuperWinDialogState extends State<MSSuperWinDialog> with TickerProviderS
 // 未中奖
 class MSUnAwardDialog extends StatefulWidget {
   final int index;
-  MSUnAwardDialog({super.key, required this.index});
+      MSUnAwardDialog({super.key, required this.index});
 
   @override
   State<MSUnAwardDialog> createState() => MSUnAwardDialogState();
@@ -1262,8 +1270,6 @@ class MSUnAwardDialog extends StatefulWidget {
 class MSUnAwardDialogState extends State<MSUnAwardDialog> with TickerProviderStateMixin {
   late AnimationController _scaleController;
   late Animation<double> _scaleAnimation;
-  // 生成 0 到 3 之间的随机整数
-  int randomNumber = Random().nextInt(4);
 
   @override
   void initState() {
@@ -1338,19 +1344,39 @@ class MSUnAwardDialogState extends State<MSUnAwardDialog> with TickerProviderSta
         children: [
           // 放大缩小动画：ms_youwin_titles
           Positioned(
-            top: 300.h,
+            top: 260.h,
+            child: SizedBox(
+              width: 324,
+              height: 253,
+              child: MSImg(name: 'ms_unlock_center'),
+            ),
+          ),
+          Positioned(
+            top: 260.h,
             child: AnimatedBuilder(
               animation: _scaleAnimation,
               builder: (context, child) {
                 return Transform.scale(
                   scale: _scaleAnimation.value,
-                  child: MSImg(name: 'ms_unlock_title_${randomNumber}', width: 369, height: 160),
+                  child: MSImg(name: 'ms_soclose_bg', width: 375, height: 205),
                 );
               },
             ),
           ),
           Positioned(
-            top: 480.h,
+            top: 226.h,
+            child: AnimatedBuilder(
+              animation: _scaleAnimation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: MSImg(name: 'ms_soclose_icon', width: 368, height: 282),
+                );
+              },
+            ),
+          ),
+          Positioned(
+            top: 520.h,
             child: InkWell(
               onTap: () async {
                 ms_event_fire('paly_failed_pop_c', {'source_from' : _getindexName()});
@@ -1385,7 +1411,7 @@ class MSUnAwardDialogState extends State<MSUnAwardDialog> with TickerProviderSta
                     // MSImg(name: 'ms_ad_icon', width: 25, height: 25),
                     // SizedBox(width: 8),
                     MSStrokeText(
-                      text: 'Try Again',
+                      text: 'Win \$1000',
                       size: 24,
                       color: '#FFFFFF'.color(),
                       weight: FontWeight.w700,
@@ -2850,7 +2876,7 @@ class MSTXSubmitDialogState extends State<MSTXSubmitDialog> with SingleTickerPro
                         await MSLocalProvider.instance.updateString(MSLocalProvider.instance.ms_tx_date_strName, formattedDate);
                         if (!context.mounted) return;
                         Navigator.pop(context, 1);
-                        context.tipShow(MSTXOneToastDialog());
+                        context.tipShow(MSPopRankingDialog(index: 0));
                         MSScratchCashUpdateotificationService.sendToDomandNumberNotification(0);
                         MSDialogTool.toast(context, 'Congratulations on your successful submission');
                       } else {
@@ -4052,8 +4078,10 @@ class MSTXThreeToastDialogState extends State<MSTXThreeToastDialog> with SingleT
                               borderRadius: BorderRadius.circular(26)
                           ),
                           child: InkWell(
-                            onTap: (){
-                              Navigator.pop(context);
+                            onTap: () async {
+                              await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_wait_statusName, false);
+                              MSScratchCashUpdateotificationService.sendToDomandNumberNotification(0);
+                              Navigator.pop(context, 1);
                               context.tipShow(MSTXFourToastDialog());
                             },
                             child: MSStrokeText(text: 'Speed Up！', size: 26, color: '#FFFFFF'.color(), weight: FontWeight.w700, skWidth: 0, skColor: '#1D5814'.color(),is_btn: true,),
@@ -4063,6 +4091,7 @@ class MSTXThreeToastDialogState extends State<MSTXThreeToastDialog> with SingleT
                         InkWell(onTap: () async {
                           ms_event_fire('queue_wait_c', {});
                           await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_tx_wait_statusName, true);
+                          MSScratchCashUpdateotificationService.sendToDomandNumberNotification(0);
                           if (MSMegaAds().getIntShow() == true){
                             MSMegaAds().ms_showAd(context, 'pppuz_withdraw_safe_int', onCacheResponse: (onCacheResponse){
                               Navigator.pop(context, 0);
@@ -4072,11 +4101,11 @@ class MSTXThreeToastDialogState extends State<MSTXThreeToastDialog> with SingleT
                           } else {
                             Navigator.pop(context, 0);
                           }
-                        },child: SizedBox(width: 327.w, height:16.h,child: MSText(text: 'Wait 3 Days', size: 15, color: '#7D7D7D'.color(), weight: FontWeight.w700,align: TextAlign.center,)))
+                        },child: SizedBox(width: 327.w, height:16.h,child: MSText(text: 'Wait 7 Days', size: 15, color: '#7D7D7D'.color(), weight: FontWeight.w700,align: TextAlign.center,)))
                       ],
                     ),
                   ),
-                  Positioned(top: 178.h,child: SizedBox(width: 327.w, height:20.h,child: MSText(text: 'Review in 2-3 days', size: 20, color: '#363636'.color(), weight: FontWeight.w700,align: TextAlign.center,))),
+                  Positioned(top: 178.h,child: SizedBox(width: 327.w, height:20.h,child: MSText(text: 'Review in 7days', size: 20, color: '#363636'.color(), weight: FontWeight.w700,align: TextAlign.center,))),
                 ],
               ),
               SizedBox(height: 11.28.h),
@@ -4092,7 +4121,7 @@ class MSTXThreeToastDialogState extends State<MSTXThreeToastDialog> with SingleT
                     SizedBox(width: 8.65.w),
                     MSText(text: MSLocalProvider.instance.ms_account_id, size: 20, color: '#000000'.color(), weight: FontWeight.w700),
                     Spacer(),
-                    MSText(text: 'Review for 1 day', size: 16, color: '#000000'.color(), weight: FontWeight.w700),
+                    MSText(text: 'Review for 7 day', size: 16, color: '#000000'.color(), weight: FontWeight.w700),
                     SizedBox(width: 15.w),
                   ],
                 ),
@@ -4161,8 +4190,8 @@ class MSTXFourToastDialogState extends State<MSTXFourToastDialog> with SingleTic
                                 mainAxisAlignment: .spaceEvenly,
                                 children: [
                                   MSImg(name: 'ms_smail_card', width: 27, height: 28,),
-                                  MSText(text: 'Scratch 50 Cards', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
-                                  MSText(text: '${MSLocalProvider.instance.ms_tx_card_index}/50', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+                                  MSText(text: 'Scratch 100 Cards', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+                                  MSText(text: '${MSLocalProvider.instance.ms_tx_card_index}/100', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
                                 ],
                               ),
                               SizedBox(height: 20.h,),
@@ -4170,8 +4199,8 @@ class MSTXFourToastDialogState extends State<MSTXFourToastDialog> with SingleTic
                                 mainAxisAlignment: .spaceEvenly,
                                 children: [
                                   MSImg(name: 'ms_smail_indexs', width: 22, height: 25,),
-                                  MSText(text: 'Play Daily for 2 Days', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
-                                  MSText(text: '1/2', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+                                  MSText(text: 'Play 20 the grand prize pool！', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
+                                  MSText(text: '${MSLocalProvider.instance.ms_pool_tx_index}/20', size: 15, color: '#000000'.color(), weight: FontWeight.w700),
                                 ],
                               ),
                             ],
@@ -4564,7 +4593,7 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
               Container(
                 width: 284.w, height: 260,
                 decoration: BoxDecoration(
-                  image: MSDImg('ms_dao_bg')
+                    image: MSDImg('ms_dao_bg')
                 ),
                 child: Stack(
                   children: [
@@ -4703,6 +4732,341 @@ class MSAwardPoolDialogState extends State<MSAwardPoolDialog>
           //     ),
           //   ),
           // )),
+        ],
+      ),
+    );
+  }
+
+  String _getindexName(){
+    String name = 'number';
+    if (widget.index == 1){
+      name = 'diamond';
+    } else if (widget.index == 2){
+      name = 'fruit';
+    } else if (widget.index == 3){
+      name = 'emoji';
+    } else if (widget.index == 4){
+      name = 'pot';
+    } else if (widget.index == 5){
+      name = '77';
+    } else if (widget.index == 6){
+      name = 'cash';
+    } else if (widget.index == 0){
+      name = 'number';
+    } else if (widget.index == -1){
+      name = 'home';
+    }  else {
+      name = 'wheel';
+    }
+    return name;
+  }
+}
+
+// 瓜分奖金池
+class MSAwardPoolBDialog extends StatefulWidget {
+  final bool is_home;
+  final int index;
+  final int award_num;
+  final int time_index;
+  MSAwardPoolBDialog({super.key, required this.award_num, required this.time_index, required this.index, required this.is_home});
+
+  @override
+  State<MSAwardPoolBDialog> createState() => MSAwardPoolBDialogState();
+}
+
+class MSAwardPoolBDialogState extends State<MSAwardPoolBDialog>
+    with SingleTickerProviderStateMixin {
+
+  late AnimationController _rotationController;
+
+  late Animation<double> _rotationAnimation;
+  // 总倒计时时间，单位是秒
+  int _remainingTime = MSLocalProvider.instance.ms_dao_time_index; // 5 分钟倒计时（300秒）
+
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    ms_event_fire('new_bonus_pop_v', {});
+    ms_event_fire('bonus_pool_v_n', {});
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    });
+    // 初始化 AnimationController 进行旋转
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..repeat(); // 设置旋转动画无限循环
+
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * 3.14159) // 完整旋转 360 度
+        .animate(CurvedAnimation(parent: _rotationController, curve: Curves.linear));
+    _startCountdown();
+  }
+
+  // 启动倒计时
+  void _startCountdown() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTime > 0) {
+        setState(() {
+          _remainingTime--;
+          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, _remainingTime);
+        });
+      } else {
+        setState(() {
+          MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 0);
+        });
+        _timer.cancel(); // 时间到，取消定时器
+      }
+    });
+  }
+
+  // 将秒数转化为格式化时间（00:00:00）
+  String _formatTime(int seconds) {
+    int hours = seconds ~/ 3600;
+    int minutes = (seconds % 3600) ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '${_twoDigits(hours)}:${_twoDigits(minutes)}:${_twoDigits(remainingSeconds)}';
+  }
+
+  // 保证时间两位数
+  String _twoDigits(int n) {
+    if (n >= 10) {
+      return "$n";
+    } else {
+      return "0$n";
+    }
+  }
+
+  @override
+  void dispose() {
+    _rotationController.dispose(); // 释放资源
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 0.width(context),
+      height: 0.height(context),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Column(
+            children: [
+              SizedBox(height: 220.h),
+              Container(
+                width: 352.w, height: 293,
+                decoration: BoxDecoration(
+                  image: MSDImg('ms_pool_bgs')
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(right: 0.w,top: -24,
+                      child: AnimatedBuilder(
+                        animation: _rotationAnimation,
+                        builder: (context, child) {
+                          return Transform.rotate(
+                            angle: _rotationAnimation.value, // 动态更新旋转角度
+                            child: MSImg(
+                              name: 'ms_guang_icon',
+                              width: 150.w,
+                              height: 150.w,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Positioned(right: 20.w, top: 0.h,child: MSImg(name: 'ms_pool_icons', width: 110.w, height: 100.h)),
+                    Positioned(top: 60,left: 28,child: MSGradientStrokeText(
+                      text: '\$100000',
+                      gradientColors: [
+                        '#FBF544'.color(),
+                        '#F4B22A'.color(),
+                      ],
+                      width: 130.w,
+                      height: 40,
+                      fontSize: 32,
+                      strokeWidth: 2,
+                      strokeColor: '#322107'.color(),
+                    ),),
+                    Positioned(left: 16,top: 20,child: MSText(text: 'Grand Prize Pool', size: 26, color: '#FFFFFF'.color(), weight: FontWeight.w700)),
+                    Positioned(left: 12.w,top: 102.h,child: SizedBox(
+                      width: 324.w,
+                      height: 86,
+                      child: Column(
+                        children: [
+                          SizedBox(height: 8),
+                          Row(
+                            children: [
+                              SizedBox(width: 20),
+                              MSText(text: 'Your Progress', size: 16, color: '#FFFFFF'.color(), weight: FontWeight.w700),
+                              Spacer(),
+                              RichText(
+                                textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: '#FFFFFF'.color()
+                                  ),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: '${MSLocalProvider.instance.ms_pool_card_index}',
+                                      style: TextStyle(color: '#40EB50'.color(),fontSize: 20),
+                                    ),
+                                    TextSpan(
+                                      text: '/',
+                                      style: TextStyle(color: Colors.white,fontSize: 20),
+                                    ),
+                                    TextSpan(
+                                      text: '20 Cards',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 18)
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Container(
+                            width: 295.w,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              image: MSDImg('ms_pool_pro_bg'),  // 保持原背景图片
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(7),
+                              child: LinearProgressIndicator(
+                                value: MSLocalProvider.instance.ms_pool_card_index / 20,
+                                minHeight: 14.0,
+                                backgroundColor: Colors.transparent,
+                                valueColor:
+                                AlwaysStoppedAnimation<Color>('#59FF69'.color()),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Row(
+                            children: [
+                              SizedBox(width: 15.w),
+                              MSText(text: 'Start', size: 12, color: '#A1A1A1'.color(), weight: FontWeight.w700),
+                              Spacer(),
+                              MSText(text: 'Gool', size: 12, color: '#A1A1A1'.color(), weight: FontWeight.w700),
+                              SizedBox(width: 15.w),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )),
+                    Positioned(
+                      left: 58.w,
+                      bottom: 11,
+                      child: InkWell(
+                        onTap: () async {
+                          ms_event_fire('new_bonus_pop_c', {});
+                          ms_event_fire('bonus_pop_c', {'source_from:' : _getindexName()});
+                          // 首次不看广告
+                          if (MSLocalProvider.instance.ms_pool_card_index >= 20) {
+                            await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_poolName, true);
+                            await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + widget.award_num);
+                            await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_tx_indexName, MSLocalProvider.instance.ms_pool_tx_index + 1);
+                            await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_pool_showName, false);
+                            await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 300);
+                            await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_card_indexName, 0);
+                            if (!context.mounted)return;
+                            Navigator.pop(context, 1);
+                          } else {
+                            if (MSLocalProvider.instance.ms_pool_card_index >= 20){
+                              MSMegaAds().ms_showAd(context, 'pppuz_bonus_rv', onCacheResponse: (onCacheResponse){
+                                Navigator.pop(context, 0);
+                              }, adDidClosed: (adDidClosed) async {
+                                await MSLocalProvider.instance.updatedouble(MSLocalProvider.instance.ms_dolas_numberName, MSLocalProvider.instance.ms_dolas_number + widget.award_num);
+                                await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_tx_indexName, MSLocalProvider.instance.ms_pool_tx_index + 1);
+                                await MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_pool_showName, false);
+                                await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_pool_card_indexName, 0);
+                                await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_dao_time_indexName, 300);
+                                if (!context.mounted)return;
+                                Navigator.pop(context, 1);
+                              });
+                            } else {
+                              Navigator.pop(context, 1);
+                              if (widget.is_home){
+                                if (Navigator.canPop(context)){
+                                  Navigator.pop(context, 0);
+                                }
+                                MSNavigationService().changeTab(0);
+                                int row = 0;
+                                if (MSLocalProvider.instance.ms_scrach_end_number_0 < 10){
+                                  row = 0;
+                                } else if (MSLocalProvider.instance.ms_scrach_end_number_1 < 10){
+                                  row = 1;
+                                } else if (MSLocalProvider.instance.ms_scrach_end_number_2 < 10){
+                                  row = 2;
+                                } else if (MSLocalProvider.instance.ms_scrach_end_number_3 < 10){
+                                  row = 3;
+                                } else if (MSLocalProvider.instance.ms_scrach_end_number_4 < 10){
+                                  row = 4;
+                                } else if (MSLocalProvider.instance.ms_scrach_end_number_5 < 10){
+                                  row = 5;
+                                } else if (MSLocalProvider.instance.ms_scrach_end_number_6 < 10){
+                                  row = 6;
+                                }
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (builder) {
+                                      return MSScrachDetails_b(
+                                          index: row);
+                                    },
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        },
+                        child: Container(
+                          width: 255,
+                          height: 68,
+                          decoration: BoxDecoration(
+                            image: MSDImg('ms_green_btns'),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Visibility(visible: MSLocalProvider.instance.ms_pool_card_index >= 20,child: MSImg(name: 'ms_ad_icon', width: 25, height: 25,)),
+                              // Visibility(visible: MSLocalProvider.instance.ms_pool_card_index >= 20,child: SizedBox(width: 8,)),
+                              MSStrokeText(
+                                text: MSLocalProvider.instance.ms_pool_card_index >= 20 ? 'Grab Money Now' : 'SCRATCH NOW!',
+                                size: 20,
+                                color: '#FFFFFF'.color(),
+                                weight: FontWeight.w700,
+                                skWidth: 1,
+                                skColor: '#000000'.color(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Positioned(bottom: 280.h,left: (0.width(context) - 313.w) * 0.5,child: Container(
+            width: 313.w,
+            height: 34,
+            decoration: BoxDecoration(
+                image: MSDImg('ms_pool_time_bg')
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MSImg(name: 'ms_pool_time_icon', width: 29, height: 29),
+                SizedBox(width: 8),
+                MSText(text: 'Ends in 12h 30r', size: 20, color: '#FFFFFF'.color(), weight: FontWeight.w900)
+              ],
+            ),
+          )),
         ],
       ),
     );
@@ -5787,6 +6151,294 @@ class MSAll10DialogState extends State<MSAll10Dialog>
         ],
       ),
     );
+  }
+}
+// new 排行榜
+class MSPopRankingDialog extends StatefulWidget {
+  final int index;
+  MSPopRankingDialog({super.key, required this.index});
+
+  @override
+  State<MSPopRankingDialog> createState() => MSPopRankingDialogState();
+}
+
+class MSPopRankingDialogState extends State<MSPopRankingDialog> with TickerProviderStateMixin {
+
+  int _seconds = 60; // 1分钟倒计时
+  Timer? _timer;
+  late AnimationController _breathAnimationController;
+  late AnimationController _flashAnimationController;
+  late Animation<double> _flashOpacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountDown();
+
+    // 呼吸动画的控制器，持续时间更短，呼吸加快
+    _breathAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600), // 更快的呼吸动画
+    )..repeat(reverse: true);
+
+    // 闪烁效果控制器
+    _flashAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500), // 闪烁的时间周期
+    )..repeat(reverse: true);
+
+    _flashOpacity = Tween<double>(begin: 0.2, end: 0.7).animate(_flashAnimationController);
+  }
+
+  void _startCountDown() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_seconds <= 1) {
+        timer.cancel();
+        setState(() {
+          _seconds = 0;
+        });
+      } else {
+        setState(() {
+          _seconds--;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _breathAnimationController.dispose();
+    _flashAnimationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 0.width(context),
+      height: 0.height(context),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 使用透明度动画来实现闪烁效果
+          AnimatedBuilder(
+            animation: _flashAnimationController,
+            builder: (context, child) {
+              return Container(
+                width: 327.w + 20,
+                height: 410.h + 20,
+                decoration: BoxDecoration(
+                    color: '#D52D2A'.color(opacity: _flashOpacity.value), // 使用动画的透明度
+                    borderRadius: BorderRadius.circular(24)
+                ),
+                child: Center(
+                  child: Container(
+                    width: 327.w,
+                    height: 410.h,
+                    decoration: BoxDecoration(
+                        image: MSDImg('ms_rank_bg')
+                    ),
+                    child: Stack(
+                      children: [
+                        Column(
+                          children: [
+                            Container(
+                              width: 327.w,
+                              height: 152.h,
+                              decoration: BoxDecoration(
+                                  image: MSDImg('ms_rank_top')
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Spacer(),
+                                      InkWell(
+                                        onTap: (){
+                                          Navigator.pop(context, 0);
+                                        },
+                                        child: SizedBox(width: 30, height:30,child: Center(child: MSImg(name: 'ms_close_icon_w', width: 21, height: 21))),
+                                      ),
+                                      SizedBox(width: 12,),
+                                    ],
+                                  ),
+                                  MSImg(name: 'ms_gan_icon', width: 83, height: 83),
+                                  MSText(
+                                      text: 'TRAFFIC JAM!',
+                                      size: 26,
+                                      color: '#FFFFFF'.color(),
+                                      weight: FontWeight.w800
+                                  ),
+                                  SizedBox(height: 4.5.h),
+                                  MSText(
+                                      text: '10,432 People Waiting!',
+                                      size: 13,
+                                      color: '#FFFFFF'.color(),
+                                      weight: FontWeight.w800
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 16.5.h),
+                            MSText(
+                                text: 'SYSTEM SAYED YOUR SPOT',
+                                size: 10,
+                                color: '#A0A0A0'.color(),
+                                weight: FontWeight.w900
+                            ),
+                            SizedBox(height: 12.h),
+                            Container(
+                              width: 266,
+                              height: 88,
+                              decoration: BoxDecoration(
+                                color: Color(0xFFEFFCF3),
+                                borderRadius: BorderRadius.circular(8.0),
+                                border: Border.all(
+                                  color: Color(0xFF43A769),
+                                  width: 2,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 15.5),
+                                  MSText(
+                                      text: '#${MSLocalProvider.instance.ms_rank_index}',
+                                      size: 34,
+                                      color: '#3D4649'.color(),
+                                      weight: FontWeight.w700
+                                  ),
+                                  SizedBox(height: 3.5),
+                                  MSText(
+                                      text: 'Top 10 withdraw first!',
+                                      size: 12,
+                                      color: '#3D4649'.color(),
+                                      weight: FontWeight.w500
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 16.h),
+
+                            /// 🔥 倒计时（为0时自动隐藏）
+                            Visibility(
+                              visible: _seconds > 0,
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    MSImg(name: 'ms_time_iconr', width: 29, height: 29),
+                                    SizedBox(width: 2),
+                                    MSText(
+                                        text: 'Expires in: ${_seconds}S',
+                                        size: 13,
+                                        color: '#D52D2A'.color(),
+                                        weight: FontWeight.w800
+                                    )
+                                  ],
+                              ),
+                            ),
+
+                            SizedBox(height: 20.h),
+
+                            InkWell(
+                              onTap: (){
+                                ms_event_fire('queue_speed_up_c', {'money' : tx_num_list[widget.index]});
+                                MSMegaAds().ms_showAd(context, 'pppuz_withdraw_queue_rv', onCacheResponse: (onCacheResponse){}, adDidClosed: (adDidClosed){
+                                  updateRankRow();
+                                });
+                              },
+                              child: AnimatedBuilder(
+                                animation: _breathAnimationController,
+                                builder: (context, child) {
+                                  return Transform.scale(
+                                    scale: 1 + 0.05 * _breathAnimationController.value,
+                                    child: child,
+                                  );
+                                },
+                                child: Container(
+                                  width: 295,
+                                  height: 51.5,
+                                  decoration: BoxDecoration(
+                                      color: '#4183EC'.color(),
+                                      borderRadius: BorderRadius.circular(26)
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      MSImg(name: 'ms_ad_icon', width: 25, height: 25),
+                                      SizedBox(width: 8),
+                                      MSText(
+                                          text: 'BOOST NOW',
+                                          size: 20,
+                                          color: '#FFFFFF'.color(),
+                                          weight: FontWeight.w800
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            SizedBox(height: 184.h),
+                            Padding(
+                              padding: EdgeInsets.only(left: (327.w - 91) * 0.5),
+                              child: Container(
+                                width: 91,
+                                height: 19.5,
+                                decoration: BoxDecoration(
+                                    color: '#43A769'.color(),
+                                    borderRadius: BorderRadius.circular(5)
+                                ),
+                                child: Center(
+                                  child: MSText(
+                                      text: 'LUCkY BATCH',
+                                      size: 10,
+                                      color: '#FFFFFF'.color(),
+                                      weight: FontWeight.w900
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> updateRankRow() async {
+    if (MSLocalProvider.instance.ms_rank_index > 80){
+      int row = Random().nextInt(3) + 3;
+      if (!mounted) return;
+      MSDialogTool.toastRanking(context, MSLocalProvider.instance.ms_rank_index - row);
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_rank_indexName, MSLocalProvider.instance.ms_rank_index - row);
+      showtxNext();
+    } else {
+      int row = Random().nextInt(2) + 2;
+      if (!mounted) return;
+      MSDialogTool.toastRanking(context, MSLocalProvider.instance.ms_rank_index - row);
+      await MSLocalProvider.instance.updateint(MSLocalProvider.instance.ms_rank_indexName, MSLocalProvider.instance.ms_rank_index - row);
+      showtxNext();
+    }
+  }
+
+  void showtxNext(){
+    if (MSLocalProvider.instance.ms_rank_index <= 10) {
+      MSScratchCashUpdateotificationService.sendToDomandNumberNotification(0);
+      Navigator.pop(context);
+      if (!mounted) return;
+      context.tipShow(MSTXTwoToastDialog());
+    }
   }
 }
 // 设置
