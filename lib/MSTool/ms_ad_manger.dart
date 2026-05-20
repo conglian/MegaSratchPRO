@@ -24,18 +24,26 @@ Map<String, dynamic> ms_defaultAdConfig = {
   "qtgokgqc": 100,
   "kzsqaqju": 100,
   "pppuz_switch": false,
+  "pppuz_open": [
+    {
+      "myoljzuw": "n6a0c2f3b1c5ae",
+      "evdmqqij": "topon",
+      "pcesfddy": "interstitial",
+      "kgznnxwq": 3000
+    }
+  ],
   "pppuz_int": [
     {
-      "myoljzuw": "b9f55c7afe098b58",
-      "evdmqqij": "max",
+      "myoljzuw": "n1h6c3an6h4bde",
+      "evdmqqij": "topon",
       "pcesfddy": "interstitial",
       "kgznnxwq": 3000
     }
   ],
   "pppuz_rv": [
     {
-      "myoljzuw": "c2137b091839ce8a",
-      "evdmqqij": "max",
+      "myoljzuw": "n1h6c3an6h4k0d",
+      "evdmqqij": "topon",
       "pcesfddy": "reward",
       "kgznnxwq": 3000
     }
@@ -84,6 +92,8 @@ class MSMegaAds {
 
   MSAdModel? _MSJoyAdModel;
 
+  MSAdModel? msJoyAdModel = MSAdModel.fromJson(ms_defaultAdConfig);
+
   MSResponseModel ad_int_model = MSResponseModel(intad_point: []);
 
   bool _pigAdDelegateCreated = false;
@@ -110,6 +120,8 @@ class MSMegaAds {
   final bool skipAd = false;
   // 是否显示广告中
   late bool is_showAd = false;
+
+  late bool topinitSuc = false;
 
   Future<void> init({MSAdModel? inputAd}) async {
     _initadintjson();
@@ -169,6 +181,7 @@ class MSMegaAds {
     // 展示上限
     if (MSLocalProvider.instance.ms_ad_show_index > MSFKManger().fkModel.behavior.ad_daily_show){
       MSDialogTool.toast(context, 'see you tommorow');
+      ms_event_fire('see_you_tommorow', {});
       onCacheResponse.call(false);
       resetHandler();
       return;
@@ -199,21 +212,22 @@ class MSMegaAds {
     ms_event_fire('pppuz_ad_chance', {"ad_pos_id": placeID});
 
     if (defaultMode == false) {
-      _showA(adType, onCacheResponse, context: context, showDialog: showDialog);
+      _showA(adType, placeID,onCacheResponse, context: context, showDialog: showDialog);
     } else {
-      _showB(adType, onCacheResponse, context: context, showDialog: showDialog);
+      _showB(adType, placeID,onCacheResponse, context: context, showDialog: showDialog);
     }
   }
 
   void _showA(
     String adType,
+    String placeID,
     Function(bool) onCacheResponse, {
     BuildContext? context, bool showDialog = true,
   }) async {
     final isInt = adType == "int";
     final realType = isInt ? "interstitial" : "reward";
 
-    final showIndex = _findShowIndex(realType, false);
+    final showIndex = _findShowIndex(realType, placeID,false);
 
     if (showIndex != -1) {
       final ad = _ads[showIndex];
@@ -250,7 +264,8 @@ class MSMegaAds {
     "$runtimeType onCacheResponse is not ready!!! error $quizAdPlaceID".log();
   }
 
-  int _findShowIndex(String adType, bool compare) {
+
+  _findShowIndex(String adType, String placeID,bool compare) {
     int showIndex = -1;
     double bestEcpm = double.negativeInfinity;
 
@@ -266,9 +281,17 @@ class MSMegaAds {
       // compare 模式下：reward 场景允许跨类型比较
       if (compare && adType != "reward" && ad.type != adType) continue;
 
-      if (ad.ecpm > bestEcpm) {
-        bestEcpm = ad.ecpm;
-        showIndex = i;
+      // 开屏单独用特殊的ids
+      if (placeID == 'pppuz_launch'){
+         if (ad.ad_identifer == _MSJoyAdModel!.pppuz_open.first.myoljzuw){
+           bestEcpm = ad.ecpm;
+           showIndex = i;
+         }
+      } else {
+        if (ad.ecpm > bestEcpm) {
+          bestEcpm = ad.ecpm;
+          showIndex = i;
+        }
       }
     }
 
@@ -322,6 +345,7 @@ class MSMegaAds {
 
   void _showB(
     String adType,
+    String placeID,
     Function(bool) onCacheResponse, {
     BuildContext? context,
         bool showDialog = false,
@@ -329,7 +353,7 @@ class MSMegaAds {
     final isInt = adType == "int";
     final realType = isInt ? "interstitial" : "reward";
 
-    final showIndex = _findShowIndex(realType, true);
+    final showIndex = _findShowIndex(realType, placeID,true);
 
     if (showIndex != -1) {
       final ad = _ads[showIndex];
@@ -534,7 +558,7 @@ extension AdServiceExtension on MSMegaAds {
         "$runtimeType ad requesting [requested] status = $status, type is $type, source is $source, id is $adID"
             .log();
       }
-      ms_event_fire('ad_request', {'ad_platform' : type, 'ad_format' : source, 'ad_code_id' : adID});
+      ms_event_fire('ad_request', {'ad_source_client' : source, 'ad_format' : type, 'ad_code_id' : adID});
     }
   }
 
@@ -543,7 +567,7 @@ extension AdServiceExtension on MSMegaAds {
       "$runtimeType request ad start,but ad model empty...".log();
       return false;
     }
-
+    addAds(_MSJoyAdModel!.pppuz_open);
     addAds(_MSJoyAdModel!.pppuz_int);
     addAds(_MSJoyAdModel!.pppuz_rv);
     if (_ads.isEmpty) {
@@ -679,6 +703,7 @@ extension AdServiceExtension on MSMegaAds {
           break;
         // ad video start play
         case RewardedStatus.rewardedVideoDidStartPlaying:
+          'value.extraMap=${value.extraMap}'.log();
           _adDidDisplayed(adID: value.placementID, ad_networkName: value.extraMap['network_type']);
           break;
         // ad video start end
@@ -809,7 +834,7 @@ extension AdServiceExtension on MSMegaAds {
        {
         "ad_code_id": _ads[index].ad_identifer,
         "ad_format": _ads[index].type == "reward" ? "rv" : "int",
-        "ad_platform": _ads[index].networkName,
+        "ad_source_client": _ads[index].networkName,
         "scxji_ad_request_time": Random().nextInt(4),
       },
     );
@@ -825,15 +850,17 @@ extension AdServiceExtension on MSMegaAds {
 
     ms_event_fire(
       "pppuz_ad_return_fail",
-       {
+      {
         "ad_code_id": quizAdPlaceID ?? "",
         "ad_format": _ads[index].getTypeToServer(),
-        "ad_platform": "max",
+        "ad_source_client": "topon",
         "reason": reason,
       },
     );
 
-    _requestAd(defaultIndex: [index]);
+    Future.delayed(Duration(seconds: 1),(){
+      _requestAd(defaultIndex: [index]);
+    });
   }
 
   Future<void> _adDidDisplayed({required String adID, required String ad_networkName}) async {
@@ -943,7 +970,9 @@ extension AdServiceExtension on MSMegaAds {
     onAdClosed?.call(false);
     resetHandler();
 
-    _requestAd(defaultIndex: [index]);
+    Future.delayed(Duration(seconds: 1),(){
+      _requestAd(defaultIndex: [index]);
+    });
   }
 
   bool findTag(List<MSAdModellist> data, String adID) {

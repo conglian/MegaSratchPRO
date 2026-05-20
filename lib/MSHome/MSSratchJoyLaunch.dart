@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_tba_info/flutter_tba_info.dart';
 import 'package:megascratch/MSTool/ms_LocalProvider.dart';
 import 'package:megascratch/MSTool/ms_text.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import '../MSTool/ms_NoticeTool.dart';
 import '../MSTool/ms_TBAInfoTool.dart';
+import '../MSTool/ms_ad_manger.dart';
 import '../MSTool/ms_extension_help.dart';
 import '../MSTool/ms_fkmanger.dart';
 import '../MSTool/ms_img.dart';
@@ -82,12 +84,33 @@ class MSSratchJoyLaunchState extends State<MSSratchJoyLaunch>  with SingleTicker
               MSImg(name: 'ms_luanchs_titles', width: 375, height: 309,),
               Spacer(),
               SJGradientProgressBar(onCompleted: (){
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
-                  ),
-                );
+                if (MSLocalProvider.instance.ms_first_session == true){
+                  MSMegaAds().ms_showAd(root_navigatorKey.currentContext!, 'pppuz_launch', onCacheResponse: (onCacheResponse){
+                    ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 0});
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
+                      ),
+                    );
+                  }, adDidClosed: (adDidClosed){
+                    ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 1});
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
+                      ),
+                    );
+                  });
+                } else {
+                  MSLocalProvider.instance.updateBool(MSLocalProvider.instance.ms_first_sessionName, true);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => MSBottomNavigationExample(key: MSNavigationService().bottomNavKey),
+                    ),
+                  );
+                }
               },),
               SizedBox(height: 32.h,),
               SizedBox(width: 0.width(context), height: 20.h,child:Center(child: MSText(text: 'Scratch Card, Scratch for Luck', size: 15, color: '#FFFFFF'.color(), weight: FontWeight.w800))),

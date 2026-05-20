@@ -48,7 +48,6 @@ class MSSDKHelpers {
 
   Future<void> initSDK() async {
     _initTopon();
-    _initAppMAX();
     ms_getSBUserCloakConfig();
     _msinitloadFireBase();
   }
@@ -63,6 +62,8 @@ class MSSDKHelpers {
         'ad_platform' : 'topon',
         'ad_init_time' : DateTime.now().difference(ms_topon_start).inMilliseconds
       });
+      MSMegaAds().init(inputAd: MSMegaAds().msJoyAdModel);
+      MSMegaAds().topinitSuc = true;
     }).catchError((error){
       print('topon init faild error=$error');
     });
@@ -98,7 +99,6 @@ class MSSDKHelpers {
         'ad_init_time' : DateTime.now().difference(ms_max_start).inMilliseconds
       });
       // MSAdAHelper().initRewardAdDatasource();
-      MSMegaAds().init();
     }
   }
 
@@ -215,7 +215,10 @@ class MSSDKHelpers {
         try {
           Map<String, dynamic> jsonMap = json.decode(pppuz_ad_config);
           var adEntity = MSAdModel.fromJson(jsonMap);
-          MSMegaAds().init(inputAd: adEntity);
+          MSMegaAds().msJoyAdModel = adEntity;
+          if (MSMegaAds().topinitSuc){
+            MSMegaAds().init(inputAd: adEntity);
+          }
           "app firebase remoteconfig pppuz_ad_config data ${jsonMap}".log();
         } catch (error) {
           print("app firebase remoteconfig pppuz_ad_config error ${error}");
@@ -274,7 +277,7 @@ class MSSDKHelpers {
           _msinitloadFireBase();
         });
       } else {
-        MSMegaAds().init();
+        // MSMegaAds().init();
       }
     }
   }

@@ -46,14 +46,14 @@ allprojects {
         }
     }
 }
-buildscript {
-    repositories {
-        maven { url = uri("https://artifacts.applovin.com/android") }
-    }
-    dependencies {
-        classpath ("com.applovin.quality:AppLovinQualityServiceGradlePlugin:+")
-    }
-}
+//buildscript {
+//    repositories {
+//        maven { url = uri("https://artifacts.applovin.com/android") }
+//    }
+//    dependencies {
+//        classpath ("com.applovin.quality:AppLovinQualityServiceGradlePlugin:+")
+//    }
+//}
 
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory

@@ -108,6 +108,7 @@ class MSLocalProvider extends ChangeNotifier {
   bool ms_show_animation_7 = false;
   bool ms_tx_show_today_status = false;
   bool ms_tx_showtask_today_status = false;
+  bool ms_first_session = false;
 
   int ms_scrach_unlock_index_0 = 0; // 存储的本地值
   int ms_scrach_unlock_index_1 = 0; // 存储的本地值
@@ -302,6 +303,8 @@ class MSLocalProvider extends ChangeNotifier {
   String get ms_tx_showtask_today_statusName => 'ms_tx_showtask_today_status';
   String get ms_rank_indexName => 'ms_rank_index';
   String get ms_pool_tx_indexName => 'ms_pool_tx_index';
+  String get ms_first_sessionName => 'ms_first_session';
+
 
   // 3. 初始化：从本地存储加载数据（组件初始化时调用）
   Future<void> init() async {
@@ -363,6 +366,7 @@ class MSLocalProvider extends ChangeNotifier {
     ms_tx_wait_status = prefs.getBool('ms_tx_wait_status') ?? false;
     ms_wheel_pop_show = prefs.getBool('ms_wheel_pop_show') ?? false;
     ms_777_card = prefs.getBool('ms_777_card') ?? false;
+    ms_first_session = prefs.getBool('ms_first_session') ?? false;
     ms_today_tx_toast_show = prefs.getBool('ms_today_tx_toast_show') ?? false;
     ms_show_notice_status = prefs.getBool('ms_show_notice_status') ?? false;
     ms_today_sign_status = prefs.getBool('ms_today_sign_status') ?? false;

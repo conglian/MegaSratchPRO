@@ -9,6 +9,7 @@ class MSAdModel {
   late bool pppuz_switch = false;
   late List<MSAdModellist> pppuz_int = [];
   late List<MSAdModellist> pppuz_rv = [];
+  late List<MSAdModellist> pppuz_open = [];
   MSAdModel();
 
   // 工厂构造函数，用于反序列化

@@ -15,6 +15,9 @@ MSAdModel _$MSAdModelFromJson(Map<String, dynamic> json) => MSAdModel()
       .toList()
   ..pppuz_rv = (json['pppuz_rv'] as List<dynamic>)
       .map((e) => MSAdModellist.fromJson(e as Map<String, dynamic>))
+      .toList()
+  ..pppuz_open = (json['pppuz_open'] as List<dynamic>)
+      .map((e) => MSAdModellist.fromJson(e as Map<String, dynamic>))
       .toList();
 
 Map<String, dynamic> _$MSAdModelToJson(MSAdModel instance) => <String, dynamic>{
@@ -23,6 +26,7 @@ Map<String, dynamic> _$MSAdModelToJson(MSAdModel instance) => <String, dynamic>{
   'pppuz_switch': instance.pppuz_switch,
   'pppuz_int': instance.pppuz_int,
   'pppuz_rv': instance.pppuz_rv,
+  'pppuz_open': instance.pppuz_open,
 };
 
 MSAdModellist _$MSAdModellistFromJson(Map<String, dynamic> json) =>
