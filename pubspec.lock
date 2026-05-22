@@ -1005,10 +1005,10 @@ packages:
   thinkup_sdk:
     dependency: "direct main"
     description:
-      path: "msthrid/thinkup_sdk-1.0.8"
+      path: "msthrid/thinkup_sdk-1.0.12"
       relative: true
     source: path
-    version: "1.0.8"
+    version: "1.0.12"
   timezone:
     dependency: transitive
     description:

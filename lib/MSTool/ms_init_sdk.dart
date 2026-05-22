@@ -54,24 +54,27 @@ class MSSDKHelpers {
 
   Future<void> _initTopon() async {
     ms_topon_start = DateTime.now();
-    await ATInitManger.initAnyThinkSDK(
+    await ATInitManger.initThinkUpSDK(
         appidStr: 'h69a79cc89ce8e',
         appidkeyStr: 'a8cebdb6aa801e662cbcee1fe796de81a').then((value){
       print('topon init faild Success');
       ms_event_fire('pppuz_ad_initsuc', {
-        'ad_platform' : 'topon',
+        'ad_source_client' : 'topon',
         'ad_init_time' : DateTime.now().difference(ms_topon_start).inMilliseconds
       });
       MSMegaAds().init(inputAd: MSMegaAds().msJoyAdModel);
       MSMegaAds().topinitSuc = true;
     }).catchError((error){
       print('topon init faild error=$error');
+      Future.delayed(Duration(seconds: 2),(){
+        _initTopon();
+      });
     });
 
     // 打开SDK的Debug log，强烈建议在测试阶段打开，方便排查问题。
     await ATInitManger
         .setLogEnabled(
-      logEnabled: true,
+      logEnabled: kDebugMode ? true : false,
     );
   }
 

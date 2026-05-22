@@ -631,7 +631,7 @@ extension AdServiceExtension on MSMegaAds {
           break;
         // interstitial show succeed
         case InterstitialStatus.interstitialDidShowSucceed:
-          _adDidDisplayed(adID: value.placementID, ad_networkName: value.extraMap['network_type']);
+          _adDidDisplayed(adID: value.placementID, ad_networkName: value.extraMap['network_name']);
           break;
         // interstitial show fail
         case InterstitialStatus.interstitialFailedToShow:
@@ -703,8 +703,7 @@ extension AdServiceExtension on MSMegaAds {
           break;
         // ad video start play
         case RewardedStatus.rewardedVideoDidStartPlaying:
-          'value.extraMap=${value.extraMap}'.log();
-          _adDidDisplayed(adID: value.placementID, ad_networkName: value.extraMap['network_type']);
+          _adDidDisplayed(adID: value.placementID, ad_networkName: value.extraMap['network_name']);
           break;
         // ad video start end
         case RewardedStatus.rewardedVideoDidEndPlaying:

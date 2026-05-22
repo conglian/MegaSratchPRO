@@ -450,7 +450,7 @@ class MSNoticeHelp {
         // 执行前台逻辑
         ms_session_fire();
         if (!MSMegaAds().is_showAd){
-          MSMegaAds().ms_showAd(root_navigatorKey.currentContext!, 'pppuz_launch', onCacheResponse: (onCacheResponse){
+          MSMegaAds().ms_showAd(root_navigatorKey.currentContext!, 'pppuz_launch',showDialog: false, onCacheResponse: (onCacheResponse){
             ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 0});
           }, adDidClosed: (adDidClosed){
             ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 1});

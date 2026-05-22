@@ -5522,6 +5522,7 @@ class MSNewGuideADialogState extends State<MSNewGuideADialog>
 @override
   void initState() {
     super.initState();
+    ms_event_fire('card_list_guide_v', {});
     WidgetsBinding.instance.addPostFrameCallback((_) async {
     });
     _controller0 = spine.SpineWidgetController(onInitialized: (controller) {
@@ -5529,7 +5530,6 @@ class MSNewGuideADialogState extends State<MSNewGuideADialog>
         controller.animationState.setAnimationByName(0, "animation", true);
       });
     });
-    ms_event_fire('card_list_guide_v', {});
   }
 
   @override

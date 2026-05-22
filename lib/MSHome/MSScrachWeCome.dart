@@ -23,11 +23,13 @@ class MSSratchJoyLaunchState extends State<MSSratchWeCome> with SingleTickerProv
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
 
-    // 延时 1 秒后跳转到其他页面
-    Future.delayed(Duration(seconds: 1), () {
-      Navigator.pop(context, 0);
-      if (!mounted) return;
-      context.tipShow(MSSratchWinNow());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 延时 1 秒后跳转到其他页面
+      Future.delayed(Duration(seconds: 1), () {
+        Navigator.pop(context, 0);
+        if (!mounted) return;
+        context.tipShow(MSSratchWinNow());
+      });
     });
   }
 

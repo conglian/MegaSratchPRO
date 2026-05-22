@@ -76,7 +76,7 @@ class _MSCashPageState extends State<MSCashPage> {
             children: [
               Column(
                 children: [
-                  SizedBox(height: 40.h,),
+                  SizedBox(height: 39.h,),
                   Container(
                     width: 350.w,
                     height: 126.6.h,

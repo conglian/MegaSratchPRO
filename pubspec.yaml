@@ -62,7 +62,7 @@ dependencies:
 #  anythink_sdk: ^1.0.8
 
   thinkup_sdk:
-    path: msthrid/thinkup_sdk-1.0.8
+    path: msthrid/thinkup_sdk-1.0.12
   flutter_local_notifications:
     path: msthrid/common_notifications-master
   megascratchFK:

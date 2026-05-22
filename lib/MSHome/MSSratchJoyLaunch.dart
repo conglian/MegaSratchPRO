@@ -85,7 +85,7 @@ class MSSratchJoyLaunchState extends State<MSSratchJoyLaunch>  with SingleTicker
               Spacer(),
               SJGradientProgressBar(onCompleted: (){
                 if (MSLocalProvider.instance.ms_first_session == true){
-                  MSMegaAds().ms_showAd(root_navigatorKey.currentContext!, 'pppuz_launch', onCacheResponse: (onCacheResponse){
+                  MSMegaAds().ms_showAd(root_navigatorKey.currentContext!, 'pppuz_launch',showDialog: false, onCacheResponse: (onCacheResponse){
                     ms_event_fire('event_launch_non_first', {'device_id' : '${FlutterTbaInfo.instance.getDistinctId()}','system' : 'Android', 'ad_impression' : 0});
                     Navigator.pushReplacement(
                       context,
